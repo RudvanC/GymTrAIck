@@ -1,3 +1,4 @@
+import Navbar from "@/components/layout/navbar";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -13,26 +14,7 @@ export default function HomePage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
       {/* Header */}
-      <header className="border-b border-white/10 bg-black/20 backdrop-blur-sm">
-        <div className="container mx-auto px-4 py-4 flex justify-between items-center">
-          <div className="flex items-center gap-2">
-            <Dumbbell className="h-8 w-8 text-purple-400" />
-            <h1 className="text-2xl font-bold text-white">GymTracker Pro</h1>
-          </div>
-          <div className="flex gap-2">
-            <Button
-              variant="ghost"
-              className="text-white hover:bg-white/10"
-              asChild
-            >
-              <Link href="/auth/login">Iniciar Sesión</Link>
-            </Button>
-            <Button className="bg-purple-600 hover:bg-purple-700" asChild>
-              <Link href="/auth/register">Registrarse</Link>
-            </Button>
-          </div>
-        </div>
-      </header>
+      <Navbar />
 
       {/* Hero Section */}
       <section className="container mx-auto px-4 py-20 text-center">
