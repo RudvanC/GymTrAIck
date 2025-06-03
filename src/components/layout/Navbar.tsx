@@ -19,7 +19,7 @@ export default function Navbar() {
               className="text-white hover:bg-white/10"
               asChild
             >
-              <Link href="/login">Iniciar Sesión</Link>
+              <Link href="/auth/login">Iniciar Sesión</Link>
             </Button>
             <Button className="bg-purple-600 hover:bg-purple-700" asChild>
               <Link href="/auth/register">Registrarse</Link>
