@@ -13,8 +13,10 @@ import {
 } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import { insertUserAnswers } from "@/lib/userAnswers/insert";
+import { useAuth } from "@/hooks/useAuth";
 
 export default function QuestionnarieForm() {
+  const { user } = useAuth();
   const [formData, setFormData] = useState({
     training_experience: "",
     availability: "",
@@ -49,6 +51,7 @@ export default function QuestionnarieForm() {
     try {
       const payload = {
         ...formData,
+        user_id: user?.id as string,
         availability: formData.availability.toString(),
         session_duration: formData.session_duration.toString(),
       };
@@ -168,7 +171,9 @@ export default function QuestionnarieForm() {
               <SelectContent>
                 <SelectItem value="gain">Ganar masa muscular</SelectItem>
                 <SelectItem value="lose">Perder grasa</SelectItem>
-                <SelectItem value="maintain">Mantener condición física</SelectItem>
+                <SelectItem value="maintain">
+                  Mantener condición física
+                </SelectItem>
                 <SelectItem value="health">Mejorar general salud</SelectItem>
               </SelectContent>
             </Select>
@@ -176,7 +181,9 @@ export default function QuestionnarieForm() {
 
           {/* Fitness Level */}
           <div className="space-y-2">
-            <Label>¿Cómo describirías tu nivel de condición física actual?</Label>
+            <Label>
+              ¿Cómo describirías tu nivel de condición física actual?
+            </Label>
             <Select
               onValueChange={(value) =>
                 handleSelectChange("fitness_level", value)
@@ -196,7 +203,9 @@ export default function QuestionnarieForm() {
 
           {error && <p className="text-red-600">{error}</p>}
           {success && (
-            <p className="text-green-600">¡Respuestas guardadas correctamente!</p>
+            <p className="text-green-600">
+              ¡Respuestas guardadas correctamente!
+            </p>
           )}
 
           <Button className="w-full" type="submit" disabled={loading}>
