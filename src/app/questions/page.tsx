@@ -1,11 +1,11 @@
 import Navbar from "@/components/layout/Navbar";
-import PreguntasForm from "@/components/forms/PreguntasForm";
+import QuestionnarieForm from "@/components/forms/QuestionnarieForm";
 
 export default function FormPage() {
   return (
     <div>
       <Navbar />
-      <PreguntasForm />
+      <QuestionnarieForm />
     </div>
   );
 }
