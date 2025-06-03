@@ -3,13 +3,13 @@
 import { supabase } from "./supabase";
 
 export async function insertUserAnswers(answers: {
-  experience: string;
+  training_experience: string;
   availability: string;
   injuries: string;
-  equipmentAccess: string;
+  equipment_access: boolean;
   goal: string;
-  fitnessLevel: string;
-  sessionDuration: string;
+  fitness_level: string;
+  session_duration: string;
 }) {
   //Usamos el cliente supabase para apuntar a la tabla user_answers.
   //Insertamos un arreglo con el objeto answers que contiene las respuesta

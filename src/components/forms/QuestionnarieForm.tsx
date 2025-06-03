@@ -1,5 +1,4 @@
-// src/components/forms/QuestionnarieForm.tsx
-
+"use client";
 import React, { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -13,26 +12,23 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
-import { insertUserAnswers } from "@/lib/userAnswers"; // Importa la función que insertará datos
+import { insertUserAnswers } from "@/lib/userAnswers";
 
 export default function QuestionnarieForm() {
-  // Estado para guardar cada respuesta
   const [formData, setFormData] = useState({
-    experience: "",
+    training_experience: "",
     availability: "",
     injuries: "",
-    equipmentAccess: "",
+    equipment_access: false,
     goal: "",
-    fitnessLevel: "",
-    sessionDuration: "",
+    fitness_level: "",
+    session_duration: "",
   });
 
-  // Estado para manejar carga y errores
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
 
-  // Función para actualizar estado según cambios en inputs/selects
   function handleChange(
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) {
@@ -40,12 +36,10 @@ export default function QuestionnarieForm() {
     setFormData((prev) => ({ ...prev, [name]: value }));
   }
 
-  // Para selects usamos un handler diferente porque no es un input HTML tradicional
-  function handleSelectChange(name: string, value: string) {
+  function handleSelectChange(name: string, value: string | boolean) {
     setFormData((prev) => ({ ...prev, [name]: value }));
   }
 
-  // Manejo del submit del formulario
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setLoading(true);
@@ -53,23 +47,22 @@ export default function QuestionnarieForm() {
     setSuccess(false);
 
     try {
-      // Convierte availability y sessionDuration a string porque Input numérico da string
       const payload = {
         ...formData,
         availability: formData.availability.toString(),
-        sessionDuration: formData.sessionDuration.toString(),
+        session_duration: formData.session_duration.toString(),
       };
 
       await insertUserAnswers(payload);
       setSuccess(true);
       setFormData({
-        experience: "",
+        training_experience: "",
         availability: "",
         injuries: "",
-        equipmentAccess: "",
+        equipment_access: false,
         goal: "",
-        fitnessLevel: "",
-        sessionDuration: "",
+        fitness_level: "",
+        session_duration: "",
       });
     } catch (err: any) {
       setError(err.message || "Error inserting data");
@@ -89,8 +82,10 @@ export default function QuestionnarieForm() {
           <div className="space-y-2">
             <Label>How long have you been training?</Label>
             <Select
-              onValueChange={(value) => handleSelectChange("experience", value)}
-              value={formData.experience}
+              onValueChange={(value) =>
+                handleSelectChange("training_experience", value)
+              }
+              value={formData.training_experience}
             >
               <SelectTrigger>
                 <SelectValue placeholder="Select your experience" />
@@ -123,9 +118,9 @@ export default function QuestionnarieForm() {
             <Label>How much time can you dedicate per session (minutes)?</Label>
             <Input
               type="number"
-              name="sessionDuration"
+              name="session_duration"
               placeholder="e.g. 45"
-              value={formData.sessionDuration}
+              value={formData.session_duration}
               onChange={handleChange}
             />
           </div>
@@ -146,17 +141,16 @@ export default function QuestionnarieForm() {
             <Label>Do you have access to equipment or gym?</Label>
             <Select
               onValueChange={(value) =>
-                handleSelectChange("equipmentAccess", value)
+                handleSelectChange("equipment_access", value === "true")
               }
-              value={formData.equipmentAccess}
+              value={formData.equipment_access.toString()}
             >
               <SelectTrigger>
                 <SelectValue placeholder="Select an option" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="none">No equipment</SelectItem>
-                <SelectItem value="home">Basic equipment at home</SelectItem>
-                <SelectItem value="gym">Full gym access</SelectItem>
+                <SelectItem value="true">Yes</SelectItem>
+                <SelectItem value="false">No</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -185,9 +179,9 @@ export default function QuestionnarieForm() {
             <Label>How would you describe your current fitness level?</Label>
             <Select
               onValueChange={(value) =>
-                handleSelectChange("fitnessLevel", value)
+                handleSelectChange("fitness_level", value)
               }
-              value={formData.fitnessLevel}
+              value={formData.fitness_level}
             >
               <SelectTrigger>
                 <SelectValue placeholder="Select your current level" />
