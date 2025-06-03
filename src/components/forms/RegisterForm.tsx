@@ -2,6 +2,16 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
+import {
+  Card,
+  CardHeader,
+  CardContent,
+  CardFooter,
+  CardAction,
+  CardDescription,
+  CardTitle,
+} from "@/components/ui/card";
+import Link from "next/link";
 
 export default function RegisterForm() {
   const router = useRouter();
@@ -72,53 +82,75 @@ export default function RegisterForm() {
   };
 
   return (
-    <div className="flex flex-col items-center justify-center h-screen">
-      <form
-        onSubmit={handleRegister}
-        className="space-y-4 max-w-md mx-auto border p-12 rounded-md shadow-md"
-      >
-        <input
-          type="email"
-          placeholder="Correo"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          required
-          className="w-full p-2 border rounded"
-        />
-        <input
-          type="password"
-          placeholder="Contraseña (mín. 6 caracteres)"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          required
-          className="w-full p-2 border rounded"
-        />
-        <input
-          type="text"
-          placeholder="Nombre de usuario"
-          value={username}
-          onChange={(e) => setUsername(e.target.value)}
-          required
-          className="w-full p-2 border rounded"
-        />
-
-        <button
-          type="submit"
-          disabled={loading}
-          className={`w-full px-4 py-2 rounded ${
-            loading ? "bg-gray-400" : "bg-blue-600 hover:bg-blue-700 text-white"
-          }`}
-        >
-          {loading ? "Registrando..." : "Registrarse"}
-        </button>
-
-        {error && <p className="text-red-500 text-center">{error}</p>}
-        {success && (
-          <p className="text-green-600 text-center">
-            ✅ ¡Registro exitoso! Redirigiendo...
-          </p>
-        )}
-      </form>
+    <div className="flex flex-col items-center justify-center h-screen bg-transparent">
+      <Card className="bg-transparent">
+        <CardHeader>
+          <CardTitle className="text-white font-semibold">
+            Registrarse
+          </CardTitle>
+          <CardDescription className="text-zinc-400">
+            Ingresa nombre de usuario, correo y una contraseña para empezar a
+            entrenar
+          </CardDescription>
+          <CardAction className="flex justify-center">
+            <Link href="/auth/login" className="text-white font-semibold">
+              Iniciar sesión
+            </Link>
+          </CardAction>
+        </CardHeader>
+        <CardContent>
+          <form
+            onSubmit={handleRegister}
+            className="space-y-4 max-w-md mx-auto p-12"
+          >
+            {" "}
+            <input
+              type="text"
+              placeholder="Nombre de usuario"
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
+              required
+              className="w-full p-2 border rounded text-white font-semibold"
+            />
+            <input
+              type="email"
+              placeholder="Correo"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+              className="w-full p-2 border rounded text-white font-semibold"
+            />
+            <input
+              type="password"
+              placeholder="Contraseña (mín. 6 caracteres)"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+              className="w-full p-2 border rounded text-white font-semibold"
+            />
+            <button
+              type="submit"
+              disabled={loading}
+              className={`w-full px-4 py-2 rounded ${
+                loading
+                  ? "bg-gray-400"
+                  : "bg-blue-600 hover:bg-blue-700 text-white"
+              }`}
+            >
+              {loading ? "Registrando..." : "Registrarse"}
+            </button>
+            {error && <p className="text-red-500 text-center">{error}</p>}
+            {success && (
+              <p className="text-green-600 text-center">
+                ✅ ¡Registro exitoso! Redirigiendo...
+              </p>
+            )}
+          </form>
+        </CardContent>
+        <CardFooter>
+          <p className="text-zinc-400 font-semibold">Olvide mi contraseña</p>
+        </CardFooter>
+      </Card>
     </div>
   );
 }
