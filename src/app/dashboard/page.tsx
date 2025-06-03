@@ -3,7 +3,6 @@
 import UserAnswers from "@/components/dashboard/UserAnswers";
 import { useAuth } from "@/hooks/useAuth";
 import { User } from "@supabase/supabase-js";
-import UserAnswers from "@/components/dashboard/UserAnswers";
 
 export default function DashboardPage() {
   const { user } = useAuth();
