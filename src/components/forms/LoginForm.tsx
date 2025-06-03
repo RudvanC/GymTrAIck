@@ -1,55 +1,90 @@
-// src/components/LoginForm.tsx
 "use client";
-
-import React, { useState } from "react";
-import { useAuth } from "@/hooks/useAuth";
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { supabase } from "@/lib/supabase";
 
 export default function LoginForm() {
-  const { signIn } = useAuth();
+  const router = useRouter();
   const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [message, setMessage] = useState<string | null>(null);
 
-  async function handleSubmit(e: React.FormEvent) {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
+    setError("");
     setLoading(true);
-    setError(null);
-    setMessage(null);
+
+    const cleanEmail = email.trim().toLowerCase();
+    const cleanPassword = password.trim();
+
+    if (!cleanEmail || !cleanPassword) {
+      setError("Todos los campos son obligatorios.");
+      setLoading(false);
+      return;
+    }
 
     try {
-      await signIn(email, "password");
-      setMessage("Correo enviado, revisa tu bandeja de entrada 📩");
+      const { data, error: loginError } =
+        await supabase.auth.signInWithPassword({
+          email: cleanEmail,
+          password: cleanPassword,
+        });
+
+      if (loginError) {
+        console.error("Error en login:", loginError);
+        setError("Correo o contraseña incorrectos.");
+        setLoading(false);
+        return;
+      }
+
+      // ✅ Redirigir al dashboard si todo está bien
+      router.push("/dashboard");
     } catch (err: any) {
-      setError(err.message || "Error enviando correo");
-    } finally {
-      setLoading(false);
+      console.error("Error inesperado:", err);
+      setError("Algo salió mal. Intenta de nuevo.");
     }
-  }
+
+    setLoading(false);
+  };
 
   return (
-    <form
-      onSubmit={handleSubmit}
-      className="max-w-md mx-auto p-4 border rounded"
-    >
-      <h2 className="text-xl font-bold mb-4">Iniciar sesión</h2>
-      <input
-        type="email"
-        placeholder="Correo electrónico"
-        value={email}
-        onChange={(e) => setEmail(e.target.value)}
-        required
-        className="w-full p-2 mb-2 border rounded"
-      />
-      <button
-        type="submit"
-        disabled={loading}
-        className="w-full p-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+    <div className="flex flex-col items-center justify-center h-screen">
+      <form
+        onSubmit={handleLogin}
+        className="space-y-4 max-w-md mx-auto border p-12 rounded-md shadow-md"
       >
-        {loading ? "Enviando..." : "Enviar enlace de inicio"}
-      </button>
-      {error && <p className="mt-2 text-red-600">{error}</p>}
-      {message && <p className="mt-2 text-green-600">{message}</p>}
-    </form>
+        <input
+          type="email"
+          placeholder="Correo"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          required
+          className="w-full p-2 border rounded"
+        />
+        <input
+          type="password"
+          placeholder="Contraseña"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          required
+          className="w-full p-2 border rounded"
+        />
+
+        <button
+          type="submit"
+          disabled={loading}
+          className={`w-full px-4 py-2 rounded ${
+            loading
+              ? "bg-gray-400"
+              : "bg-green-600 hover:bg-green-700 text-white"
+          }`}
+        >
+          {loading ? "Iniciando sesión..." : "Iniciar sesión"}
+        </button>
+
+        {error && <p className="text-red-500 text-center">{error}</p>}
+      </form>
+    </div>
   );
 }

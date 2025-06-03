@@ -14,8 +14,10 @@ import {
 import { Button } from "@/components/ui/button";
 import { insertUserAnswers } from "@/lib/userAnswers/insert";
 import { useAuth } from "@/hooks/useAuth";
+import { useRouter } from "next/navigation";
 
 export default function QuestionnarieForm() {
+  const router = useRouter();
   const { user } = useAuth();
   const [formData, setFormData] = useState({
     training_experience: "",
@@ -72,6 +74,7 @@ export default function QuestionnarieForm() {
     } finally {
       setLoading(false);
     }
+    router.push("/dashboard");
   }
 
   return (
