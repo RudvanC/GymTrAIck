@@ -1,4 +1,4 @@
-// src/components/forms/PreguntasForm.tsx
+// src/components/forms/QuestionnarieForm.tsx
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -13,7 +13,7 @@ import {
 } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 
-export default function PreguntasForm() {
+export default function QuestionnarieForm() {
   return (
     <Card className="max-w-2xl mx-auto mt-10">
       <CardHeader>
