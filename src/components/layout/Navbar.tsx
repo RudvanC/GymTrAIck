@@ -1,3 +1,5 @@
+// src/components/Navbar.tsx
+
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Dumbbell } from "lucide-react";
@@ -17,7 +19,7 @@ export default function Navbar() {
               className="text-white hover:bg-white/10"
               asChild
             >
-              <Link href="/auth/login">Iniciar Sesión</Link>
+              <Link href="/login">Iniciar Sesión</Link>
             </Button>
             <Button className="bg-purple-600 hover:bg-purple-700" asChild>
               <Link href="/auth/register">Registrarse</Link>

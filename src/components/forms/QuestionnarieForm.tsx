@@ -12,7 +12,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
-import { insertUserAnswers } from "@/lib/userAnswers";
+import { insertUserAnswers } from "@/lib/userAnswers/insert";
 
 export default function QuestionnarieForm() {
   const [formData, setFormData] = useState({
@@ -75,12 +75,12 @@ export default function QuestionnarieForm() {
     <Card className="max-w-2xl mx-auto mt-10">
       <form onSubmit={handleSubmit}>
         <CardHeader>
-          <CardTitle>Training Questionnaire</CardTitle>
+          <CardTitle>Cuestionario de entrenamiento</CardTitle>
         </CardHeader>
         <CardContent className="space-y-6">
           {/* Experience */}
           <div className="space-y-2">
-            <Label>How long have you been training?</Label>
+            <Label>¿Cuánto tiempo has estado entrenando?</Label>
             <Select
               onValueChange={(value) =>
                 handleSelectChange("training_experience", value)
@@ -88,20 +88,20 @@ export default function QuestionnarieForm() {
               value={formData.training_experience}
             >
               <SelectTrigger>
-                <SelectValue placeholder="Select your experience" />
+                <SelectValue placeholder="Selecciona tu experiencia" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="none">Never trained</SelectItem>
-                <SelectItem value="little">Less than 6 months</SelectItem>
-                <SelectItem value="moderate">6 months - 2 years</SelectItem>
-                <SelectItem value="advanced">More than 2 years</SelectItem>
+                <SelectItem value="none">Nunca entrené</SelectItem>
+                <SelectItem value="little">Menos de 6 meses</SelectItem>
+                <SelectItem value="moderate">6 meses - 2 años</SelectItem>
+                <SelectItem value="advanced">Más de 2 años</SelectItem>
               </SelectContent>
             </Select>
           </div>
 
           {/* Availability */}
           <div className="space-y-2">
-            <Label>How many days a week can you train?</Label>
+            <Label>¿Cuántos días a la semana puedes entrenar?</Label>
             <Input
               type="number"
               name="availability"
@@ -115,7 +115,7 @@ export default function QuestionnarieForm() {
 
           {/* Session Duration */}
           <div className="space-y-2">
-            <Label>How much time can you dedicate per session (minutes)?</Label>
+            <Label>¿Cuánto tiempo puedes dedicar por sesión (minutos)?</Label>
             <Input
               type="number"
               name="session_duration"
@@ -127,10 +127,10 @@ export default function QuestionnarieForm() {
 
           {/* Injuries */}
           <div className="space-y-2">
-            <Label>Do you have any injuries or conditions to consider?</Label>
+            <Label>¿Tienes alguna lesión o condición a considerar?</Label>
             <Textarea
               name="injuries"
-              placeholder="Describe your limitations if any"
+              placeholder="Describe tus limitaciones si las hay"
               value={formData.injuries}
               onChange={handleChange}
             />
@@ -138,7 +138,7 @@ export default function QuestionnarieForm() {
 
           {/* Equipment Access */}
           <div className="space-y-2">
-            <Label>Do you have access to equipment or gym?</Label>
+            <Label>¿Tienes acceso a equipo o gimnasio?</Label>
             <Select
               onValueChange={(value) =>
                 handleSelectChange("equipment_access", value === "true")
@@ -146,10 +146,10 @@ export default function QuestionnarieForm() {
               value={formData.equipment_access.toString()}
             >
               <SelectTrigger>
-                <SelectValue placeholder="Select an option" />
+                <SelectValue placeholder="Selecciona una opción" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="true">Yes</SelectItem>
+                <SelectItem value="true">Si</SelectItem>
                 <SelectItem value="false">No</SelectItem>
               </SelectContent>
             </Select>
@@ -157,26 +157,26 @@ export default function QuestionnarieForm() {
 
           {/* Goal */}
           <div className="space-y-2">
-            <Label>What is your main goal?</Label>
+            <Label>¿Cuál es tu objetivo principal?</Label>
             <Select
               onValueChange={(value) => handleSelectChange("goal", value)}
               value={formData.goal}
             >
               <SelectTrigger>
-                <SelectValue placeholder="Select your goal" />
+                <SelectValue placeholder="Selecciona tu objetivo" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="gain">Gain muscle mass</SelectItem>
-                <SelectItem value="lose">Lose fat</SelectItem>
-                <SelectItem value="maintain">Maintain fitness</SelectItem>
-                <SelectItem value="health">Improve general health</SelectItem>
+                <SelectItem value="gain">Ganar masa muscular</SelectItem>
+                <SelectItem value="lose">Perder grasa</SelectItem>
+                <SelectItem value="maintain">Mantener condición física</SelectItem>
+                <SelectItem value="health">Mejorar general salud</SelectItem>
               </SelectContent>
             </Select>
           </div>
 
           {/* Fitness Level */}
           <div className="space-y-2">
-            <Label>How would you describe your current fitness level?</Label>
+            <Label>¿Cómo describirías tu nivel de condición física actual?</Label>
             <Select
               onValueChange={(value) =>
                 handleSelectChange("fitness_level", value)
@@ -184,23 +184,23 @@ export default function QuestionnarieForm() {
               value={formData.fitness_level}
             >
               <SelectTrigger>
-                <SelectValue placeholder="Select your current level" />
+                <SelectValue placeholder="Selecciona tu nivel actual" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="low">Low</SelectItem>
-                <SelectItem value="medium">Medium</SelectItem>
-                <SelectItem value="high">High</SelectItem>
+                <SelectItem value="low">Bajo</SelectItem>
+                <SelectItem value="medium">Medio</SelectItem>
+                <SelectItem value="high">Alto</SelectItem>
               </SelectContent>
             </Select>
           </div>
 
           {error && <p className="text-red-600">{error}</p>}
           {success && (
-            <p className="text-green-600">Answers saved successfully!</p>
+            <p className="text-green-600">¡Respuestas guardadas correctamente!</p>
           )}
 
           <Button className="w-full" type="submit" disabled={loading}>
-            {loading ? "Saving..." : "Save answers"}
+            {loading ? "Guardando..." : "Guardar respuestas"}
           </Button>
         </CardContent>
       </form>
