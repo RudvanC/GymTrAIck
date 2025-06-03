@@ -1,15 +1,20 @@
-// src/components/Navbar.tsx
+"use client";
 
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Dumbbell } from "lucide-react";
+import { useRouter } from "next/navigation";
 
 export default function Navbar() {
+  const router = useRouter();
   return (
     <>
-      <header className="border-b border-white/10 bg-black/20 backdrop-blur-sm">
+      <header className="w-full border-b border-white/10 bg-black/20 backdrop-blur-sm">
         <div className="container mx-auto px-4 py-4 flex justify-between items-center">
-          <div className="flex items-center gap-2">
+          <div
+            className="flex items-center gap-2 cursor-pointer"
+            onClick={() => router.push("/")}
+          >
             <Dumbbell className="h-8 w-8 text-purple-400" />
             <h1 className="text-2xl font-bold text-white">GymTracker Pro</h1>
           </div>
