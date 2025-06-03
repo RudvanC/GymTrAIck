@@ -1,10 +1,11 @@
 "use client";
 import { useState } from "react";
-import { useRouter } from "next/navigation"; // 🚀 Hook de navegación
+import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
 
 export default function RegisterForm() {
-  const router = useRouter(); // 🧭 Redirección
+  const router = useRouter();
+
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [username, setUsername] = useState("");
@@ -15,7 +16,7 @@ export default function RegisterForm() {
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
-    setSuccess(false);
+    setLoading(true);
 
     const cleanEmail = email.trim().toLowerCase();
     const cleanPassword = password.trim();
@@ -48,28 +49,26 @@ export default function RegisterForm() {
 
       const user = data.user;
       if (user) {
+        // Insertar en la tabla profiles
         const { error: dbError } = await supabase
           .from("profiles")
-          .upsert({ id: user.id, username: cleanUsername });
-
+          .upsert({ id: user.id, username });
         if (dbError) {
-          console.error("Error insertando en profiles:", dbError);
-          setError("Error al guardar el nombre de usuario.");
+          setError("Registro falló al guardar el username");
           setLoading(false);
           return;
         }
 
-        setSuccess(true);
-
-        // 🧭 Redirigir al dashboard
-        router.push("/dashboard");
+        // Registro y guardado en profile OK, redirigimos al cuestionario
+        router.push("/questionnaire");
       }
-    } catch (err: any) {
-      console.error("Error inesperado:", err);
-      setError("Algo salió mal. Intenta de nuevo.");
-    }
 
-    setLoading(false);
+      setLoading(false);
+    } catch (error) {
+      console.error("Error en el registro:", error);
+      setError("Error en el registro. Por favor, intenta nuevamente.");
+      setLoading(false);
+    }
   };
 
   return (
