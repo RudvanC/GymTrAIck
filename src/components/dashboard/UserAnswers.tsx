@@ -4,6 +4,7 @@ import React, { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
 import { fetchUserAnswersByUserId } from "@/lib/userAnswers/fetch";
 import { User } from "@supabase/supabase-js";
+import { LoadingSpinner } from "../common/LoadingSpinner";
 
 interface UserAnswer {
   id: string;
@@ -50,19 +51,14 @@ export default function Dashboard({ user }: { user: User }) {
     loadAnswers();
   }, [userId]);
 
-  if (loading)
-    return (
-      <p className="text-center mt-20 text-gray-500 text-lg font-medium">
-        Cargando respuestas...
-      </p>
-    );
+  if (loading) return <LoadingSpinner />;
   if (error)
     return (
       <p className="text-center mt-20 text-red-600 font-semibold">{error}</p>
     );
 
   return (
-    <div className="max-w-6xl mx-auto mt-10 p-6 bg-white rounded-lg shadow-md">
+    <div className="max-w-6xl mx-auto pt-20 p-6 bg-white rounded-lg shadow-md">
       <h1 className="text-3xl font-extrabold mb-8 text-gray-800">
         Mis respuestas
       </h1>

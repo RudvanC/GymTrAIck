@@ -94,7 +94,7 @@ export default function RegisterForm() {
           </CardDescription>
           <CardAction className="flex justify-center">
             <Link href="/auth/login" className="text-white font-semibold">
-              Iniciar sesión
+              {" "}
             </Link>
           </CardAction>
         </CardHeader>
