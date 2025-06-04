@@ -22,6 +22,7 @@ export default function LoginForm() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [message, setMessage] = useState<string | null>(null);
+  const router = useRouter();
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -30,8 +31,9 @@ export default function LoginForm() {
     setMessage(null);
 
     try {
-      await signIn(email, "password");
+      await signIn(email, password);
       setMessage("Correo enviado, revisa tu bandeja de entrada 📩");
+      router.push("/dashboard");
     } catch (err: any) {
       setError(err.message || "Error enviando correo");
     } finally {
