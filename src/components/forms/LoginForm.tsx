@@ -52,9 +52,10 @@ export default function LoginForm() {
             Ingresa tu correo y contraseña
           </CardDescription>
           <CardAction className="flex justify-center">
-            <Link href="/auth/register" className="text-white font-semibold">
-              Crear cuenta
-            </Link>
+            <Link
+              href="/auth/register"
+              className="text-white font-semibold"
+            ></Link>
           </CardAction>
         </CardHeader>
         <CardContent>
@@ -85,7 +86,7 @@ export default function LoginForm() {
               className={`w-full px-4 py-2 rounded ${
                 loading
                   ? "bg-gray-400"
-                  : "bg-green-600 hover:bg-green-700 text-white"
+                  : "bg-blue-600 hover:bg-blue-700 text-white"
               }`}
             >
               {loading ? "Iniciando sesión..." : "Iniciar sesión"}
