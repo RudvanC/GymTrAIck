@@ -4,19 +4,8 @@ import React, { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
 import { fetchUserAnswersByUserId } from "@/lib/userAnswers/fetch";
 import { User } from "@supabase/supabase-js";
+import { UserAnswer } from "@/types/UserAnswer";
 import { LoadingSpinner } from "../common/LoadingSpinner";
-
-interface UserAnswer {
-  id: string;
-  created_at: string;
-  training_experience: string;
-  availability: string;
-  injuries: string;
-  equipment_access: boolean;
-  goal: string;
-  fitness_level: string;
-  session_duration: string;
-}
 
 export default function Dashboard({ user }: { user: User }) {
   const [answers, setAnswers] = useState<UserAnswer[]>([]);
