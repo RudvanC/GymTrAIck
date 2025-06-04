@@ -5,7 +5,8 @@ import { supabase } from "@/lib/supabase";
 import { fetchUserAnswersByUserId } from "@/lib/userAnswers/fetch";
 import { User } from "@supabase/supabase-js";
 import { UserAnswer } from "@/types/UserAnswer";
-import { LoadingSpinner } from "../common/LoadingSpinner";
+import { LoadingSpinner } from "@/components/common/LoadingSpinner";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 export default function Dashboard({ user }: { user: User }) {
   const [answers, setAnswers] = useState<UserAnswer[]>([]);
@@ -47,54 +48,75 @@ export default function Dashboard({ user }: { user: User }) {
     );
 
   return (
-    <div className="max-w-6xl mx-auto pt-20 p-6 bg-white rounded-lg shadow-md">
+    <div className="max-w-6xl mx-auto pt-20 px-4">
       <h1 className="text-3xl font-extrabold mb-8 text-gray-800">
         Mis respuestas
       </h1>
+
       {answers.length === 0 ? (
         <p className="text-center text-gray-600 text-lg">
           No tienes respuestas registradas.
         </p>
       ) : (
-        <table className="min-w-full border-collapse text-gray-700">
-          <thead>
-            <tr className="bg-gray-100 text-left text-sm uppercase font-semibold tracking-wide text-gray-600">
-              <th className="p-3 border-b border-gray-300">Fecha</th>
-              <th className="p-3 border-b border-gray-300">Experiencia</th>
-              <th className="p-3 border-b border-gray-300">Disponibilidad</th>
-              <th className="p-3 border-b border-gray-300">Lesiones</th>
-              <th className="p-3 border-b border-gray-300">Acceso a equipo</th>
-              <th className="p-3 border-b border-gray-300">Objetivo</th>
-              <th className="p-3 border-b border-gray-300">Nivel físico</th>
-              <th className="p-3 border-b border-gray-300">Duración sesión</th>
-            </tr>
-          </thead>
-          <tbody>
-            {answers.map((ans, idx) => (
-              <tr
-                key={ans.id}
-                className={`border-b border-gray-200 hover:bg-gray-50 ${
-                  idx % 2 === 0 ? "bg-white" : "bg-gray-50"
-                }`}
-              >
-                <td className="p-3">
-                  {new Date(ans.created_at).toLocaleDateString()}
-                </td>
-                <td className="p-3 capitalize">{ans.training_experience}</td>
-                <td className="p-3 capitalize">{ans.availability}</td>
-                <td className="p-3 italic text-gray-500">
-                  {ans.injuries || "-"}
-                </td>
-                <td className="p-3 text-center">
-                  {ans.equipment_access ? "✅" : "❌"}
-                </td>
-                <td className="p-3 capitalize">{ans.goal}</td>
-                <td className="p-3 capitalize">{ans.fitness_level}</td>
-                <td className="p-3 capitalize">{ans.session_duration}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+        <div className="grid gap-6 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
+          {answers.map((ans) => (
+            <Card key={ans.id}>
+              <CardHeader>
+                <CardTitle>
+                  Fecha:{" "}
+                  <span className="text-gray-400">
+                    {new Date(ans.created_at).toLocaleDateString()}
+                  </span>
+                </CardTitle>
+              </CardHeader>
+
+              <CardContent className="mb-2">
+                <span className="font-semibold">Experiencia:</span>{" "}
+                <span className="inline-block bg-blue-100 text-blue-700 text-xs px-2 py-1 rounded-full capitalize">
+                  {ans.training_experience}
+                </span>
+              </CardContent>
+
+              <CardContent className="mb-2">
+                <span className="font-semibold">Disponibilidad:</span>{" "}
+                <span className="inline-block bg-green-100 text-green-700 text-xs px-2 py-1 rounded-full capitalize">
+                  {ans.availability}
+                </span>
+              </CardContent>
+
+              <CardContent className="mb-2">
+                <span className="font-semibold">Lesiones:</span>{" "}
+                <span className="italic text-gray-600">
+                  {ans.injuries || "Ninguna"}
+                </span>
+              </CardContent>
+
+              <CardContent className="mb-2">
+                <span className="font-semibold">Acceso a equipo:</span>{" "}
+                {ans.equipment_access ? "✅" : "❌"}
+              </CardContent>
+
+              <CardContent className="mb-2">
+                <span className="font-semibold">Objetivo:</span>{" "}
+                <span className="inline-block bg-purple-100 text-purple-700 text-xs px-2 py-1 rounded-full capitalize">
+                  {ans.goal}
+                </span>
+              </CardContent>
+
+              <CardContent className="mb-2">
+                <span className="font-semibold">Nivel físico:</span>{" "}
+                <span className="inline-block bg-yellow-100 text-yellow-700 text-xs px-2 py-1 rounded-full capitalize">
+                  {ans.fitness_level}
+                </span>
+              </CardContent>
+
+              <CardContent className="mb-2">
+                <span className="font-semibold">Duración sesión:</span>{" "}
+                {ans.session_duration}
+              </CardContent>
+            </Card>
+          ))}
+        </div>
       )}
     </div>
   );
