@@ -1,6 +1,5 @@
+"use client";
 import { useEffect, useState, useCallback } from "react";
-import { supabase } from "@/lib/supabase";
-import { fetchUserAnswersByUserId } from "@/lib/userAnswers/fetch";
 import { UserAnswer } from "@/types/UserAnswer";
 import { useAuth } from "./useAuth";
 
@@ -18,12 +17,10 @@ export function useUserAnswers(): UserAnswersState {
   const [error, setError] = useState<string | null>(null);
 
   const loadData = useCallback(async () => {
-    if (authLoading) {
-      return;
-    }
+    if (authLoading) return;
 
     if (!authUser) {
-      setError("Usuario no autenticado. No se pueden cargar las respuestas.");
+      setError("Usuario no autenticado");
       setLoading(false);
       setAnswers([]);
       return;
@@ -31,11 +28,29 @@ export function useUserAnswers(): UserAnswersState {
 
     setLoading(true);
     setError(null);
+
     try {
-      const fetchedAnswers = await fetchUserAnswersByUserId(authUser.id);
+      const res = await fetch(`/api/user-answers?user_id=${authUser?.id}`);
+
+      if (!res.ok) {
+        let errData: { error?: string } = {};
+        try {
+          errData = await res.json();
+        } catch {
+          // Si no se puede parsear, deja errData vacío
+        }
+        console.error("🧨 Respuesta del servidor:", errData);
+        throw new Error(
+          typeof errData.error === "string" && errData.error.length > 0
+            ? errData.error
+            : "Error desconocido del servidor"
+        );
+      }
+
+      const fetchedAnswers = await res.json();
       setAnswers(fetchedAnswers || []);
     } catch (err: any) {
-      console.error("Error fetching user answers:", err);
+      console.error("🧨 Error fetching user answers:", err);
       setError(err.message || "Error al cargar las respuestas del usuario.");
       setAnswers([]);
     } finally {
@@ -47,9 +62,10 @@ export function useUserAnswers(): UserAnswersState {
     loadData();
   }, [loadData]);
 
-  const refetchAnswers = useCallback(() => {
-    loadData();
-  }, [loadData]);
-
-  return { answers, loading: loading || authLoading, error, refetchAnswers };
+  return {
+    answers,
+    loading: loading || authLoading,
+    error,
+    refetchAnswers: loadData,
+  };
 }

@@ -1,4 +1,4 @@
-import { supabase } from "../supabase";
+import { supabase } from "@/lib/supabase";
 
 // Defines the expected structure of the answers object to be inserted.
 // This should align with the columns in the 'user_answers' table.

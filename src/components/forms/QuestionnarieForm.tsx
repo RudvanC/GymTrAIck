@@ -12,7 +12,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
-import { insertUserAnswers } from "@/lib/userAnswers/insert";
+import { insertUserAnswers } from "@/services/userAnswers/insert";
 import { useAuth } from "@/hooks/useAuth";
 import { useRouter } from "next/navigation";
 
