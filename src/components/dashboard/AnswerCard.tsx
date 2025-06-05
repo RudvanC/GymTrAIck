@@ -1,13 +1,7 @@
 import { UserAnswer } from "@/types/UserAnswer";
 
-// Defines the props for the AnswerCard component.
-// It expects an 'answer' object of type UserAnswer.
-interface AnswerCardProps {
-  answer: UserAnswer;
-}
-
 // AnswerCard component: Renders a card displaying details of a user's answers.
-export function AnswerCard({ answer }: AnswerCardProps) {
+export function AnswerCard({ answer }: { answer: UserAnswer }) {
   return (
     // Main card container with styling for background, rounded corners, shadow, padding, and border.
     <section className="p-6 flex flex-col gap-2">
