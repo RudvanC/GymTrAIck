@@ -1,6 +1,5 @@
 import { useEffect, useState, useCallback } from "react";
-import { supabase } from "@/lib/supabase";
-import { fetchUserAnswersByUserId } from "@/lib/userAnswers/fetch";
+import { fetchUserAnswersByUserId } from "@/services/userAnswers/fetch";
 import { UserAnswer } from "@/types/UserAnswer";
 import { useAuth } from "./useAuth";
 
