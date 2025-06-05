@@ -2,7 +2,6 @@
 "use client";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { supabase } from "@/lib/supabase";
 import {
   Card,
   CardHeader,
@@ -35,7 +34,7 @@ export default function LoginForm() {
       setMessage("Correo enviado, revisa tu bandeja de entrada 📩");
       router.push("/dashboard");
     } catch (err: any) {
-      setError(err.message || "Error enviando correo");
+      setError(err.message || "Error durante el inicio de sesión.");
     } finally {
       setLoading(false);
     }
@@ -52,10 +51,9 @@ export default function LoginForm() {
             Ingresa tu correo y contraseña
           </CardDescription>
           <CardAction className="flex justify-center">
-            <Link
-              href="/auth/register"
-              className="text-white font-semibold"
-            ></Link>
+            <Link href="/auth/register" className="text-white font-semibold">
+              {/* Example: ¿No tienes cuenta? Regístrate */}
+            </Link>
           </CardAction>
         </CardHeader>
         <CardContent>
@@ -63,39 +61,58 @@ export default function LoginForm() {
             onSubmit={handleSubmit}
             className="space-y-4 max-w-md mx-auto p-12"
           >
-            <input
-              type="email"
-              placeholder="Correo"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-              className="w-full p-2 border rounded text-white font-semibold "
-            />
-            <input
-              type="password"
-              placeholder="Contraseña"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-              className="w-full p-2 border rounded text-white font-semibold"
-            />
+            <div>
+              <label htmlFor="email" className="sr-only">
+                Correo Electrónico
+              </label>
+              <input
+                id="email"
+                type="email"
+                placeholder="Correo"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+                className="w-full p-2 border rounded text-white font-semibold bg-zinc-700 border-zinc-600 placeholder-zinc-400 focus:ring-blue-500 focus:border-blue-500"
+              />
+            </div>
+            <div>
+              <label htmlFor="password" className="sr-only">
+                Contraseña
+              </label>
+              <input
+                id="password"
+                type="password"
+                placeholder="Contraseña"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+                className="w-full p-2 border rounded text-white font-semibold bg-zinc-700 border-zinc-600 placeholder-zinc-400 focus:ring-blue-500 focus:border-blue-500"
+              />
+            </div>
 
             <button
               type="submit"
               disabled={loading}
-              className={`w-full px-4 py-2 rounded ${
+              className={`w-full px-4 py-2 rounded font-semibold transition-colors duration-150 ${
                 loading
-                  ? "bg-gray-400"
+                  ? "bg-gray-500 cursor-not-allowed"
                   : "bg-blue-600 hover:bg-blue-700 text-white"
               }`}
             >
               {loading ? "Iniciando sesión..." : "Iniciar sesión"}
             </button>
 
-            {error && <p className="text-red-500 text-center">{error}</p>}
+            {error && (
+              <p className="text-red-500 text-sm text-center mt-2">{error}</p>
+            )}
+            {message && (
+              <p className="text-green-500 text-sm text-center mt-2">
+                {message}
+              </p>
+            )}
           </form>
         </CardContent>
-        <CardFooter>
+        <CardFooter className="flex justify-center">
           <p className="text-zinc-400 font-semibold">Olvide mi contraseña</p>
         </CardFooter>
       </Card>
