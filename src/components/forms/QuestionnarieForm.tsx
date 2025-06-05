@@ -12,7 +12,6 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
-import { insertUserAnswers } from "@/services/userAnswers/insert";
 import { useAuth } from "@/hooks/useAuth";
 import { useRouter } from "next/navigation";
 
@@ -52,6 +51,29 @@ export default function QuestionnaireForm() {
 
   function handleSelectChange(name: string, value: string | boolean) {
     setFormData((prev) => ({ ...prev, [name]: value }));
+  }
+
+  // Función para hacer POST directamente al endpoint
+  async function submitAnswers(payload: any) {
+    console.log("Enviando datos:", payload);
+
+    const response = await fetch("/api/user-answers", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(payload),
+    });
+
+    console.log("Response status:", response.status);
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      console.log("Error data:", errorData);
+      throw new Error(errorData.error || "Error al guardar las respuestas");
+    }
+
+    return await response.json();
   }
 
   async function handleSubmit(e: React.FormEvent) {
@@ -102,11 +124,18 @@ export default function QuestionnaireForm() {
       const payload = {
         ...formData,
         user_id: user.id,
+        availability: availabilityNum, // Convertir a número
+        session_duration: sessionDurationNum, // Convertir a número
       };
 
-      await insertUserAnswers(payload);
+      // Llamar directamente al endpoint POST
+      const result = await submitAnswers(payload);
+
+      console.log("Respuesta guardada exitosamente:", result);
       setSuccess(true);
       setLoading(false);
+
+      // Limpiar formulario
       setFormData({
         training_experience: "",
         availability: "",
@@ -117,6 +146,7 @@ export default function QuestionnaireForm() {
         session_duration: "",
       });
     } catch (err: any) {
+      console.error("Error al guardar respuestas:", err);
       setError(
         err.message || "Error al guardar las respuestas. Inténtalo de nuevo."
       );
