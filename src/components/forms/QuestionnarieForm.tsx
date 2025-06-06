@@ -25,12 +25,11 @@ const injuriesOptions = [
 ];
 
 const sessionDurationOptions = [
-  "15 min",
-  "30 min",
-  "45 min",
-  "60 min",
-  "90 min",
-  "120 min",
+  ">15 min",
+  ">30 min",
+  ">45 min",
+  ">60 min",
+  ">90 min",
 ];
 
 export default function QuestionnaireForm() {
@@ -59,7 +58,6 @@ export default function QuestionnaireForm() {
     }
     return () => clearTimeout(timer);
   }, [success, router]);
-
   function handleChange(
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) {
