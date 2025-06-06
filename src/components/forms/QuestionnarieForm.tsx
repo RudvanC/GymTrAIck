@@ -3,7 +3,6 @@ import React, { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
 import {
   Select,
   SelectContent,
@@ -15,13 +14,32 @@ import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/useAuth";
 import { useRouter } from "next/navigation";
 
+const injuriesOptions = [
+  "Ninguna",
+  "Rodilla",
+  "Hombro",
+  "Espalda",
+  "Tobillo",
+  "Muñeca",
+];
+
+const sessionDurationOptions = [
+  "15min",
+  "30min",
+  "45min",
+  "60min",
+  "90min",
+  "120min",
+];
+
 export default function QuestionnaireForm() {
   const router = useRouter();
   const { user } = useAuth();
+
   const [formData, setFormData] = useState({
     training_experience: "",
     availability: "",
-    injuries: "",
+    injuries: [] as string[],
     equipment_access: false,
     goal: "",
     fitness_level: "",
@@ -33,47 +51,52 @@ export default function QuestionnaireForm() {
   const [success, setSuccess] = useState(false);
 
   useEffect(() => {
-    let timer: NodeJS.Timeout;
     if (success) {
-      timer = setTimeout(() => {
-        router.push("/dashboard");
-      }, 2500);
+      const timer = setTimeout(() => router.push("/dashboard"), 2500);
+      return () => clearTimeout(timer);
     }
-    return () => clearTimeout(timer);
   }, [success, router]);
 
   function handleChange(
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) {
-    const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
+    const { name, value, checked } = e.target as HTMLInputElement;
+
+    if (name === "injuries") {
+      let newInjuries = [...formData.injuries];
+      if (value === "Ninguna") {
+        newInjuries = checked ? ["Ninguna"] : [];
+      } else {
+        if (checked) {
+          newInjuries = newInjuries.filter((inj) => inj !== "Ninguna");
+          if (!newInjuries.includes(value)) newInjuries.push(value);
+        } else {
+          newInjuries = newInjuries.filter((inj) => inj !== value);
+        }
+      }
+      setFormData((prev) => ({ ...prev, injuries: newInjuries }));
+    } else {
+      setFormData((prev) => ({ ...prev, [name]: value }));
+    }
   }
 
   function handleSelectChange(name: string, value: string | boolean) {
     setFormData((prev) => ({ ...prev, [name]: value }));
   }
 
-  // Función para hacer POST directamente al endpoint
   async function submitAnswers(payload: any) {
-    console.log("Enviando datos:", payload);
-
     const response = await fetch("/api/user-answers", {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify(payload),
     });
 
-    console.log("Response status:", response.status);
-
     if (!response.ok) {
       const errorData = await response.json();
-      console.log("Error data:", errorData);
       throw new Error(errorData.error || "Error al guardar las respuestas");
     }
 
-    return await response.json();
+    return response.json();
   }
 
   async function handleSubmit(e: React.FormEvent) {
@@ -90,66 +113,54 @@ export default function QuestionnaireForm() {
       return;
     }
 
+    const {
+      training_experience,
+      availability,
+      goal,
+      fitness_level,
+      session_duration,
+    } = formData;
+
     if (
-      !formData.training_experience ||
-      !formData.availability ||
-      !formData.goal ||
-      !formData.fitness_level ||
-      !formData.session_duration
+      !training_experience ||
+      !availability ||
+      !goal ||
+      !fitness_level ||
+      !session_duration
     ) {
       setError("Por favor, completa todos los campos obligatorios.");
       setLoading(false);
       return;
     }
 
-    const availabilityNum = parseInt(formData.availability, 10);
-    if (isNaN(availabilityNum) || availabilityNum <= 0 || availabilityNum > 7) {
-      setError(
-        "Los días de disponibilidad deben ser un número válido entre 1 y 7."
-      );
-      setLoading(false);
-      return;
-    }
-
-    const sessionDurationNum = parseInt(formData.session_duration, 10);
-    if (isNaN(sessionDurationNum) || sessionDurationNum <= 0) {
-      setError(
-        "La duración de la sesión debe ser un número positivo en minutos."
-      );
+    const availabilityNum = parseInt(availability, 10);
+    if (isNaN(availabilityNum) || availabilityNum < 1 || availabilityNum > 7) {
+      setError("Los días de disponibilidad deben estar entre 1 y 7.");
       setLoading(false);
       return;
     }
 
     try {
-      const payload = {
+      await submitAnswers({
         ...formData,
         user_id: user.id,
-        availability: availabilityNum, // Convertir a número
-        session_duration: sessionDurationNum, // Convertir a número
-      };
-
-      // Llamar directamente al endpoint POST
-      const result = await submitAnswers(payload);
-
-      console.log("Respuesta guardada exitosamente:", result);
+        availability: availabilityNum,
+      });
       setSuccess(true);
-      setLoading(false);
-
-      // Limpiar formulario
       setFormData({
         training_experience: "",
         availability: "",
-        injuries: "",
+        injuries: [],
         equipment_access: false,
         goal: "",
         fitness_level: "",
         session_duration: "",
       });
     } catch (err: any) {
-      console.error("Error al guardar respuestas:", err);
       setError(
         err.message || "Error al guardar las respuestas. Inténtalo de nuevo."
       );
+    } finally {
       setLoading(false);
     }
   }
@@ -163,6 +174,7 @@ export default function QuestionnaireForm() {
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-6 p-4 sm:p-6">
+          {/* Experiencia */}
           <div className="space-y-2">
             <Label htmlFor="training_experience">
               ¿Cuánto tiempo has estado entrenando?
@@ -186,6 +198,7 @@ export default function QuestionnaireForm() {
             </Select>
           </div>
 
+          {/* Disponibilidad */}
           <div className="space-y-2">
             <Label htmlFor="availability">
               ¿Cuántos días a la semana puedes entrenar?
@@ -203,35 +216,28 @@ export default function QuestionnaireForm() {
             />
           </div>
 
+          {/* Lesiones */}
           <div className="space-y-2">
-            <Label htmlFor="session_duration">
-              ¿Cuánto tiempo puedes dedicar por sesión (minutos)?
-            </Label>
-            <Input
-              id="session_duration"
-              type="number"
-              name="session_duration"
-              placeholder="Ej: 45"
-              min={10}
-              value={formData.session_duration}
-              onChange={handleChange}
-              required
-            />
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="injuries">
+            <Label>
               ¿Tienes alguna lesión o condición física a considerar?
             </Label>
-            <Textarea
-              id="injuries"
-              name="injuries"
-              placeholder="Describe tus limitaciones o indica 'Ninguna' si no aplica"
-              value={formData.injuries}
-              onChange={handleChange}
-            />
+            <div className="flex flex-col gap-1">
+              {injuriesOptions.map((inj) => (
+                <label key={inj} className="inline-flex items-center space-x-2">
+                  <input
+                    type="checkbox"
+                    name="injuries"
+                    value={inj}
+                    checked={formData.injuries.includes(inj)}
+                    onChange={handleChange}
+                  />
+                  <span>{inj}</span>
+                </label>
+              ))}
+            </div>
           </div>
 
+          {/* Acceso a equipo */}
           <div className="space-y-2">
             <Label htmlFor="equipment_access">
               ¿Tienes acceso a equipo de gimnasio o pesas?
@@ -255,6 +261,7 @@ export default function QuestionnaireForm() {
             </Select>
           </div>
 
+          {/* Objetivo */}
           <div className="space-y-2">
             <Label htmlFor="goal">
               ¿Cuál es tu objetivo principal de entrenamiento?
@@ -283,6 +290,7 @@ export default function QuestionnaireForm() {
             </Select>
           </div>
 
+          {/* Nivel físico */}
           <div className="space-y-2">
             <Label htmlFor="fitness_level">
               ¿Cómo describirías tu nivel de condición física actual?
@@ -305,34 +313,57 @@ export default function QuestionnaireForm() {
                   Intermedio (Activo algunas veces por semana)
                 </SelectItem>
                 <SelectItem value="advanced">
-                  Avanzado (Muy activo y experimentado)
+                  Avanzado (Activo regularmente)
                 </SelectItem>
+                <SelectItem value="athlete">Atleta o similar</SelectItem>
               </SelectContent>
             </Select>
           </div>
 
+          {/* Duración sesión */}
+          <div className="space-y-2">
+            <Label htmlFor="session_duration">
+              Duración promedio de tus sesiones de entrenamiento
+            </Label>
+            <Select
+              name="session_duration"
+              onValueChange={(value) =>
+                handleSelectChange("session_duration", value)
+              }
+              value={formData.session_duration}
+            >
+              <SelectTrigger id="session_duration">
+                <SelectValue placeholder="Selecciona duración" />
+              </SelectTrigger>
+              <SelectContent>
+                {sessionDurationOptions.map((option) => (
+                  <SelectItem key={option} value={option}>
+                    {option}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
+          {/* Mensajes */}
           {error && (
-            <p className="text-sm text-red-600 p-3 bg-red-100 rounded-md">
-              {error}
-            </p>
+            <p className="text-red-600 font-semibold text-center">{error}</p>
           )}
+
           {success && (
-            <p className="text-sm text-green-600 p-3 bg-green-100 rounded-md">
-              ¡Respuestas guardadas correctamente! Serás redirigido al
-              dashboard.
+            <p className="text-green-600 font-semibold text-center">
+              Respuestas guardadas correctamente. Redirigiendo...
             </p>
           )}
 
+          {/* Botón */}
           <Button
-            className="w-full py-3 mt-4"
             type="submit"
-            disabled={loading || success}
+            className="w-full"
+            disabled={loading}
+            variant="default"
           >
-            {loading
-              ? "Guardando respuestas..."
-              : success
-              ? "Guardado con Éxito"
-              : "Guardar y Continuar"}
+            {loading ? "Guardando..." : "Enviar respuestas"}
           </Button>
         </CardContent>
       </form>
