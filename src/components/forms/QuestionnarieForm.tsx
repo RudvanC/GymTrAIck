@@ -24,11 +24,12 @@ const injuriesOptions = [
 ];
 
 const sessionDurationOptions = [
-  ">15 min",
-  ">30 min",
-  ">45 min",
-  ">60 min",
-  ">90 min",
+  "15min",
+  "30min",
+  "45min",
+  "60min",
+  "90min",
+  "120min",
 ];
 
 export default function QuestionnaireForm() {
