@@ -78,7 +78,7 @@ export default function QuestionnarieForm() {
   }
 
   return (
-    <Card className="max-w-2xl mx-auto mt-10">
+    <Card className="max-w-2xl mx-auto mt-10 mb-10 bg-purple-200">
       <form onSubmit={handleSubmit}>
         <CardHeader>
           <CardTitle>Cuestionario de entrenamiento</CardTitle>
