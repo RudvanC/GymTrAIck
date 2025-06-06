@@ -78,7 +78,7 @@ export function AnswerCard({ answer }: { answer: UserAnswer }) {
   };
 
   return (
-    <Card className="w-full max-w-4xl mx-auto bg-gradient-to-br from-slate-50 to-slate-100 border-0 shadow-xl">
+    <Card className="w-full max-w-4xl mx-auto bg-gradient-to-br from-slate-300 to-purple-400 border-0 shadow-xl">
       <CardHeader className="pb-4">
         <CardTitle className="flex items-center gap-3 text-2xl font-bold bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">
           <Activity className="h-8 w-8 text-purple-600" />

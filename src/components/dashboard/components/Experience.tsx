@@ -1,6 +1,7 @@
 import { Badge } from "@/components/ui/badge";
 import { UserAnswer } from "@/types/UserAnswer";
 import { Dumbbell } from "lucide-react";
+import { trainingExperienceMap } from "@/lib/formatAnswer";
 
 export default function Experience({ answer }: { answer: UserAnswer }) {
   const getExperienceColor = (experience: string) => {
@@ -31,7 +32,8 @@ export default function Experience({ answer }: { answer: UserAnswer }) {
             answer.training_experience
           )} hover:scale-105 transition-transform cursor-default`}
         >
-          {answer.training_experience}
+          {trainingExperienceMap[answer.training_experience] ??
+            "Experiencia desconocida"}
         </Badge>
       </div>
     </div>

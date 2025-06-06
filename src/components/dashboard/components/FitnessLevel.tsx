@@ -1,16 +1,19 @@
 import { Badge } from "@/components/ui/badge";
 import { UserAnswer } from "@/types/UserAnswer";
 import { Activity } from "lucide-react";
+import { fitnessLevelMap } from "@/lib/formatAnswer";
 
 export default function FitnessLevel({ answer }: { answer: UserAnswer }) {
   const getFitnessColor = (level: string) => {
     switch (level.toLowerCase()) {
-      case "bajo":
+      case "beginner":
         return "bg-red-50 text-red-700 border-red-200";
-      case "medio":
+      case "intermediate":
         return "bg-yellow-50 text-yellow-700 border-yellow-200";
-      case "alto":
+      case "advanced":
         return "bg-green-50 text-green-700 border-green-200";
+      case "athlete":
+        return "bg-blue-50 text-blue-700 border-blue-200";
       default:
         return "bg-gray-50 text-gray-700 border-gray-200";
     }
@@ -30,7 +33,7 @@ export default function FitnessLevel({ answer }: { answer: UserAnswer }) {
             answer.fitness_level
           )} hover:scale-105 transition-transform cursor-default`}
         >
-          {answer.fitness_level}
+          {fitnessLevelMap[answer.fitness_level] ?? "Nivel desconocido"}
         </Badge>
       </div>
     </div>

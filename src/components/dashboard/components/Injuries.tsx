@@ -1,6 +1,7 @@
 import { Badge } from "@/components/ui/badge";
 import { UserAnswer } from "@/types/UserAnswer";
 import { Shield } from "lucide-react";
+import { formatInjuries } from "@/lib/formatAnswer";
 
 export default function Injuries({ answer }: { answer: UserAnswer }) {
   return (
@@ -22,7 +23,7 @@ export default function Injuries({ answer }: { answer: UserAnswer }) {
               : "bg-green-50 text-green-700 border-green-200"
           } hover:scale-105 transition-transform cursor-default`}
         >
-          {answer.injuries || "Sin lesiones"}
+          {formatInjuries(answer.injuries)}
         </Badge>
       </div>
     </div>
