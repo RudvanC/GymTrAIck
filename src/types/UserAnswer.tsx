@@ -36,7 +36,11 @@ export type SessionDurationType =
   | "120min";
 
 // Defines the possible string values for fitness levels.
-export type FitnessLevelType = "beginner" | "intermediate" | "advanced";
+export type FitnessLevelType =
+  | "beginner"
+  | "intermediate"
+  | "advanced"
+  | "athlete";
 
 /**
  * Interface representing the structure of a user's answers to the questionnaire.
