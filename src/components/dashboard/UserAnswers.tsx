@@ -1,8 +1,8 @@
 "use client";
 
 import { useUserAnswers } from "@/hooks/useUserAnswers";
-import { LoadingSpinner } from "../common/LoadingSpinner";
-import { AnswerCard } from "./AnswerCard";
+import LoadingSpinner from "@/components/common/LoadingSpinner";
+import { AnswerCard } from "@/components/dashboard/AnswerCard";
 
 // UserAnswers component: Fetches and displays a list of the user's answers.
 export default function UserAnswers() {
@@ -27,7 +27,7 @@ export default function UserAnswers() {
     <div className="max-w-6xl mx-auto pt-20 px-4">
       {/* Page title */}
       <h1 className="text-3xl font-extrabold mb-8 text-purple-200">
-        Mis respuestas  
+        Mis respuestas
       </h1>
 
       {/* Conditional rendering based on whether answers exist. */}
