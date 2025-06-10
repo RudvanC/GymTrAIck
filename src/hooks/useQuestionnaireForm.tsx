@@ -3,10 +3,45 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/hooks/useAuth";
 
+/**
+ * Custom hook que maneja la lógica del formulario de cuestionario del usuario.
+ *
+ * Incluye estado del formulario, manejo de inputs, validación, envío y gestión de errores.
+ * Utiliza autenticación de usuario, navegación y llamadas a la API interna (`/api/user-answers`).
+ *
+ * @returns {Object} Estado y funciones relacionadas con el formulario:
+ * - `formData`: datos del formulario.
+ * - `handleChange`: manejador para inputs tipo texto y checkbox.
+ * - `handleSelectChange`: manejador para selects y booleanos.
+ * - `handleSubmit`: manejador de envío del formulario.
+ * - `loading`: estado de carga mientras se envían datos.
+ * - `error`: mensaje de error (si lo hay).
+ * - `success`: indica si el envío fue exitoso.
+ * - `setSuccess`: setter para el estado `success`.
+ *
+ * @example
+ * ```tsx
+ * const {
+ *   formData,
+ *   handleChange,
+ *   handleSelectChange,
+ *   handleSubmit,
+ *   loading,
+ *   error,
+ *   success
+ * } = useQuestionnaireForm();
+ * ```
+ */
 export function useQuestionnaireForm() {
+  // Router para navegación (si se necesita post-submit)
   const router = useRouter();
+
+  // Usuario autenticado (hook personalizado)
   const { user } = useAuth();
 
+  /**
+   * Estado del formulario con los campos del cuestionario.
+   */
   const [formData, setFormData] = useState({
     training_experience: "",
     availability: "",
@@ -21,6 +56,12 @@ export function useQuestionnaireForm() {
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
 
+  /**
+   * Manejador de cambios para inputs y textareas.
+   * Soporta lógica especial para checkboxes de `injuries`.
+   *
+   * @param {React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>} e Evento de cambio
+   */
   function handleChange(
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) {
@@ -44,10 +85,22 @@ export function useQuestionnaireForm() {
     }
   }
 
+  /**
+   * Manejador para campos `select` o booleanos personalizados.
+   *
+   * @param {string} name Nombre del campo
+   * @param {string | boolean} value Valor del campo
+   */
   function handleSelectChange(name: string, value: string | boolean) {
     setFormData((prev) => ({ ...prev, [name]: value }));
   }
 
+  /**
+   * Envia los datos del cuestionario al endpoint de la API.
+   *
+   * @param {any} payload Datos del formulario + ID de usuario
+   * @throws Error si la respuesta de la API no es satisfactoria
+   */
   async function submitAnswers(payload: any) {
     const response = await fetch("/api/user-answers", {
       method: "POST",
@@ -63,6 +116,11 @@ export function useQuestionnaireForm() {
     return response.json();
   }
 
+  /**
+   * Manejador de envío del formulario. Valida campos, llama a `submitAnswers` y actualiza el estado.
+   *
+   * @param {React.FormEvent} e Evento de envío
+   */
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError(null);

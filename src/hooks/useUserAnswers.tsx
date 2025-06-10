@@ -3,12 +3,38 @@ import { useEffect, useState, useCallback } from "react";
 import { UserAnswer } from "@/types/UserAnswer";
 import { useAuth } from "./useAuth";
 
+/**
+ * UserAnswersState
+ *
+ * Estructura del estado retornado por el hook `useUserAnswers`.
+ */
 export interface UserAnswersState {
+  /** Lista de respuestas del usuario. */
   answers: UserAnswer[];
+
+  /** Indicador de carga mientras se recuperan las respuestas. */
   loading: boolean;
+
+  /** Mensaje de error en caso de que ocurra uno durante la carga de respuestas. */
   error: string | null;
+
+  /** Función para volver a cargar las respuestas del usuario. */
   refetchAnswers: () => void;
 }
+
+/**
+ * useUserAnswers
+ *
+ * Hook personalizado para obtener y gestionar las respuestas del usuario autenticado.
+ * Utiliza `useAuth` para obtener el usuario actual y carga sus respuestas desde la API.
+ *
+ * @returns {UserAnswersState} Objeto con el estado de las respuestas del usuario, indicador de carga,
+ * error y una función para recargar los datos.
+ *
+ * @example
+ * const { answers, loading, error, refetchAnswers } = useUserAnswers();
+ */
+export function useUserAnswers(): UserAnswersState;
 
 export function useUserAnswers(): UserAnswersState {
   const { user: authUser, loading: authLoading } = useAuth();
