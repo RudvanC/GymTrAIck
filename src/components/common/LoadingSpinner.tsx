@@ -1,6 +1,6 @@
 // Component to display a loading spinner animation with a message.
 // Typically used during data fetching or other asynchronous operations.
-export function LoadingSpinner() {
+function LoadingSpinner() {
   return (
     // Outer container, styled to be a centered overlay with a blurred background.
     // Takes full screen height and ensures a minimum height of 200px.
@@ -14,3 +14,5 @@ export function LoadingSpinner() {
     </div>
   );
 }
+
+export default LoadingSpinner;
