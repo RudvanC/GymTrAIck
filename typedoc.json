@@ -1,0 +1,9 @@
+{
+  "entryPoints": ["src/app", "src/components", "src/hooks", "src/lib", "src/types"],
+  "entryPointStrategy": "expand",
+  "out": "docs",
+  "exclude": ["**/node_modules/**", "**/*.spec.ts", "**/*.test.ts", "**/tests/**"],
+  "readme": "none",
+  "excludeExternals": true,
+  "excludePrivate": true
+}
