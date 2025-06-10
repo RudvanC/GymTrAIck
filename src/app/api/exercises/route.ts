@@ -1,45 +1,31 @@
 /**
  * @module api/exercises
- * @description Este módulo define una ruta de API de Next.js para obtener una lista de ejercicios desde ExerciseDB.
- * Utiliza `axios` para realizar la petición a la API externa y `NextResponse` para devolver la respuesta JSON.
- * La clave de la API y el host se configuran mediante variables de entorno para una mayor seguridad.
+ * @description Este módulo define una ruta de API de Next.js para obtener una lista de ejercicios desde Supabase.
+ * Utiliza el cliente de Supabase para interactuar con la base de datos y `NextResponse` para devolver la respuesta JSON.
+ * Las credenciales de Supabase se configuran mediante variables de entorno para mayor seguridad.
  */
 
-import axios from "axios";
+import { createClient } from "@supabase/supabase-js";
 import { NextResponse } from "next/server";
 
 /**
- * @constant {string} API_HOST El host de la API de ExerciseDB.
+ * @constant {string} SUPABASE_URL La URL del proyecto Supabase, obtenida de las variables de entorno.
  */
-const API_HOST = "exercisedb.p.rapidapi.com";
+const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL as string;
 /**
- * @constant {string} API_KEY La clave API para acceder a ExerciseDB, obtenida de las variables de entorno.
- * Se asume que `process.env.RAPIDAPI_KEY` siempre estará definida en el entorno de ejecución, de ahí el `as string`.
+ * @constant {string} SUPABASE_ANON_KEY La clave pública "anon" de Supabase, obtenida de las variables de entorno.
  */
-const API_KEY = process.env.RAPIDAPI_KEY as string;
+const SUPABASE_ANON_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY as string;
 
 /**
- * @constant {object} options Opciones de configuración para la petición `axios` a ExerciseDB.
- * Incluye el método HTTP, la URL base, parámetros de consulta para limitar y compensar los resultados (por defecto 10 ejercicios, offset 0),
- * y las cabeceras necesarias para la autenticación con RapidAPI.
+ * @constant {SupabaseClient} supabase El cliente de Supabase inicializado con la URL y la clave anónima.
  */
-const options = {
-  method: "GET",
-  url: "https://exercisedb.p.rapidapi.com/exercises",
-  params: {
-    limit: "10", // Número de ejercicios a obtener (por defecto 10)
-    offset: "0", // Desde qué posición empezar a obtener (por defecto 0)
-  },
-  headers: {
-    "x-rapidapi-key": API_KEY,
-    "x-rapidapi-host": API_HOST,
-  },
-};
+const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 /**
  * @function GET
  * @description Manejador para las peticiones HTTP GET a esta ruta de API.
- * Realiza una petición a la API de ExerciseDB utilizando las opciones predefinidas.
+ * Realiza una petición a la tabla 'exercises' en Supabase para obtener los primeros 10 registros.
  * Si la petición es exitosa, devuelve los datos de los ejercicios en formato JSON.
  * Si ocurre un error, registra el error y devuelve una respuesta de error con un estado 500.
  * @returns {Promise<NextResponse>} Una promesa que resuelve con un objeto `NextResponse`
@@ -47,12 +33,27 @@ const options = {
  */
 export async function GET() {
   try {
-    const response = await axios.request(options);
-    return NextResponse.json(response.data);
+    // Consulta a la tabla 'exercises', seleccionando todos los campos,
+    // ordenando por 'id' de forma ascendente y limitando a los 10 primeros resultados.
+    const { data: exercises, error } = await supabase
+      .from("exercises")
+      .select("*")
+      .order("id", { ascending: true }) // Asume que tienes una columna 'id' para ordenar
+      .limit(10);
+
+    if (error) {
+      console.error("Error fetching exercises from Supabase:", error);
+      return NextResponse.json(
+        { error: "Error fetching exercises from database" },
+        { status: 500 }
+      );
+    }
+
+    return NextResponse.json(exercises);
   } catch (error) {
-    console.error(error);
+    console.error("Unexpected error:", error);
     return NextResponse.json(
-      { error: "Error fetching exercises" },
+      { error: "An unexpected error occurred" },
       { status: 500 }
     );
   }
