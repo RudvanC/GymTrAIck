@@ -33,12 +33,13 @@ export const goalMap: Record<string, string> = {
  * Mapeo de tipos de lesiones del backend a descripciones legibles.
  */
 export const injuriesMap: Record<string, string> = {
+  none: "Ninguna",
   knee: "Rodilla",
   hand: "Mano",
   back: "Espalda",
   shoulder: "Hombro",
   ankle: "Tobillo",
-  wrist: "Codo",
+  wrist: "Muñeca",
   other: "Otro",
 };
 
