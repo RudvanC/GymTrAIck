@@ -2,6 +2,7 @@
 
 import useSWR from "swr";
 import type { Routine } from "@/app/api/base-routines/route";
+import LoadingSpinner from "../common/LoadingSpinner";
 
 const fetcher = (url: string) =>
   fetch(url).then((res) => {
@@ -16,7 +17,7 @@ export function RoutineList() {
   );
 
   if (error) return <p className="text-red-500">Error cargando rutinas</p>;
-  if (!data) return <p>Cargando rutinas…</p>;
+  if (!data) return <LoadingSpinner />;
 
   return (
     <div className="grid gap-8">
