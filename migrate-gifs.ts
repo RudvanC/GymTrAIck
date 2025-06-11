@@ -6,9 +6,8 @@ import * as dotenv from "dotenv";
 
 dotenv.config();
 
-const supabaseUrl = "https://uyohcowxpzfslhirbdre.supabase.co";
-const supabaseKey =
-  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InV5b2hjb3d4cHpmc2xoaXJiZHJlIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc0ODkzOTE4NCwiZXhwIjoyMDY0NTE1MTg0fQ.wkwUlvqnVDRU2phgFEMv9rpA0KNkxMZWrAcesBiz3Yc";
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+const supabaseKey = process.env.SERVICE_ROLE_KEY;
 
 // Cliente de Supabase
 const supabase = createClient(supabaseUrl!, supabaseKey!);
