@@ -1,10 +1,10 @@
 "use client";
 
-import { useState } from "react";
 import useSWR from "swr";
+import { useState } from "react";
 import type { Routine } from "@/app/api/base-routines/route";
 import LoadingSpinner from "../common/LoadingSpinner";
-import { ChevronDown, ChevronUp } from "lucide-react";
+import RoutineRunner from "@/components/routine/RoutineRunner";
 
 const fetcher = (url: string) =>
   fetch(url).then((res) => {
@@ -17,66 +17,53 @@ export function RoutineList() {
     "/api/base-routines",
     fetcher
   );
-  const [openId, setOpenId] = useState<string | null>(null);
+  const [selectedRoutine, setSelectedRoutine] = useState<Routine | null>(null);
 
   if (error) return <p className="text-red-500">Error cargando rutinas</p>;
-  if (isLoading || !data) return <LoadingSpinner />;
+  if (!data) return <LoadingSpinner />;
 
+  // Si ya elegí una rutina, muestro el runner
+  if (selectedRoutine) {
+    return (
+      <RoutineRunner
+        routine={selectedRoutine}
+        onBack={() => setSelectedRoutine(null)}
+      />
+    );
+  }
+
+  // Si no, muestro el listado con botón de “Empezar rutina”
   return (
-    <div className="grid gap-6">
-      {data.map((routine) => {
-        const expanded = openId === routine.id;
-        return (
-          <div
-            key={routine.id}
-            className="border rounded-lg shadow hover:shadow-lg transition overflow-hidden"
-          >
-            <button
-              className="w-full flex justify-between items-center p-6 bg-white"
-              onClick={() => setOpenId(expanded ? null : routine.id)}
-            >
-              <div className="text-left">
-                <h2 className="text-xl text-black font-semibold">
-                  {routine.name}
-                </h2>
-                {routine.description && (
-                  <p className="text-gray-500 text-sm">{routine.description}</p>
-                )}
-              </div>
-              <div>
-                {expanded ? (
-                  <ChevronUp className="w-6 h-6 text-gray-600" />
-                ) : (
-                  <ChevronDown className="w-6 h-6 text-gray-600" />
-                )}
-              </div>
-            </button>
+    <div className="grid gap-8">
+      {data.map((routine) => (
+        <section key={routine.id} className="p-6 border rounded-lg shadow">
+          <h2 className="text-2xl font-bold mb-2">{routine.name}</h2>
+          {routine.description && (
+            <p className="text-gray-600 mb-4">{routine.description}</p>
+          )}
 
-            {expanded && (
-              <ul className="bg-gray-50 p-6 space-y-4">
-                {routine.exercises.map((ex) => (
-                  <li key={ex.id} className="flex items-center space-x-4">
-                    <img
-                      src={ex.gif_url}
-                      alt={ex.name}
-                      className="w-12 h-12 rounded"
-                    />
-                    <div>
-                      <p className="text-black font-medium">{ex.name}</p>
-                      <p className="text-sm text-gray-500">
-                        {ex.sets}×{ex.reps} · {ex.equipment} · {ex.target}
-                      </p>
-                      <p className="text-xs text-gray-400">
-                        Secondary: {ex.secondary_muscles}
-                      </p>
-                    </div>
-                  </li>
-                ))}
-              </ul>
-            )}
+          {/* Card resumen: nombre + target */}
+          <div className="flex justify-between items-center">
+            <div>
+              <p className="font-medium">
+                Ejercicios: {routine.exercises.length}
+              </p>
+              <p className="text-sm text-gray-500">
+                Músculos:{" "}
+                {Array.from(
+                  new Set(routine.exercises.map((e) => e.target))
+                ).join(", ")}
+              </p>
+            </div>
+            <button
+              onClick={() => setSelectedRoutine(routine)}
+              className="px-4 py-2 bg-purple-500 text-white rounded hover:bg-purple-600"
+            >
+              Empezar rutina
+            </button>
           </div>
-        );
-      })}
+        </section>
+      ))}
     </div>
   );
 }
