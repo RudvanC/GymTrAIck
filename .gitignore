@@ -41,5 +41,5 @@ yarn-error.log*
 next-env.d.ts
 
 /src/app/api/script.ts
-/migrate-gifs.ts
-/migrate-gif-url.ts
+/src/app/api/migrate-gifs/migrate-gifs.ts
+/src/app/api/migrate-gifs/migrate-gif-url.ts

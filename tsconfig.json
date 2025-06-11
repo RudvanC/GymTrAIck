@@ -33,18 +33,10 @@
     "next-env.d.ts",
     "src/**/*",
     ".next/types/**/*.ts"
-, "migrate-gifs.ts"  ],
+, "src/app/api/migrate-gifs/migrate-gifs.ts"  ],
   "exclude": [
     "node_modules",
     ".next"
   ]
-  "include": [
-    "next-env.d.ts",
-    "src/**/*",
-    ".next/types/**/*.ts"
-  ],
-  "exclude": [
-    "node_modules",
-    ".next"
-  ]
+  
 }
