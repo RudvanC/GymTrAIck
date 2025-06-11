@@ -5,7 +5,9 @@ function ExercisesPage() {
   return (
     <>
       <NavbarAuth />
-      <RoutineList />
+      <div className="h-screen max-w-7xl mx-auto p-8">
+        <RoutineList />
+      </div>
     </>
   );
 }

@@ -1,11 +1,10 @@
-import NavbarAuth from "@/components/layout/NavbarAuth";
-
 function ProgressPage() {
   return (
-    <div>
-      <NavbarAuth />
-      <div>ProgressPage</div>
-    </div>
+    <>
+      <div className="h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
+        ProgressPage
+      </div>
+    </>
   );
 }
 
