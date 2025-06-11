@@ -39,3 +39,7 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+/src/app/api/script.ts
+migrate-gifs.ts
+migrate-gif-url.ts
