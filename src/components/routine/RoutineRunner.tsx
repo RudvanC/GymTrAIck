@@ -63,6 +63,7 @@ export function RoutineRunner({ routine, onBack }: RoutineRunnerProps) {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
+        credentials: "include",
       });
       if (!res.ok) throw new Error(await res.text());
       onBack();
