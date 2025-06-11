@@ -1,90 +1,121 @@
+// src/components/LoginForm.tsx
 "use client";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { supabase } from "@/lib/supabase";
+import {
+  Card,
+  CardHeader,
+  CardContent,
+  CardFooter,
+  CardAction,
+  CardDescription,
+  CardTitle,
+} from "@/components/ui/card";
+import Link from "next/link";
+import { useAuth } from "@/hooks/useAuth";
 
 export default function LoginForm() {
-  const router = useRouter();
+  const { signIn } = useAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [message, setMessage] = useState<string | null>(null);
+  const router = useRouter();
 
-  const handleLogin = async (e: React.FormEvent) => {
+  async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    setError("");
     setLoading(true);
-
-    const cleanEmail = email.trim().toLowerCase();
-    const cleanPassword = password.trim();
-
-    if (!cleanEmail || !cleanPassword) {
-      setError("Todos los campos son obligatorios.");
-      setLoading(false);
-      return;
-    }
+    setError(null);
+    setMessage(null);
 
     try {
-      const { data, error: loginError } =
-        await supabase.auth.signInWithPassword({
-          email: cleanEmail,
-          password: cleanPassword,
-        });
-
-      if (loginError) {
-        console.error("Error en login:", loginError);
-        setError("Correo o contraseña incorrectos.");
-        setLoading(false);
-        return;
-      }
-
-      // ✅ Redirigir al dashboard si todo está bien
+      await signIn(email, password);
+      setMessage("Correo enviado, revisa tu bandeja de entrada 📩");
       router.push("/dashboard");
     } catch (err: any) {
-      console.error("Error inesperado:", err);
-      setError("Algo salió mal. Intenta de nuevo.");
+      setError(err.message || "Error durante el inicio de sesión.");
+    } finally {
+      setLoading(false);
     }
-
-    setLoading(false);
-  };
+  }
 
   return (
-    <div className="flex flex-col items-center justify-center h-screen">
-      <form
-        onSubmit={handleLogin}
-        className="space-y-4 max-w-md mx-auto border p-12 rounded-md shadow-md"
-      >
-        <input
-          type="email"
-          placeholder="Correo"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          required
-          className="w-full p-2 border rounded"
-        />
-        <input
-          type="password"
-          placeholder="Contraseña"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          required
-          className="w-full p-2 border rounded"
-        />
+    <div className="flex flex-col items-center justify-center h-screen bg-transparent">
+      <Card className="bg-transparent">
+        <CardHeader>
+          <CardTitle className="text-white font-semibold">
+            Iniciar sesión
+          </CardTitle>
+          <CardDescription className="text-zinc-400">
+            Ingresa tu correo y contraseña
+          </CardDescription>
+          <CardAction className="flex justify-center">
+            <Link href="/auth/register" className="text-white font-semibold">
+              {/* Example: ¿No tienes cuenta? Regístrate */}
+            </Link>
+          </CardAction>
+        </CardHeader>
+        <CardContent>
+          <form
+            onSubmit={handleSubmit}
+            className="space-y-4 max-w-md mx-auto p-12"
+          >
+            <div>
+              <label htmlFor="email" className="sr-only">
+                Correo Electrónico
+              </label>
+              <input
+                id="email"
+                type="email"
+                placeholder="Correo"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+                className="w-full p-2 border rounded text-white font-semibold bg-zinc-700 border-zinc-600 placeholder-zinc-400 focus:ring-blue-500 focus:border-blue-500"
+              />
+            </div>
+            <div>
+              <label htmlFor="password" className="sr-only">
+                Contraseña
+              </label>
+              <input
+                id="password"
+                type="password"
+                placeholder="Contraseña"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+                className="w-full p-2 border rounded text-white font-semibold bg-zinc-700 border-zinc-600 placeholder-zinc-400 focus:ring-blue-500 focus:border-blue-500"
+              />
+            </div>
 
-        <button
-          type="submit"
-          disabled={loading}
-          className={`w-full px-4 py-2 rounded ${
-            loading
-              ? "bg-gray-400"
-              : "bg-green-600 hover:bg-green-700 text-white"
-          }`}
-        >
-          {loading ? "Iniciando sesión..." : "Iniciar sesión"}
-        </button>
+            <button
+              type="submit"
+              disabled={loading}
+              className={`w-full px-4 py-2 rounded font-semibold transition-colors duration-150 ${
+                loading
+                  ? "bg-gray-500 cursor-not-allowed"
+                  : "bg-blue-600 hover:bg-blue-700 text-white"
+              }`}
+            >
+              {loading ? "Iniciando sesión..." : "Iniciar sesión"}
+            </button>
 
-        {error && <p className="text-red-500 text-center">{error}</p>}
-      </form>
+            {error && (
+              <p className="text-red-500 text-sm text-center mt-2">{error}</p>
+            )}
+            {message && (
+              <p className="text-green-500 text-sm text-center mt-2">
+                {message}
+              </p>
+            )}
+          </form>
+        </CardContent>
+        <CardFooter className="flex justify-center">
+          <p className="text-zinc-400 font-semibold">Olvide mi contraseña</p>
+        </CardFooter>
+      </Card>
     </div>
   );
 }

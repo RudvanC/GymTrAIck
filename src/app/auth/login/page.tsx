@@ -1,7 +1,7 @@
 // src/app/auth/login/page.tsx - Defines the login page for the application.
 
 import LoginForm from "@/components/forms/LoginForm"; // The actual login form component
-import Navbar from "@/components/layout/NavbarGuest"; // The application's navigation bar
+import Navbar from "@/components/layout/Navbar"; // The application's navigation bar
 
 /**
  * LoginPage component.
@@ -14,7 +14,13 @@ import Navbar from "@/components/layout/NavbarGuest"; // The application's navig
  */
 export default function LoginPage() {
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50">
+    // Main container for the login page with full height and gradient background.
+    // Flexbox is used to center the content.
+    <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
+      {/* Renders the application navbar at the top of the page. */}
+      {/* If using an auth layout, Navbar would typically be in that layout. */}
+      <Navbar />
+      {/* Renders the login form component. */}
       <LoginForm />
     </div>
   );
