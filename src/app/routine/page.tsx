@@ -1,11 +1,10 @@
-// app/exercises/page.tsx
 "use client";
-import ExerciseCard from "@/components/routine/ExerciseCard";
+import { RoutineList } from "@/components/routine/RoutineList";
 
 function ExercisesPage() {
   return (
     <>
-      <ExerciseCard />
+      <RoutineList />
     </>
   );
 }

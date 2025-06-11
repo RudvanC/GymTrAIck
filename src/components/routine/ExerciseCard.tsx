@@ -12,8 +12,6 @@ function ExercisesCard() {
       .finally(() => setLoading(false));
   }, []);
 
-  console.log(exercises);
-
   if (loading) return <LoadingSpinner />;
 
   return (
