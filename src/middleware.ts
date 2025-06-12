@@ -44,7 +44,7 @@ export async function middleware(request: NextRequest) {
   } = await supabase.auth.getUser();
 
   // 2. Definimos las rutas protegidas
-  const protectedRoutes = ["/dashboard", "/profile", "/routine"]; // Añade aquí todas las rutas que quieras proteger
+  const protectedRoutes = ["/dashboard", "/profile", "/routine", "/questionnaire"]; // Añade aquí todas las rutas que quieras proteger
 
   // 3. Lógica de redirección
   const url = new URL(request.url);

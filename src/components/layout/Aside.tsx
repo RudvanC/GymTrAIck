@@ -68,6 +68,9 @@ export default function Sidebar() {
         </Avatar>
         {user && (
           <>
+            <div className="flex items-center gap-2 w-full text-center align-center justify-center">
+              {user && <p>{user.email}</p>}
+            </div>
             <Button
               onClick={handleLogout}
               className="flex w-full items-center gap-2 mt-2 px-4 py-4 text-sm font-medium text-black bg-white hover:text-red-500 hover:bg-red-50 rounded-md transition-colors"
