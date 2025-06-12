@@ -1,7 +1,7 @@
 "use client";
 
 import UserAnswers from "@/components/dashboard/UserAnswers";
-import { useAuth } from "@/hooks/useAuth";
+import { useAuth } from "@/context/AuthContext";
 import NavbarAuth from "@/components/layout/NavbarAuth";
 
 export default function DashboardPage() {
