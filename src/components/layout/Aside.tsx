@@ -1,11 +1,27 @@
 "use client";
 
 import Link from "next/link";
-import { Dumbbell } from "lucide-react";
+import { Dumbbell, LogOut } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@radix-ui/react-avatar";
 import { Button } from "@/components/ui/button";
+import { useAuth } from "@/context/AuthContext";
+import { createClient } from "@/lib/supabase/supabaseClient";
+import { useRouter } from "next/navigation";
 
 export default function Sidebar() {
+  const { user } = useAuth();
+  const router = useRouter();
+
+  const handleLogout = async () => {
+    // Usamos el cliente de supabase para cerrar la sesión
+    await createClient().auth.signOut();
+
+    // ¡Paso clave! Refrescamos la ruta actual.
+    // Esto le indica a Next.js que vuelva a ejecutar la lógica del servidor,
+    // lo que actualizará la UI y protegerá las rutas si el usuario ya no tiene acceso.
+    router.refresh();
+  };
+
   return (
     <aside className="w-64 h-screen bg-gray-900 text-white flex flex-col justify-between sticky top-0">
       {/* Logo Section */}
@@ -37,11 +53,15 @@ export default function Sidebar() {
               Progress
             </Button>
           </Link>
-          <Link href="/settings">
-            <Button className="px-4 py-2 rounded hover:bg-gray-700">
-              Settings
+          {user && (
+            <Button
+              onClick={handleLogout}
+              className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-black bg-white hover:text-red-500 hover:bg-red-50 rounded-md transition-colors"
+            >
+              <LogOut className="w-4 h-4" />
+              <span>Logout</span>
             </Button>
-          </Link>
+          )}
         </nav>
       </div>
 

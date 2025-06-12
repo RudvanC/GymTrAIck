@@ -17,11 +17,25 @@ import {
   MenubarRadioGroup,
   MenubarRadioItem,
 } from "@/components/ui/menubar";
-import { Dumbbell } from "lucide-react";
+import { Dumbbell, LogOut } from "lucide-react";
 import Link from "next/link";
+import { useAuth } from "@/context/AuthContext";
+import { Button } from "../ui/button";
+import { createClient } from "@/lib/supabase/supabaseClient";
 
 export default function Navbar() {
   const router = useRouter();
+  const { user } = useAuth();
+
+  const handleLogout = async () => {
+    // Usamos el cliente de supabase para cerrar la sesión
+    await createClient().auth.signOut();
+
+    // ¡Paso clave! Refrescamos la ruta actual.
+    // Esto le indica a Next.js que vuelva a ejecutar la lógica del servidor,
+    // lo que actualizará la UI y protegerá las rutas si el usuario ya no tiene acceso.
+    router.refresh();
+  };
 
   return (
     <header className="w-full border-b border-white/10 bg-black/20 backdrop-blur-sm sticky top-0 z-50">
@@ -62,22 +76,16 @@ export default function Navbar() {
                 </MenubarItem>
               </MenubarContent>
             </MenubarMenu>
-            <MenubarMenu>
-              <MenubarTrigger className="text-black">Settings</MenubarTrigger>
-              <MenubarContent>
-                <MenubarItem inset>
-                  <Link href="/settings">Settings</Link>
-                </MenubarItem>
-              </MenubarContent>
-            </MenubarMenu>
+            {user && (
+              <button
+                onClick={handleLogout}
+                className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-black bg-white hover:text-red-500 hover:bg-red-50 rounded-md transition-colors"
+              >
+                <LogOut className="w-4 h-4" />
+                <span>Logout</span>
+              </button>
+            )}
           </Menubar>
-          <Avatar className="size-10 border-white/10">
-            <AvatarImage
-              className="rounded-full"
-              src="https://github.com/shadcn.png"
-            />
-            <AvatarFallback></AvatarFallback>
-          </Avatar>
         </div>
       </div>
     </header>
