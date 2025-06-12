@@ -1,7 +1,7 @@
 "use client";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { supabase } from "@/lib/supabase";
+import { supabaseClient } from "@/lib/supabaseClient";
 import {
   Card,
   CardHeader,
@@ -45,7 +45,7 @@ export default function RegisterForm() {
     setLoading(true);
 
     try {
-      const { data, error: signUpError } = await supabase.auth.signUp({
+      const { data, error: signUpError } = await supabaseClient.auth.signUp({
         email: cleanEmail,
         password: cleanPassword,
       });
@@ -60,7 +60,7 @@ export default function RegisterForm() {
       const user = data.user;
       if (user) {
         // Insertar en la tabla profiles
-        const { error: dbError } = await supabase
+        const { error: dbError } = await supabaseClient
           .from("profiles")
           .upsert({ id: user.id, username });
         if (dbError) {

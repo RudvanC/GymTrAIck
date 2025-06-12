@@ -1,11 +1,13 @@
-// app/exercises/page.tsx
 "use client";
-import ExerciseCard from "@/components/routine/ExerciseCard";
-
+import { RoutineList } from "@/components/routine/RoutineList";
+import NavbarAuth from "@/components/layout/NavbarAuth";
 function ExercisesPage() {
   return (
     <>
-      <ExerciseCard />
+      <NavbarAuth />
+      <div className="h-screen max-w-7xl mx-auto p-8">
+        <RoutineList />
+      </div>
     </>
   );
 }

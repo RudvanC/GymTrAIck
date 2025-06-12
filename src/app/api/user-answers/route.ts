@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { createServerComponentClient } from "@supabase/auth-helpers-nextjs";
+import { createServerClient, type CookieOptions } from "@supabase/ssr";
 import { cookies } from "next/headers";
 
 /**
@@ -7,22 +7,27 @@ import { cookies } from "next/headers";
  *
  * @param request - The incoming HTTP GET request.
  * @returns A JSON response containing user answers or an error message.
- *
- * @remarks
- * - Requires `user_id` as a query parameter.
- * - Returns 400 if `user_id` is missing.
- * - Returns 500 if Supabase fails to fetch data.
- *
- * @example
- * // Request:
- * GET /api/user-answers?user_id=123
- *
- * // Response:
- * 200 OK
- * [ { user_id: '123', goal: 'Lose weight', ... } ]
  */
 export async function GET(request: Request) {
-  const supabase = createServerComponentClient({ cookies });
+  const cookieStore = await cookies();
+
+  const supabase = createServerClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    {
+      cookies: {
+        get(name: string) {
+          return cookieStore.get(name)?.value;
+        },
+        set(name: string, value: string, options: CookieOptions) {
+          cookieStore.set({ name, value, ...options });
+        },
+        remove(name: string, options: CookieOptions) {
+          cookieStore.set({ name, value: "", ...options });
+        },
+      },
+    }
+  );
 
   const { searchParams } = new URL(request.url);
   const userId = searchParams.get("user_id");
@@ -56,32 +61,29 @@ export async function GET(request: Request) {
  *
  * @param request - The incoming HTTP POST request containing user answers in JSON format.
  * @returns A JSON response indicating success or failure.
- *
- * @remarks
- * - Validates required fields: `user_id`, `training_experience`, `availability`, `goal`, `fitness_level`, and `session_duration`.
- * - Returns 400 for missing fields or invalid JSON.
- * - Returns 500 if Supabase returns an error or there's a server issue.
- *
- * @example
- * // Request body:
- * {
- *   "user_id": "123",
- *   "training_experience": "Intermediate",
- *   "availability": "Weekdays",
- *   "goal": "Build muscle",
- *   "fitness_level": "Medium",
- *   "session_duration": "45"
- * }
- *
- * // Response:
- * 201 Created
- * { data: [...] }
  */
 export async function POST(request: Request) {
   try {
     console.log("=== POST REQUEST INICIADO ===");
+    const cookieStore = await cookies();
 
-    const supabase = createServerComponentClient({ cookies });
+    const supabase = createServerClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+      {
+        cookies: {
+          get(name: string) {
+            return cookieStore.get(name)?.value;
+          },
+          set(name: string, value: string, options: CookieOptions) {
+            cookieStore.set({ name, value, ...options });
+          },
+          remove(name: string, options: CookieOptions) {
+            cookieStore.set({ name, value: "", ...options });
+          },
+        },
+      }
+    );
 
     let answers;
     try {
