@@ -1,6 +1,6 @@
 "use client";
 import { useState, useEffect, useCallback } from "react";
-import { supabase } from "../lib/supabase";
+import { supabaseClient } from "@/lib/supabaseClient";
 import { User, AuthError } from "@supabase/supabase-js";
 
 // Defines the shape of the value returned by the useAuth hook
@@ -22,7 +22,7 @@ export function useAuth(): AuthState {
 
   useEffect(() => {
     setLoading(true); // Set loading true when initially checking session
-    supabase.auth
+    supabaseClient.auth
       .getSession()
       .then(({ data: { session } }) => {
         setUser(session?.user ?? null);
@@ -35,7 +35,7 @@ export function useAuth(): AuthState {
       });
 
     // Subscribe to authentication state changes
-    const { data: authListener } = supabase.auth.onAuthStateChange(
+    const { data: authListener } = supabaseClient.auth.onAuthStateChange(
       (_event, session) => {
         setUser(session?.user ?? null);
         // This listener reflects the current auth state, so initial loading is effectively done if session is known.
@@ -56,10 +56,11 @@ export function useAuth(): AuthState {
     setLoading(true);
     setError(null);
     try {
-      const { error: signInError } = await supabase.auth.signInWithPassword({
-        email,
-        password,
-      });
+      const { error: signInError } =
+        await supabaseClient.auth.signInWithPassword({
+          email,
+          password,
+        });
       if (signInError) {
         // The onAuthStateChange listener will update the user to null if signIn fails due to bad creds.
         // However, we want to surface the specific error from signInWithPassword.
@@ -91,7 +92,7 @@ export function useAuth(): AuthState {
     setLoading(true);
     setError(null);
     try {
-      const { error: signOutError } = await supabase.auth.signOut();
+      const { error: signOutError } = await supabaseClient.auth.signOut();
       if (signOutError) {
         setError(signOutError);
         throw signOutError;
@@ -117,7 +118,7 @@ export function useAuth(): AuthState {
     setLoading(true);
     setError(null);
     try {
-      const { data, error: signUpError } = await supabase.auth.signUp({ email, password, options });
+      const { data, error: signUpError } = await supabaseClient.auth.signUp({ email, password, options });
       if (signUpError) {
         setError(signUpError);
         throw signUpError;
