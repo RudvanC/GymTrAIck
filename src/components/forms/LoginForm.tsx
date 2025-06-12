@@ -1,4 +1,3 @@
-// src/components/LoginForm.tsx
 "use client";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
@@ -7,15 +6,17 @@ import {
   CardHeader,
   CardContent,
   CardFooter,
-  CardAction,
   CardDescription,
   CardTitle,
 } from "@/components/ui/card";
 import Link from "next/link";
-import { useAuth } from "@/hooks/useAuth";
+// CAMBIO 1: Importamos el hook desde la nueva ubicación (el contexto)
+import { useAuth } from "@/context/AuthContext";
 
 export default function LoginForm() {
-  const { signIn } = useAuth();
+  // CAMBIO 2: Obtenemos 'supabase' directamente desde el hook. Ya no hay una función 'signIn'.
+  const { supabase } = useAuth();
+
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
@@ -30,8 +31,21 @@ export default function LoginForm() {
     setMessage(null);
 
     try {
-      await signIn(email, password);
-      setMessage("Correo enviado, revisa tu bandeja de entrada 📩");
+      // CAMBIO 3: Usamos el cliente de supabase para llamar a la función de autenticación
+      const { error: signInError } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
+
+      // Si Supabase devuelve un error, lo mostramos
+      if (signInError) {
+        throw signInError;
+      }
+
+      // Si el login es exitoso, el listener en AuthProvider se encargará de actualizar el estado global.
+      // Ya no necesitamos el mensaje de "revisa tu correo" para un login con contraseña.
+      // router.refresh() es útil para que el servidor re-renderice con la nueva sesión.
+      router.refresh();
       router.push("/dashboard");
     } catch (err: any) {
       setError(err.message || "Error durante el inicio de sesión.");
@@ -50,11 +64,12 @@ export default function LoginForm() {
           <CardDescription className="text-zinc-400">
             Ingresa tu correo y contraseña
           </CardDescription>
-          <CardAction className="flex justify-center">
+          {/* He comentado la CardAction para que no de error si no la usas */}
+          {/* <CardAction className="flex justify-center">
             <Link href="/auth/register" className="text-white font-semibold">
-              {/* Example: ¿No tienes cuenta? Regístrate */}
+              ¿No tienes cuenta? Regístrate
             </Link>
-          </CardAction>
+          </CardAction> */}
         </CardHeader>
         <CardContent>
           <form

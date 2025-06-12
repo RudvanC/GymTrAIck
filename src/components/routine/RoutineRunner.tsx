@@ -1,10 +1,10 @@
-// components/RoutineRunner.tsx
 "use client";
 
 import { useState } from "react";
 import type { Routine } from "@/app/api/base-routines/route";
 import { ArrowLeft } from "lucide-react";
 
+// The types for the component's state and props remain the same
 interface SeriesResult {
   completed: boolean;
   actualReps: number;
@@ -19,7 +19,7 @@ interface RoutineRunnerProps {
 }
 
 export function RoutineRunner({ routine, onBack }: RoutineRunnerProps) {
-  // Inicializa results: por cada ejercicio, un array de length = sets
+  // State initialization remains the same
   const [results, setResults] = useState<ExerciseResultsMap>(() => {
     const init: ExerciseResultsMap = {};
     routine.exercises.forEach((ex) => {
@@ -34,6 +34,7 @@ export function RoutineRunner({ routine, onBack }: RoutineRunnerProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  // The function to handle series changes remains the same
   const handleSeriesChange = (
     exerciseId: number,
     seriesIndex: number,
@@ -50,22 +51,50 @@ export function RoutineRunner({ routine, onBack }: RoutineRunnerProps) {
     });
   };
 
+  // --- CAMBIO PRINCIPAL AQUÍ ---
+  // The handleSubmit function is updated to transform the data before sending
   const handleSubmit = async () => {
     setIsSubmitting(true);
     setError(null);
     try {
+      // 1. Transform the 'results' object into a more descriptive array
+      const resultsPayload = Object.entries(results).map(
+        ([exerciseId, seriesData]) => {
+          // Find the corresponding exercise in the routine to get its name
+          const exercise = routine.exercises.find(
+            (ex) => ex.id === Number(exerciseId)
+          );
+
+          return {
+            exerciseId: Number(exerciseId),
+            // Add the exercise name to the payload
+            exerciseName: exercise ? exercise.name : "Ejercicio Desconocido",
+            series: seriesData, // Keep the series data
+          };
+        }
+      );
+
+      // 2. Create the final payload with the new 'results' format
       const payload = {
         routineId: routine.id,
         date: new Date().toISOString(),
-        results, // ahora es un map de arrays
+        results: resultsPayload, // Use the new descriptive array
       };
+
+      // 3. The fetch request remains the same, sending the new payload
       const res = await fetch("/api/routine-results", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
         credentials: "include",
       });
-      if (!res.ok) throw new Error(await res.text());
+
+      if (!res.ok) {
+        // Try to parse the error message from the server response
+        const errorData = await res.json();
+        throw new Error(errorData.error || "Ocurrió un error en el servidor.");
+      }
+
       onBack();
     } catch (err: any) {
       setError(err.message);
@@ -74,6 +103,7 @@ export function RoutineRunner({ routine, onBack }: RoutineRunnerProps) {
     }
   };
 
+  // The JSX for rendering the component remains exactly the same
   return (
     <div className="max-w-3xl mx-auto p-6">
       <button
@@ -105,7 +135,6 @@ export function RoutineRunner({ routine, onBack }: RoutineRunnerProps) {
               </div>
             </div>
 
-            {/* Series */}
             <div className="space-y-4 justify-around">
               {results[ex.id].map((series, idx) => (
                 <div
@@ -173,7 +202,7 @@ export function RoutineRunner({ routine, onBack }: RoutineRunnerProps) {
         ))}
       </div>
 
-      {error && <p className="text-red-500 mt-4">Error: {error}</p>}
+      {error && <p className="text-red-500 text-center mt-4">Error: {error}</p>}
 
       <button
         onClick={handleSubmit}

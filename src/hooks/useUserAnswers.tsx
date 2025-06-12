@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useState, useCallback } from "react";
 import { UserAnswer } from "@/types/UserAnswer";
-import { useAuth } from "./useAuth";
+import { useAuth } from "@/context/AuthContext";
 
 /**
  * UserAnswersState
