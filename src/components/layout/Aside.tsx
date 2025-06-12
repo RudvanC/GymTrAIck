@@ -39,34 +39,25 @@ export default function Sidebar() {
         {/* Navigation Links */}
         <nav className="mt-10 flex flex-col space-y-4">
           <Link href="/dashboard">
-            <Button className="px-4 py-2 rounded hover:bg-gray-700">
+            <Button className="px-4 py-2 rounded hover:bg-gray-700 w-full">
               Dashboard
             </Button>
           </Link>
           <Link href="/routine">
-            <Button className="px-4 py-2 rounded hover:bg-gray-700">
+            <Button className="px-4 py-2 rounded hover:bg-gray-700 w-full">
               Routine
             </Button>
           </Link>
           <Link href="/progress">
-            <Button className="px-4 py-2 rounded hover:bg-gray-700">
+            <Button className="px-4 py-2 rounded hover:bg-gray-700 w-full">
               Progress
             </Button>
           </Link>
-          {user && (
-            <Button
-              onClick={handleLogout}
-              className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-black bg-white hover:text-red-500 hover:bg-red-50 rounded-md transition-colors"
-            >
-              <LogOut className="w-4 h-4" />
-              <span>Logout</span>
-            </Button>
-          )}
         </nav>
       </div>
 
       {/* User Avatar Section */}
-      <div className="p-6">
+      <div className="p-6 gap-6">
         <Avatar className="w-12 h-12">
           <AvatarImage
             className="rounded-full"
@@ -75,6 +66,17 @@ export default function Sidebar() {
           />
           <AvatarFallback>GT</AvatarFallback>
         </Avatar>
+        {user && (
+          <>
+            <Button
+              onClick={handleLogout}
+              className="flex w-full items-center gap-2 mt-2 px-4 py-4 text-sm font-medium text-black bg-white hover:text-red-500 hover:bg-red-50 rounded-md transition-colors"
+            >
+              <LogOut className="w-4 h-4" />
+              <span>Logout</span>
+            </Button>
+          </>
+        )}
       </div>
     </aside>
   );
