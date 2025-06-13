@@ -55,6 +55,7 @@ export default function Sidebar() {
           />
           <AvatarFallback>GT</AvatarFallback>
         </Avatar>
+        <Button className="px-4 py-2 rounded hover:bg-gray-700">Logout</Button>
       </div>
     </aside>
   );

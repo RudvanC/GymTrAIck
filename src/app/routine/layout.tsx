@@ -10,7 +10,7 @@ export default function RoutineLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div className="min-h-screen min-h-full flex">
+    <div className="flex">
       <Sidebar />
       <main className="flex-1">{children}</main>
     </div>

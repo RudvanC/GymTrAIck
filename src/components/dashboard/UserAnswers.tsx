@@ -3,17 +3,25 @@
 import { useUserAnswers } from "@/hooks/useUserAnswers";
 import LoadingSpinner from "@/components/common/LoadingSpinner";
 import { AnswerCard } from "@/components/dashboard/AnswerCard";
+import type { UserAnswer } from "@/types/UserAnswer"; // Importar el tipo centralizado
 
-// UserAnswers component: Fetches and displays a list of the user's answers.
-export default function UserAnswers() {
-  // Fetches answers, loading state, and error state from the custom hook.
+/**
+ * Página del Dashboard que muestra las respuestas del usuario.
+ */
+export default function DashboardPage() {
+  // Obtenemos las respuestas, el estado de carga y los errores.
   const { answers, loading, error } = useUserAnswers();
 
-  // Display loading spinner while data is being fetched.
-  if (loading) return <LoadingSpinner />;
+  // Muestra un spinner mientras se cargan los datos.
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center h-screen">
+        <LoadingSpinner />
+      </div>
+    );
+  }
 
-  // Display an error message if fetching fails.
-  // Consider a more user-friendly error component or retry mechanism here.
+  // Muestra un mensaje de error si la carga falla.
   if (error) {
     return (
       <p className="text-center mt-20 text-red-600 font-semibold">
@@ -22,27 +30,70 @@ export default function UserAnswers() {
     );
   }
 
-  // Main content rendering.
+  // Tomamos solo el set de respuestas más reciente (asumiendo que es el primero del array).
+  const latestAnswer: UserAnswer | undefined = answers?.[0];
+
+  // --- CORRECCIÓN CLAVE ---
+  // Transformamos el objeto de respuesta en un array de objetos que `AnswerCard` pueda renderizar.
+  // Cada propiedad del objeto 'latestAnswer' se convierte en una tarjeta individual.
+  const displayableAnswers = latestAnswer
+    ? [
+        {
+          id: `${latestAnswer.id}-goal`,
+          question: "Objetivo Principal",
+          answer: latestAnswer.goal,
+        },
+        {
+          id: `${latestAnswer.id}-exp`,
+          question: "Experiencia",
+          answer: latestAnswer.training_experience,
+        },
+        {
+          id: `${latestAnswer.id}-avail`,
+          question: "Disponibilidad",
+          answer: latestAnswer.availability,
+        },
+        {
+          id: `${latestAnswer.id}-level`,
+          question: "Nivel de Fitness",
+          answer: latestAnswer.fitness_level,
+        },
+        {
+          id: `${latestAnswer.id}-duration`,
+          question: "Duración de Sesión",
+          answer: `${latestAnswer.session_duration}`,
+        },
+        {
+          id: `${latestAnswer.id}-injuries`,
+          question: "Lesiones",
+          answer:
+            latestAnswer.injuries && latestAnswer.injuries.length > 0
+              ? latestAnswer.injuries.join(", ")
+              : "Ninguna",
+        },
+      ]
+    : [];
+
+  // Renderizado del contenido principal.
   return (
     <div className="max-w-6xl mx-auto pt-20 px-4">
-      {/* Page title */}
-      <h1 className="text-3xl font-extrabold mb-8 text-purple-200">
-        Mis respuestas
+      {/* Título de la página */}
+      <h1 className="text-3xl font-extrabold mb-8 text-gray-800">
+        Mis Respuestas
       </h1>
 
-      {/* Conditional rendering based on whether answers exist. */}
-      {answers.length === 0 ? (
-        // Message displayed if no answers are found.
+      {/* Renderizado condicional basado en si existen respuestas. */}
+      {displayableAnswers.length === 0 ? (
+        // Mensaje si no se encuentran respuestas.
         <p className="text-center text-gray-600 text-lg">
           No tienes respuestas registradas.
         </p>
       ) : (
-        // Grid layout for displaying answer cards.
-        // Responsive columns: 1 for small, 2 for medium, 3 for large screens.
-        <div className="flex flex-col gap-6">
-          {/* Map through the answers array and render an AnswerCard for each. */}
-          {/* Using ans.id as key is crucial for React's rendering performance and state management. */}
-          {answers.map((ans) => (
+        // Layout de rejilla para las tarjetas de respuesta.
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {/* Mapeamos el array transformado y renderizamos una AnswerCard para cada una. */}
+          {/* Ahora 'ans' tiene el formato correcto { id, question, answer } que AnswerCard espera. */}
+          {displayableAnswers.map((ans) => (
             <AnswerCard key={ans.id} answer={ans} />
           ))}
         </div>
