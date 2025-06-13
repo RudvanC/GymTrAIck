@@ -1,6 +1,6 @@
 // src/app/auth/register/page.tsx - Defines the registration page for the application.
 
-import RegisterForm from "@/components/forms/RegisterForm"; // The actual registration form component
+import RegisterForm from "@/app/auth/register/components/RegisterForm"; // The actual registration form component
 import Navbar from "@/components/layout/NavbarGuest"; // The application's navigation bar
 
 /**
