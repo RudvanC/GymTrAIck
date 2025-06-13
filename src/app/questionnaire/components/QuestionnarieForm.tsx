@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import { Label } from "@/components/ui/label";  
 import {
   Select,
   SelectContent,
@@ -11,25 +11,25 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
-import { useAuth } from "@/hooks/useAuth";
 import { useRouter } from "next/navigation";
+import { useAuth } from "@/context/AuthContext";
 
 const injuriesOptions = [
-  "Ninguna",
-  "Rodilla",
-  "Hombro",
-  "Espalda",
-  "Tobillo",
-  "Muñeca",
+  { value: "none", label: "Ninguna" },
+  { value: "knee", label: "Rodilla" },
+  { value: "shoulder", label: "Hombro" },
+  { value: "back", label: "Espalda" },
+  { value: "ankle", label: "Tobillo" },
+  { value: "wrist", label: "Muñeca" },
 ];
 
 const sessionDurationOptions = [
-  "15min",
-  "30min",
-  "45min",
-  "60min",
-  "90min",
-  "120min",
+  { value: "15min", label: "15 minutos" },
+  { value: "30min", label: "30 minutos" },
+  { value: "45min", label: "45 minutos" },
+  { value: "60min", label: "1 hora" },
+  { value: "90min", label: "1 hora y media" },
+  { value: "120min", label: "2 horas" },
 ];
 
 export default function QuestionnaireForm() {
@@ -64,11 +64,11 @@ export default function QuestionnaireForm() {
 
     if (name === "injuries") {
       let newInjuries = [...formData.injuries];
-      if (value === "Ninguna") {
-        newInjuries = checked ? ["Ninguna"] : [];
+      if (value === "none") {
+        newInjuries = checked ? ["none"] : [];
       } else {
         if (checked) {
-          newInjuries = newInjuries.filter((inj) => inj !== "Ninguna");
+          newInjuries = newInjuries.filter((inj) => inj !== "none");
           if (!newInjuries.includes(value)) newInjuries.push(value);
         } else {
           newInjuries = newInjuries.filter((inj) => inj !== value);
@@ -223,15 +223,18 @@ export default function QuestionnaireForm() {
             </Label>
             <div className="flex flex-col gap-1">
               {injuriesOptions.map((inj) => (
-                <label key={inj} className="inline-flex items-center space-x-2">
+                <label
+                  key={inj.value}
+                  className="inline-flex items-center space-x-2"
+                >
                   <input
                     type="checkbox"
                     name="injuries"
-                    value={inj}
-                    checked={formData.injuries.includes(inj)}
+                    value={inj.value}
+                    checked={formData.injuries.includes(inj.value)}
                     onChange={handleChange}
                   />
-                  <span>{inj}</span>
+                  <span>{inj.label}</span>
                 </label>
               ))}
             </div>
@@ -337,8 +340,8 @@ export default function QuestionnaireForm() {
               </SelectTrigger>
               <SelectContent>
                 {sessionDurationOptions.map((option) => (
-                  <SelectItem key={option} value={option}>
-                    {option}
+                  <SelectItem key={option.value} value={option.value}>
+                    {option.label}
                   </SelectItem>
                 ))}
               </SelectContent>

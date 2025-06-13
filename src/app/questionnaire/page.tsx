@@ -1,5 +1,5 @@
 import Navbar from "@/components/layout/NavbarGuest";
-import QuestionnarieForm from "@/components/forms/QuestionnarieForm";
+import QuestionnarieForm from "@/app/questionnaire/components/QuestionnarieForm";
 
 export default function FormPage() {
   return (

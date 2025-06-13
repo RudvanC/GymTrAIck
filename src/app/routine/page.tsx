@@ -1,11 +1,9 @@
 "use client";
-import { RoutineList } from "@/components/routine/RoutineList";
-import NavbarAuth from "@/components/layout/NavbarAuth";
+import { RoutineList } from "@/app/routine/components/RoutineList";
 function ExercisesPage() {
   return (
     <>
-      <NavbarAuth />
-      <div className="h-screen max-w-7xl mx-auto p-8">
+      <div className="max-w-7xl mx-auto p-8">
         <RoutineList />
       </div>
     </>

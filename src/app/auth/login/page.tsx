@@ -1,6 +1,6 @@
 // src/app/auth/login/page.tsx - Defines the login page for the application.
 
-import LoginForm from "@/components/forms/LoginForm"; // The actual login form component
+import LoginForm from "@/app/auth/login/components/LoginForm"; // The actual login form component
 import Navbar from "@/components/layout/NavbarGuest"; // The application's navigation bar
 
 /**

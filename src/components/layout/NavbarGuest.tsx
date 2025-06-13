@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Dumbbell } from "lucide-react";
 import { useRouter } from "next/navigation";
 
-export default function Navbar() {
+export default function NavbarGuest() {
   const router = useRouter();
 
   return (

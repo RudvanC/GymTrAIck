@@ -1,7 +1,7 @@
 // hooks/useQuestionnaireForm.ts
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { useAuth } from "@/hooks/useAuth";
+import { useAuth } from "@/context/AuthContext";
 
 /**
  * Custom hook que maneja la lógica del formulario de cuestionario del usuario.
