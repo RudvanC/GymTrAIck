@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { Dumbbell } from "lucide-react";
+import { Dumbbell, LogOut } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@radix-ui/react-avatar";
 import { Button } from "@/components/ui/button";
 import {
@@ -13,14 +13,20 @@ import {
 } from "@radix-ui/react-menubar";
 import { createClient } from "@/lib/supabase/supabaseClient";
 import { useAuth } from "@/context/AuthContext";
+import { useRouter } from "next/navigation";
 
 export default function Sidebar() {
   const { user } = useAuth();
+  const router = useRouter();
 
-  const handleLogout = () => {
-    const supabase = createClient();
-    supabase.auth.signOut();
-    window.location.href = "/auth/login";
+  const handleLogout = async () => {
+    // Usamos el cliente de supabase para cerrar la sesión
+    await createClient().auth.signOut();
+
+    // ¡Paso clave! Refrescamos la ruta actual.
+    // Esto le indica a Next.js que vuelva a ejecutar la lógica del servidor,
+    // lo que actualizará la UI y protegerá las rutas si el usuario ya no tiene acceso.
+    router.refresh();
   };
 
   return (
@@ -40,30 +46,25 @@ export default function Sidebar() {
         {/* Navigation Links */}
         <nav className="mt-10 flex flex-col space-y-4">
           <Link href="/dashboard">
-            <Button className="px-4 py-2 rounded hover:bg-gray-700">
+            <Button className="px-4 py-2 rounded hover:bg-gray-700 w-full">
               Dashboard
             </Button>
           </Link>
           <Link href="/routine">
-            <Button className="px-4 py-2 rounded hover:bg-gray-700">
+            <Button className="px-4 py-2 rounded hover:bg-gray-700 w-full">
               Routine
             </Button>
           </Link>
           <Link href="/progress">
-            <Button className="px-4 py-2 rounded hover:bg-gray-700">
+            <Button className="px-4 py-2 rounded hover:bg-gray-700 w-full">
               Progress
-            </Button>
-          </Link>
-          <Link href="/settings">
-            <Button className="px-4 py-2 rounded hover:bg-gray-700">
-              Settings
             </Button>
           </Link>
         </nav>
       </div>
 
       {/* User Avatar Section */}
-      <div className="p-6">
+      <div className="p-6 gap-6">
         <Avatar className="w-12 h-12">
           <AvatarImage
             className="rounded-full"
