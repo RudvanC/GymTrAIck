@@ -4,8 +4,25 @@ import Link from "next/link";
 import { Dumbbell } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@radix-ui/react-avatar";
 import { Button } from "@/components/ui/button";
+import {
+  Menubar,
+  MenubarContent,
+  MenubarItem,
+  MenubarMenu,
+  MenubarTrigger,
+} from "@radix-ui/react-menubar";
+import { createClient } from "@/lib/supabase/supabaseClient";
+import { useAuth } from "@/context/AuthContext";
 
 export default function Sidebar() {
+  const { user } = useAuth();
+
+  const handleLogout = () => {
+    const supabase = createClient();
+    supabase.auth.signOut();
+    window.location.href = "/auth/login";
+  };
+
   return (
     <aside className="w-64 h-screen bg-gray-900 text-white flex flex-col justify-between sticky top-0">
       {/* Logo Section */}
@@ -55,7 +72,16 @@ export default function Sidebar() {
           />
           <AvatarFallback>GT</AvatarFallback>
         </Avatar>
-        <Button className="px-4 py-2 rounded hover:bg-gray-700">Logout</Button>
+        <div className="text-sm font-medium w-full text-center m-2">
+          Hola, <span className="font-bold text-white">{user?.email}</span>
+        </div>
+
+        <Button
+          className="px-4 py-2 rounded hover:text-white hover:bg-red-500 w-full m-2 bg-white text-black "
+          onClick={handleLogout}
+        >
+          Cerrar sesión
+        </Button>
       </div>
     </aside>
   );
