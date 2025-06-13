@@ -1,5 +1,5 @@
 "use client";
-import { RoutineList } from "@/components/routine/RoutineList";
+import { RoutineList } from "@/app/routine/components/RoutineList";
 function ExercisesPage() {
   return (
     <>

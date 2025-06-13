@@ -3,8 +3,8 @@
 import useSWR from "swr";
 import { useState } from "react";
 import type { Routine } from "@/app/api/base-routines/route";
-import LoadingSpinner from "../common/LoadingSpinner";
-import RoutineRunner from "@/components/routine/RoutineRunner";
+import LoadingSpinner from "../../../components/common/LoadingSpinner";
+import RoutineRunner from "@/app/routine/components/RoutineRunner";
 
 const fetcher = (url: string) =>
   fetch(url).then((res) => {

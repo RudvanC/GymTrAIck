@@ -2,7 +2,7 @@
 
 import { useUserAnswers } from "@/hooks/useUserAnswers";
 import LoadingSpinner from "@/components/common/LoadingSpinner";
-import { AnswerCard } from "@/components/dashboard/AnswerCard";
+import { AnswerCard } from "@/app/dashboard/components/AnswerCard";
 import {
   goalMap,
   fitnessLevelMap,
