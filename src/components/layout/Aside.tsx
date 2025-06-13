@@ -64,10 +64,10 @@ export default function Sidebar() {
       </div>
 
       {/* User Avatar Section */}
-      <div className="p-6 gap-6">
-        <Avatar className="w-12 h-12">
+      <div className="p-4 gap-6 flex">
+        <Avatar className="w-30 h-20">
           <AvatarImage
-            className="rounded-full"
+            className="rounded-full size-20"
             src="https://github.com/shadcn.png"
             alt="User Avatar"
           />
@@ -75,14 +75,13 @@ export default function Sidebar() {
         </Avatar>
         <div className="text-sm font-medium w-full text-center m-2">
           Hola, <span className="font-bold text-white">{user?.email}</span>
+          <Button
+            className="px-4 py-2 rounded hover:text-white hover:bg-red-500 w-full mt-2 bg-white text-black "
+            onClick={handleLogout}
+          >
+            Cerrar sesión
+          </Button>
         </div>
-
-        <Button
-          className="px-4 py-2 rounded hover:text-white hover:bg-red-500 w-full m-2 bg-white text-black "
-          onClick={handleLogout}
-        >
-          Cerrar sesión
-        </Button>
       </div>
     </aside>
   );
