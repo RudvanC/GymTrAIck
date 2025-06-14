@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";  
+import { Label } from "@/components/ui/label";
 import {
   Select,
   SelectContent,
@@ -48,14 +48,6 @@ export default function QuestionnaireForm() {
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [success, setSuccess] = useState(false);
-
-  useEffect(() => {
-    if (success) {
-      const timer = setTimeout(() => router.push("/dashboard"), 2500);
-      return () => clearTimeout(timer);
-    }
-  }, [success, router]);
 
   function handleChange(
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -85,24 +77,22 @@ export default function QuestionnaireForm() {
   }
 
   async function submitAnswers(payload: any) {
-    const response = await fetch("/api/user-answers", {
+    const res = await fetch("/api/user-answers", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(payload),
     });
 
-    if (!response.ok) {
-      const errorData = await response.json();
-      throw new Error(errorData.error || "Error al guardar las respuestas");
+    if (!res.ok) {
+      const err = await res.json();
+      throw new Error(err.error || "Error al guardar las respuestas");
     }
-
-    return response.json();
+    return res.json(); // ← { id: "uuid-nuevo" }
   }
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError(null);
-    setSuccess(false);
     setLoading(true);
 
     if (!user?.id) {
@@ -141,12 +131,13 @@ export default function QuestionnaireForm() {
     }
 
     try {
-      await submitAnswers({
+      const { id } = await submitAnswers({
         ...formData,
         user_id: user.id,
         availability: availabilityNum,
       });
-      setSuccess(true);
+      router.push(`/routine?answer_id=${id}`);
+
       setFormData({
         training_experience: "",
         availability: "",
@@ -231,7 +222,7 @@ export default function QuestionnaireForm() {
                     type="checkbox"
                     name="injuries"
                     value={inj.value}
-                    checked={formData.injuries.includes(inj.value)}
+                    checked={formData.injuries.includes(inj.value as string)}
                     onChange={handleChange}
                   />
                   <span>{inj.label}</span>
@@ -351,12 +342,6 @@ export default function QuestionnaireForm() {
           {/* Mensajes */}
           {error && (
             <p className="text-red-600 font-semibold text-center">{error}</p>
-          )}
-
-          {success && (
-            <p className="text-green-600 font-semibold text-center">
-              Respuestas guardadas correctamente. Redirigiendo...
-            </p>
           )}
 
           {/* Botón */}

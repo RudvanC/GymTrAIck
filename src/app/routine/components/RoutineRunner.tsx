@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import type { Routine } from "@/app/api/base-routines/route";
+import type { Routine } from "@/app/api/recommend-routines-by-answer/route";
 import { ArrowLeft } from "lucide-react";
 
 // The types for the component's state and props remain the same

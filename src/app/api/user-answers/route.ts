@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { createServerClient, type CookieOptions } from "@supabase/ssr";
+import { createClient } from "@supabase/supabase-js";
 import { cookies } from "next/headers";
 
 /**
@@ -62,80 +63,29 @@ export async function GET(request: Request) {
  * @param request - The incoming HTTP POST request containing user answers in JSON format.
  * @returns A JSON response indicating success or failure.
  */
+
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.SERVICE_ROLE_KEY! // clave de servicio (no pública)
+);
+
 export async function POST(request: Request) {
   try {
-    console.log("=== POST REQUEST INICIADO ===");
-    const cookieStore = await cookies();
+    const payload = await request.json();
 
-    const supabase = createServerClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-      {
-        cookies: {
-          get(name: string) {
-            return cookieStore.get(name)?.value;
-          },
-          set(name: string, value: string, options: CookieOptions) {
-            cookieStore.set({ name, value, ...options });
-          },
-          remove(name: string, options: CookieOptions) {
-            cookieStore.set({ name, value: "", ...options });
-          },
-        },
-      }
-    );
-
-    let answers;
-    try {
-      answers = await request.json();
-      console.log("Datos recibidos:", answers);
-    } catch (parseError) {
-      console.error("Error al parsear JSON:", parseError);
-      return NextResponse.json(
-        { error: "JSON inválido en el request" },
-        { status: 400 }
-      );
-    }
-
-    const requiredFields = [
-      "user_id",
-      "training_experience",
-      "availability",
-      "goal",
-      "fitness_level",
-      "session_duration",
-    ];
-    const missingFields = requiredFields.filter((field) => !answers[field]);
-
-    if (missingFields.length > 0) {
-      console.log("Campos faltantes:", missingFields);
-      return NextResponse.json(
-        { error: `Campos requeridos faltantes: ${missingFields.join(", ")}` },
-        { status: 400 }
-      );
-    }
-
-    console.log("Insertando en Supabase...");
+    // Inserta y pide solo la columna id
     const { data, error } = await supabase
       .from("user_answers")
-      .insert([answers])
-      .select();
+      .insert(payload)
+      .select("id")
+      .single(); // ← devuelve { id: "uuid" }
 
-    if (error) {
-      console.error("Error de Supabase:", error);
-      return NextResponse.json(
-        { error: `Error de base de datos: ${error.message}` },
-        { status: 500 }
-      );
-    }
+    if (error)
+      return NextResponse.json({ error: error.message }, { status: 500 });
 
-    console.log("Datos insertados exitosamente:", data);
-    return NextResponse.json({ data }, { status: 201 });
+    // ➜ devuelve el UUID al frontend
+    return NextResponse.json({ id: data.id }, { status: 201 });
   } catch (err: any) {
-    console.error("Error general en POST:", err);
-    return NextResponse.json(
-      { error: `Error del servidor: ${err.message}` },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: err.message }, { status: 500 });
   }
 }
