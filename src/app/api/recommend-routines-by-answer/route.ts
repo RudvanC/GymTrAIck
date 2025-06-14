@@ -1,8 +1,7 @@
-// app/api/base-routines/route.ts
+// app/api/recommended-routines/route.ts
 import { NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 
-// 1️⃣ Define y exporta el tipo Routine
 export type Routine = {
   id: string;
   slug: string;
@@ -23,10 +22,35 @@ export type Routine = {
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SERVICE_ROLE_KEY!
+  process.env.SERVICE_ROLE_KEY! // ⬅️  service-role para usar el RPC sin RLS
 );
 
-export async function GET() {
+export async function GET(req: Request) {
+  /** 1️⃣ Toma `answer_id` como query param ?answer_id=... */
+  const { searchParams } = new URL(req.url);
+  const answerId = searchParams.get("answer_id");
+  if (!answerId)
+    return NextResponse.json(
+      { error: "Missing query param: answer_id" },
+      { status: 400 }
+    );
+
+  /** 2️⃣ Llama al RPC que ya creaste */
+  const { data: recs, error: rpcError } = await supabase.rpc(
+    "recommend_routines_by_answer",
+    { p_answer_id: answerId }
+  );
+
+  if (rpcError)
+    return NextResponse.json({ error: rpcError.message }, { status: 500 });
+
+  // Si no hay recomendación, responde lista vacía
+  if (!recs || recs.length === 0) return NextResponse.json([]);
+
+  /** 3️⃣ Extrae los IDs recomendados */
+  const routineIds = recs.map((r: any) => r.routine_id);
+
+  /** 4️⃣ Trae los detalles con ejercicios sólo para esos IDs */
   const { data, error } = await supabase
     .from("base_routines")
     .select(
@@ -50,13 +74,13 @@ export async function GET() {
       )
     `
     )
-    .order("slug");
+    .in("id", routineIds); // ⬅️  filtro por los recomendados
 
-  if (error) {
+  if (error)
     return NextResponse.json({ error: error.message }, { status: 500 });
-  }
 
-  const routines = data!.map((r: any) => ({
+  /** 5️⃣ Misma transformación que usabas antes */
+  const routines: Routine[] = data!.map((r: any) => ({
     id: r.id,
     slug: r.slug,
     name: r.name,
