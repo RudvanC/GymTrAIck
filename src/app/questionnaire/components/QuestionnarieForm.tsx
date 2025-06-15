@@ -1,7 +1,5 @@
-/* app/(protected)/questionnaire/page.tsx */
 "use client";
-
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -15,7 +13,6 @@ import {
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
-import { createClient } from "@/lib/supabase/supabaseClient";
 
 const injuriesOptions = [
   { value: "none", label: "Ninguna" },
@@ -38,7 +35,6 @@ const sessionDurationOptions = [
 export default function QuestionnaireForm() {
   const router = useRouter();
   const { user } = useAuth();
-  const supabase = createClient();
 
   const [formData, setFormData] = useState({
     training_experience: "",
@@ -52,12 +48,19 @@ export default function QuestionnaireForm() {
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState(false);
 
-  /* -------------------------- helpers -------------------------- */
+  useEffect(() => {
+    if (success) {
+      const timer = setTimeout(() => router.push("/dashboard"), 2500);
+      return () => clearTimeout(timer);
+    }
+  }, [success, router]);
+
   function handleChange(
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) {
-    const { name, value, checked } = e.target as HTMLInputElement;
+    const { name, value, checked, type } = e.target as HTMLInputElement;
 
     if (name === "injuries") {
       let newInjuries = [...formData.injuries];
@@ -72,6 +75,9 @@ export default function QuestionnaireForm() {
         }
       }
       setFormData((prev) => ({ ...prev, injuries: newInjuries }));
+    } else if (type === "checkbox") {
+      // En caso de checkbox que no sea lesiones (aunque no tienes otros)
+      setFormData((prev) => ({ ...prev, [name]: checked }));
     } else {
       setFormData((prev) => ({ ...prev, [name]: value }));
     }
@@ -80,29 +86,42 @@ export default function QuestionnaireForm() {
   function handleSelectChange(name: string, value: string | boolean) {
     setFormData((prev) => ({ ...prev, [name]: value }));
   }
+  interface FormData {
+    training_experience: string;
+    availability: string;
+    injuries: string[];
+    equipment_access: boolean;
+    goal: string;
+    fitness_level: string;
+    session_duration: string;
+    user_id: string;
+  }
 
-  async function submitAnswers(payload: any) {
-    const res = await fetch("/api/user-answers", {
+  async function submitAnswers(payload: FormData) {
+    const response = await fetch("/api/user-answers", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(payload),
     });
 
-    if (!res.ok) {
-      const err = await res.json();
-      throw new Error(err.error || "Error al guardar las respuestas");
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.error || "Error al guardar las respuestas");
     }
-    return res.json(); // => { id: "uuid-nuevo" }
+
+    return response.json();
   }
 
-  /* -------------------------- submit -------------------------- */
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError(null);
+    setSuccess(false);
     setLoading(true);
 
     if (!user?.id) {
-      setError("Usuario no autenticado. Inicia sesión e inténtalo de nuevo.");
+      setError(
+        "Usuario no autenticado. Por favor, recarga la página o inicia sesión de nuevo."
+      );
       setLoading(false);
       return;
     }
@@ -115,7 +134,6 @@ export default function QuestionnaireForm() {
       session_duration,
     } = formData;
 
-    // Validaciones mínimas
     if (
       !training_experience ||
       !availability ||
@@ -136,24 +154,12 @@ export default function QuestionnaireForm() {
     }
 
     try {
-      const { id: answerId } = await submitAnswers({
+      await submitAnswers({
         ...formData,
         user_id: user.id,
-        availability: availabilityNum,
+        availability: availabilityNum.toString(),
       });
-
-      /* ◼️ Guarda el answer_id para futuras sesiones */
-      await supabase
-        .from("users")
-        .update({ last_answer_id: answerId })
-        .eq("id", user.id);
-
-      localStorage.setItem("last_answer_id", answerId);
-
-      // Redirige con parámetro
-      router.push(`/routine?answer_id=${answerId}`);
-
-      // Resetea formulario
+      setSuccess(true);
       setFormData({
         training_experience: "",
         availability: "",
@@ -163,16 +169,17 @@ export default function QuestionnaireForm() {
         fitness_level: "",
         session_duration: "",
       });
-    } catch (err: any) {
+    } catch (err: unknown) {
       setError(
-        err.message || "Error al guardar las respuestas. Inténtalo de nuevo."
+        err instanceof Error
+          ? err.message
+          : "Error al guardar las respuestas. Inténtalo de nuevo."
       );
     } finally {
       setLoading(false);
     }
   }
 
-  /* -------------------------- JSX -------------------------- */
   return (
     <Card className="max-w-2xl mx-auto mt-10 mb-10">
       <form onSubmit={handleSubmit}>
@@ -181,7 +188,6 @@ export default function QuestionnaireForm() {
             Cuestionario de Entrenamiento
           </CardTitle>
         </CardHeader>
-
         <CardContent className="space-y-6 p-4 sm:p-6">
           {/* Experiencia */}
           <div className="space-y-2">
@@ -318,10 +324,16 @@ export default function QuestionnaireForm() {
                 <SelectValue placeholder="Selecciona tu nivel actual" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="beginner">Principiante</SelectItem>
-                <SelectItem value="intermediate">Intermedio</SelectItem>
-                <SelectItem value="advanced">Avanzado</SelectItem>
-                <SelectItem value="athlete">Atleta</SelectItem>
+                <SelectItem value="beginner">
+                  Principiante (Poco o nada activo)
+                </SelectItem>
+                <SelectItem value="intermediate">
+                  Intermedio (Activo algunas veces por semana)
+                </SelectItem>
+                <SelectItem value="advanced">
+                  Avanzado (Activo regularmente)
+                </SelectItem>
+                <SelectItem value="athlete">Atleta o similar</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -329,7 +341,7 @@ export default function QuestionnaireForm() {
           {/* Duración sesión */}
           <div className="space-y-2">
             <Label htmlFor="session_duration">
-              Duración promedio de tus sesiones
+              Duración promedio de tus sesiones de entrenamiento
             </Label>
             <Select
               name="session_duration"
@@ -356,12 +368,18 @@ export default function QuestionnaireForm() {
             <p className="text-red-600 font-semibold text-center">{error}</p>
           )}
 
+          {success && (
+            <p className="text-green-600 font-semibold text-center">
+              Respuestas guardadas correctamente. Redirigiendo...
+            </p>
+          )}
+
           {/* Botón */}
           <Button
             type="submit"
             className="w-full"
             disabled={loading}
-            variant="default"
+            aria-busy={loading}
           >
             {loading ? "Guardando..." : "Enviar respuestas"}
           </Button>

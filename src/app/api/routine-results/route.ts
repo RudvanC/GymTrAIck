@@ -72,10 +72,14 @@ export async function POST(request: Request) {
       { message: "Rutina finalizada y guardada con éxito", data },
       { status: 201 }
     );
-  } catch (err: any) {
+  } catch (err: unknown) {
     console.error("Error en la API route:", err);
+
     return NextResponse.json(
-      { error: "Error en el servidor", details: err.message },
+      {
+        error: "Error en el servidor",
+        details: err instanceof Error ? err.message : String(err),
+      },
       { status: 500 }
     );
   }

@@ -2,7 +2,12 @@
 
 import { createContext, useContext, useEffect, useState } from "react";
 import { createClient } from "@/lib/supabase/supabaseClient";
-import type { User, SupabaseClient } from "@supabase/supabase-js";
+import type {
+  User,
+  SupabaseClient,
+  AuthChangeEvent,
+  Session,
+} from "@supabase/supabase-js";
 
 // Define la estructura del contexto
 interface AuthContextType {
@@ -34,9 +39,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     // Escuchamos cambios en la autenticación (signIn, signOut)
     const { data: authListener } = supabase.auth.onAuthStateChange(
-      (event: any, session: any) => {
-        //console.log("Event:", event);
-        //console.log("Session:", session);
+      (event: AuthChangeEvent, session: Session | null) => {
+        console.log("Event:", event);
+        console.log("Session:", session);
         setUser(session?.user ?? null);
         setLoading(false);
       }

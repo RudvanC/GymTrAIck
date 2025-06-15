@@ -75,9 +75,11 @@ export function useUserAnswers(): UserAnswersState {
 
       const fetchedAnswers = await res.json();
       setAnswers(fetchedAnswers || []);
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error("🧨 Error fetching user answers:", err);
-      setError(err.message || "Error al cargar las respuestas del usuario.");
+      setError(
+        err instanceof Error ? err.message : "Error al cargar las respuestas del usuario."
+      );
       setAnswers([]);
     } finally {
       setLoading(false);
