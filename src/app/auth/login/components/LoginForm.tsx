@@ -47,8 +47,10 @@ export default function LoginForm() {
       // router.refresh() es útil para que el servidor re-renderice con la nueva sesión.
       router.refresh();
       router.push("/dashboard");
-    } catch (err: any) {
-      setError(err.message || "Error durante el inicio de sesión.");
+    } catch (err: unknown) {
+      setError(
+        err instanceof Error ? err.message : "Error durante el inicio de sesión."
+      );
     } finally {
       setLoading(false);
     }

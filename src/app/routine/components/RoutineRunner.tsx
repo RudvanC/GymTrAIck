@@ -96,8 +96,10 @@ export function RoutineRunner({ routine, onBack }: RoutineRunnerProps) {
       }
 
       onBack();
-    } catch (err: any) {
-      setError(err.message);
+    } catch (err: unknown) {
+      setError(
+        err instanceof Error ? err.message : "Ocurrió un error en el servidor."
+      );
     } finally {
       setIsSubmitting(false);
     }

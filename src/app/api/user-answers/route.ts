@@ -76,16 +76,27 @@ export async function POST(request: Request) {
     // Inserta y pide solo la columna id
     const { data, error } = await supabase
       .from("user_answers")
-      .insert(payload)
-      .select("id")
-      .single(); // ← devuelve { id: "uuid" }
+      .insert([payload])
+      .select();
 
-    if (error)
-      return NextResponse.json({ error: error.message }, { status: 500 });
+    if (error) {
+      console.error("Error de Supabase:", error);
+      return NextResponse.json(
+        { error: `Error de base de datos: ${error.message}` },
+        { status: 500 }
+      );
+    }
 
-    // ➜ devuelve el UUID al frontend
-    return NextResponse.json({ id: data.id }, { status: 201 });
-  } catch (err: any) {
-    return NextResponse.json({ error: err.message }, { status: 500 });
+    console.log("Datos insertados exitosamente:", data);
+    return NextResponse.json({ data }, { status: 201 });
+  } catch (err: unknown) {
+    console.error("Error general en POST:", err);
+    return NextResponse.json(
+      {
+        error: "Error en el servidor",
+        details: err instanceof Error ? err.message : String(err),
+      },
+      { status: 500 }
+    );
   }
 }
