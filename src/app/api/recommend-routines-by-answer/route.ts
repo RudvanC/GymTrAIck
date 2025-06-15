@@ -22,11 +22,11 @@ export type Routine = {
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SERVICE_ROLE_KEY! // ⬅️  service-role para usar el RPC sin RLS
+  process.env.SERVICE_ROLE_KEY! // service-role → puede insertar
 );
 
 export async function GET(req: Request) {
-  /** 1️⃣ Toma `answer_id` como query param ?answer_id=... */
+  /* 1 — leer answer_id */
   const { searchParams } = new URL(req.url);
   const answerId = searchParams.get("answer_id");
   if (!answerId)
@@ -35,51 +35,79 @@ export async function GET(req: Request) {
       { status: 400 }
     );
 
-  /** 2️⃣ Llama al RPC que ya creaste */
-  const { data: recs, error: rpcError } = await supabase.rpc(
-    "recommend_routines_by_answer",
-    { p_answer_id: answerId }
-  );
+  /* 2 — ¿ya hay plan persistido en user_routine_plan? */
+  const { data: persisted, error: persistErr } = await supabase
+    .from("user_routine_plan") // ← tu nueva tabla
+    .select("routine_id, sort_order")
+    .eq("answer_id", answerId)
+    .order("sort_order");
 
-  if (rpcError)
-    return NextResponse.json({ error: rpcError.message }, { status: 500 });
+  if (persistErr)
+    return NextResponse.json({ error: persistErr.message }, { status: 500 });
 
-  // Si no hay recomendación, responde lista vacía
-  if (!recs || recs.length === 0) return NextResponse.json([]);
+  let routineIds: string[];
 
-  /** 3️⃣ Extrae los IDs recomendados */
-  const routineIds = recs.map((r: any) => r.routine_id);
+  /* 3 — si NO hay filas → generar, guardar y usar esa lista */
+  if (!persisted || persisted.length === 0) {
+    const { data: recs, error: rpcError } = await supabase.rpc(
+      "recommend_routines_by_answer",
+      { p_answer_id: answerId }
+    );
+    if (rpcError)
+      return NextResponse.json({ error: rpcError.message }, { status: 500 });
 
-  /** 4️⃣ Trae los detalles con ejercicios sólo para esos IDs */
+    if (!recs || recs.length === 0) return NextResponse.json([]);
+
+    /* insertar plan congelado (una vez) */
+    const rows = recs.map((r: any, idx: number) => ({
+      answer_id: answerId,
+      routine_id: r.routine_id,
+      sort_order: idx,
+    }));
+
+    const { error: insertErr } = await supabase
+      .from("user_routine_plan")
+      .insert(rows);
+
+    if (insertErr)
+      return NextResponse.json({ error: insertErr.message }, { status: 500 });
+
+    routineIds = rows.map((r: any) => r.routine_id);
+  } else {
+    /* 4 — usar el plan ya guardado */
+    routineIds = persisted.map((p) => p.routine_id);
+  }
+
+  /* 5 — traer detalles de las rutinas con ejercicios */
   const { data, error } = await supabase
     .from("base_routines")
     .select(
       `
-      id,
-      slug,
-      name,
-      description,
-      base_routine_exercises (
-        sort_order,
-        sets,
-        reps,
-        exercises (
-          id,
-          name,
-          gif_url,
-          equipment,
-          target,
-          secondary_muscles
+        id,
+        slug,
+        name,
+        description,
+        base_routine_exercises (
+          sort_order,
+          sets,
+          reps,
+          exercises (
+            id,
+            name,
+            gif_url,
+            equipment,
+            target,
+            secondary_muscles
+          )
         )
-      )
-    `
+      `
     )
-    .in("id", routineIds); // ⬅️  filtro por los recomendados
+    .in("id", routineIds);
 
   if (error)
     return NextResponse.json({ error: error.message }, { status: 500 });
 
-  /** 5️⃣ Misma transformación que usabas antes */
+  /* 6 — transformar al shape del front */
   const routines: Routine[] = data!.map((r: any) => ({
     id: r.id,
     slug: r.slug,
