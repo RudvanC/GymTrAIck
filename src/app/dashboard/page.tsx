@@ -7,7 +7,6 @@ import {
   goalMap,
   fitnessLevelMap,
   trainingExperienceMap,
-  injuriesMap,
   formatInjuries,
   formatSessionDuration,
 } from "@/lib/formatAnswer";
