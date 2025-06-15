@@ -1,16 +1,10 @@
 "use client";
 
 import Link from "next/link";
-import { Dumbbell, LogOut } from "lucide-react";
+import { Dumbbell } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@radix-ui/react-avatar";
 import { Button } from "@/components/ui/button";
-import {
-  Menubar,
-  MenubarContent,
-  MenubarItem,
-  MenubarMenu,
-  MenubarTrigger,
-} from "@radix-ui/react-menubar";
+
 import { createClient } from "@/lib/supabase/supabaseClient";
 import { useAuth } from "@/context/AuthContext";
 import { useRouter } from "next/navigation";
