@@ -35,8 +35,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     // Escuchamos cambios en la autenticación (signIn, signOut)
     const { data: authListener } = supabase.auth.onAuthStateChange(
       (event: any, session: any) => {
-        console.log("Event:", event);
-        console.log("Session:", session);
+        //console.log("Event:", event);
+        //console.log("Session:", session);
         setUser(session?.user ?? null);
         setLoading(false);
       }
