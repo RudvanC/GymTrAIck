@@ -7,6 +7,7 @@ import useSWR from "swr";
 import { useEffect, useState } from "react";
 import { createClient } from "@/lib/supabase/supabaseClient";
 import { useAuth } from "@/context/AuthContext";
+import RegenerateButton from "@/app/routine/components/RegenerateButton";
 
 const fetcher = (url: string) =>
   fetch(url).then(async (res) => {
@@ -113,6 +114,7 @@ export default function RoutinePage() {
   /* ───── render final ───── */
   return (
     <div className="max-w-7xl mx-auto p-8">
+      <RegenerateButton />
       <RoutineList answerId={answerId} />
     </div>
   );
