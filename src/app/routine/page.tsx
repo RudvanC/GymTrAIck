@@ -123,7 +123,6 @@ export default function RoutinePage() {
         />
       </div>
       <RoutineList answerId={answerId} />
-      <CustomRoutineList />
     </div>
   );
 }

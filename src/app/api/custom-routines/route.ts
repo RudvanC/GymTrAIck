@@ -150,3 +150,49 @@ export async function POST(req: NextRequest) {
 
   return NextResponse.json({ routineId: data }, { status: 201 });
 }
+
+/* ── DELETE /api/custom-routines?routine_id=<id> ─────────────── */
+export async function DELETE(req: NextRequest) {
+  /* 1.  validar query */
+  const { searchParams } = new URL(req.url);
+  const routineId = searchParams.get("routine_id");
+  if (!routineId)
+    return NextResponse.json(
+      { error: "Parámetro routine_id faltante" },
+      { status: 400 }
+    );
+
+  /* 2.  cliente + usuario */
+  const cookieStore = await nextCookies();
+  const supabase = createServerClient<Database>(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    {
+      cookies: {
+        getAll() {
+          return cookieStore.getAll();
+        },
+        setAll() {}, // no escribimos cookies en DELETE
+      },
+    }
+  );
+
+  const {
+    data: { user },
+    error: authError,
+  } = await supabase.auth.getUser();
+  if (authError || !user)
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+
+  /* 3.  eliminar (RLS ya garantiza user_id = auth.uid) */
+  const { error } = await supabase
+    .from("user_custom_routines")
+    .delete()
+    .eq("id", routineId);
+
+  if (error)
+    return NextResponse.json({ error: error.message }, { status: 500 });
+
+  /* 4.  devolver 204 No Content */
+  return new NextResponse(null, { status: 204 });
+}
