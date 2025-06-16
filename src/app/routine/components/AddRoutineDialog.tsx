@@ -76,8 +76,11 @@ export default function AddRoutineDialog({
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button variant="outline" size="sm" className="gap-2 text-black">
-          <Plus className="w-4 h-4 text-black" /> Añadir rutina
+        <Button
+          size="lg"
+          className="gap-2 text-white bg-green-600 hover:bg-green-700"
+        >
+          <Plus className="w-4 h-4" /> Añadir rutina
         </Button>
       </DialogTrigger>
 

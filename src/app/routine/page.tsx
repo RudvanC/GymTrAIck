@@ -8,6 +8,7 @@ import { useEffect, useState } from "react";
 import { createClient } from "@/lib/supabase/supabaseClient";
 import { useAuth } from "@/context/AuthContext";
 import AddRoutineDialog from "@/app/routine/components/AddRoutineDialog";
+import LoadingSpinner from "@/components/common/LoadingSpinner";
 
 const fetcher = (url: string) =>
   fetch(url).then(async (res) => {
@@ -76,11 +77,7 @@ export default function RoutinePage() {
 
   /* ───── estados intermedios ───── */
   if (!user || isLoading || checkingLast) {
-    return (
-      <div className="p-8 text-gray-600 max-w-xl mx-auto">
-        Cargando rutinas…
-      </div>
-    );
+    return <LoadingSpinner />;
   }
 
   /* ───── sin parámetro y sin last_answer_id ───── */
