@@ -63,8 +63,8 @@ export async function middleware(request: NextRequest) {
 
   // Opcional: Si el usuario está logueado y intenta acceder a /login o /register
   if (user && (pathname === "/auth/login" || pathname === "/auth/register")) {
-    // Redirigimos al dashboard
-    return NextResponse.redirect(new URL("/dashboard", request.url));
+    // Redirigimos al routine
+    return NextResponse.redirect(new URL("/routine", request.url));
   }
 
   // Si no se cumple ninguna condición, dejamos que la petición continúe

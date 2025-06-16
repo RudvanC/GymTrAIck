@@ -52,7 +52,7 @@ export default function QuestionnaireForm() {
 
   useEffect(() => {
     if (success) {
-      const timer = setTimeout(() => router.push("/dashboard"), 2500);
+      const timer = setTimeout(() => router.push("/routine"), 2500);
       return () => clearTimeout(timer);
     }
   }, [success, router]);
