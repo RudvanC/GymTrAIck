@@ -1,6 +1,6 @@
 "use client";
 
-import useSWR from "swr";
+import useSWR, { mutate } from "swr";
 import { useState } from "react";
 import type { Routine } from "@/app/api/recommend-routines-by-answer/route";
 import LoadingSpinner from "@/components/common/LoadingSpinner";
@@ -28,6 +28,7 @@ export default function RoutineList({ answerId }: RoutineListProps) {
     fetcher
   );
 
+  const [open, setOpen] = useState(false);
   const [selectedRoutine, setSelectedRoutine] = useState<Routine | null>(null);
 
   /* Estado de error / carga */
@@ -104,6 +105,7 @@ export default function RoutineList({ answerId }: RoutineListProps) {
           </section>
         ))}
       </div>
+
       <div className="bg-gray-900 border border-gray-700 rounded-xl p-6 mt-8 shadow-sm">
         <h3 className="text-lg font-semibold text-white mb-2">
           ¿No te gusta esta rutina?
@@ -114,6 +116,7 @@ export default function RoutineList({ answerId }: RoutineListProps) {
         <p className="text-sm text-gray-500 mb-4">
           Esta acción reemplazará la rutina actual. Asegúrate de querer hacerlo.
         </p>
+
         <RegenerateButton />
       </div>
     </>
