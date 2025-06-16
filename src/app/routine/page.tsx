@@ -9,6 +9,7 @@ import { createClient } from "@/lib/supabase/supabaseClient";
 import { useAuth } from "@/context/AuthContext";
 import AddRoutineDialog from "@/app/routine/components/AddRoutineDialog";
 import LoadingSpinner from "@/components/common/LoadingSpinner";
+import AddCustomRoutineDialog from "@/app/routine/components/AddCustomRoutineDialog";
 
 const fetcher = (url: string) =>
   fetch(url).then(async (res) => {
@@ -111,7 +112,8 @@ export default function RoutinePage() {
   /* ───── render final ───── */
   return (
     <div className="max-w-7xl mx-auto p-8">
-      <div className="flex justify-end p-4">
+      <div className="flex gap-4 justify-end p-4">
+        <AddCustomRoutineDialog />
         <AddRoutineDialog
           answerId={answerId!}
           onAdded={() =>
