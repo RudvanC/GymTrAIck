@@ -6,6 +6,7 @@ import type { Routine } from "@/app/api/recommend-routines-by-answer/route";
 import LoadingSpinner from "@/components/common/LoadingSpinner";
 import RoutineRunner from "@/app/routine/components/RoutineRunner";
 import RegenerateButton from "@/app/routine/components/RegenerateButton";
+import { DeleteRoutineButton } from "@/app/routine/components/DeleteRoutineButton";
 
 /* Utilidad genérica para fetch + manejo de errores */
 const fetcher = (url: string) =>
@@ -56,10 +57,17 @@ export default function RoutineList({ answerId }: RoutineListProps) {
             key={routine.id}
             className="bg-gray-900 border border-gray-700 rounded-xl p-6 shadow-md hover:shadow-lg transition"
           >
-            <h2 className="text-xl font-bold text-white mb-2">
-              {routine.name}
-            </h2>
-
+            <div className="flex w-full justify-between">
+              <h2 className="flex text-xl font-bold text-white items-center">
+                {routine.name}
+              </h2>{" "}
+              <span className="justify-end">
+                <DeleteRoutineButton
+                  answerId={answerId!}
+                  routineId={routine.id}
+                />
+              </span>
+            </div>
             {routine.description && (
               <p className="text-sm text-gray-400 mb-4">
                 {routine.description}
