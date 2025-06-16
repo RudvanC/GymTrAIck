@@ -22,6 +22,74 @@ const isValid = (name: string, rows: z.infer<typeof ExerciseRow>[]) =>
   name.trim().length >= 3 &&
   rows.length >= 1 &&
   rows.every((r) => r.exercise_id);
+export async function GET() {
+  const cookieStore = await nextCookies();
+  const supabase = createServerClient<Database>(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    {
+      cookies: {
+        getAll() {
+          return cookieStore.getAll();
+        },
+        setAll() {}, // GET no escribe cookies
+      },
+    }
+  );
+
+  /* usuario */
+  const {
+    data: { user },
+    error: authErr,
+  } = await supabase.auth.getUser();
+  if (authErr || !user)
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+
+  /* cabecera + detalle */
+  const { data, error } = await supabase
+    .from("user_custom_routines")
+    .select(
+      `
+        id,
+        name,
+        description,
+        user_custom_routine_exercises (
+          exercise_id,
+          sets,
+          reps,
+          position,
+          exercises (
+            name,
+            target
+          )
+        )
+      `
+    )
+    .eq("user_id", user.id)
+    .order("created_at", { ascending: false });
+
+  if (error)
+    return NextResponse.json({ error: error.message }, { status: 500 });
+
+  /* shape para el front */
+  const payload = (data ?? []).map((r) => ({
+    id: String(r.id), // string para que encaje con Routine
+    name: r.name,
+    description: r.description,
+    isCustom: true,
+    exercises: r.user_custom_routine_exercises
+      .sort((a, b) => a.position - b.position)
+      .map((e) => ({
+        id: e.exercise_id,
+        name: e.exercises?.name,
+        target: e.exercises?.target,
+        sets: e.sets,
+        reps: e.reps,
+      })),
+  }));
+
+  return NextResponse.json(payload);
+}
 
 /* ── POST /api/custom-routines ───────────────────────────────── */
 export async function POST(req: NextRequest) {

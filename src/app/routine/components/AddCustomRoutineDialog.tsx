@@ -8,6 +8,7 @@ import { createBrowserClient } from "@supabase/ssr";
 import { Database } from "@/lib/supabase/database.types";
 import { DialogTrigger } from "@/components/ui/dialog";
 import { DialogDescription, DialogTitle } from "@radix-ui/react-dialog";
+import { mutate } from "swr";
 
 export default function AddCustomRoutineDialog() {
   const supabase = createBrowserClient<Database>(
@@ -53,6 +54,7 @@ export default function AddCustomRoutineDialog() {
       body: JSON.stringify({ name, description, exercises: rows }),
     });
     if (res.ok) {
+      mutate("/api/custom-routines");
       // TODO: toast éxito + redirect a la rutina recién creada
     } else {
       // TODO: toast error

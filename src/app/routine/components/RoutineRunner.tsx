@@ -1,8 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import type { Routine } from "@/app/api/recommend-routines-by-answer/route";
-import { ArrowLeft, Dot } from "lucide-react";
+import type { Routine } from "@/app/routine/types/all";
+import { ArrowLeft } from "lucide-react";
 
 // The types for the component's state and props remain the same
 interface SeriesResult {
@@ -146,7 +146,8 @@ export function RoutineRunner({ routine, onBack }: RoutineRunnerProps) {
                 </h2>
                 <p className="text-sm text-gray-500">
                   <span className="font-semibold">Equipo:</span>{" "}
-                  {capitalizeFirstLetter(ex.equipment)} <br />
+                  {ex.equipment ? capitalizeFirstLetter(ex.equipment) : ""}{" "}
+                  <br />
                   <span className="font-semibold"> Músculos:</span>{" "}
                   {capitalizeFirstLetter(ex.target)}
                 </p>
