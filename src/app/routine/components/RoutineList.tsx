@@ -8,6 +8,7 @@ import RoutineRunner from "@/app/routine/components/RoutineRunner";
 import RegenerateButton from "@/app/routine/components/RegenerateButton";
 import { DeleteRoutineButton } from "@/app/routine/components/DeleteRoutineButton";
 import CustomRoutineList from "./CustomRoutineList";
+import { Button } from "@/components/ui/button";
 
 /* Utilidad genérica para fetch + manejo de errores */
 const fetcher = (url: string) =>
@@ -58,61 +59,60 @@ export default function RoutineList({ answerId }: RoutineListProps) {
       </h2>
       <div className="grid gap-6 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
         {data.map((routine) => (
-          <div
+          <section
             key={routine.id}
-            onClick={() => setSelectedRoutine(routine)}
-            className="cursor-pointer"
+            className="flex flex-col justify-between bg-gray-900 border border-gray-700 rounded-xl p-6 shadow-md hover:shadow-lg transition min-h-[260px]"
           >
-            <section
-              key={routine.id}
-              className="bg-gray-900 border border-gray-700 rounded-xl p-6 shadow-md hover:shadow-lg transition h-52"
-            >
-              <div className="flex w-full justify-between">
-                <h2 className="flex text-xl font-bold text-white items-center">
-                  {routine.name}
-                </h2>{" "}
-                <span className="justify-end">
-                  <DeleteRoutineButton
-                    answerId={answerId!}
-                    routineId={routine.id}
-                  />
-                </span>
-              </div>
-              {routine.description && (
-                <p className="text-sm text-gray-400 mb-4">
-                  {routine.description}
-                </p>
-              )}
+            {/* Título y botón borrar */}
+            <div className="flex justify-between items-start mb-2">
+              <h2 className="text-xl font-bold text-white">{routine.name}</h2>
+              <DeleteRoutineButton
+                answerId={answerId!}
+                routineId={routine.id}
+              />
+            </div>
 
-              <div className="flex justify-between items-end mt-auto">
-                <div>
-                  <p className="text-sm text-gray-300">
-                    🏋️ Ejercicios:{" "}
-                    <span className="font-medium text-white">
-                      {routine.exercises.length}
-                    </span>
-                  </p>
-                  <p className="text-sm text-gray-400 mt-1">
-                    💪 Músculos:{" "}
-                    {Array.from(
-                      new Set(
-                        routine.exercises.map((e: any) =>
-                          capitalizeFirstLetter(e.target)
-                        )
+            {/* Descripción */}
+            {routine.description && (
+              <p className="text-sm text-gray-400 mb-4">
+                {routine.description}
+              </p>
+            )}
+
+            {/* Info + botón ejecutar */}
+            <div className="mt-auto flex justify-between items-end">
+              <div>
+                <p className="text-sm text-gray-300">
+                  🏋️ Ejercicios:{" "}
+                  <span className="font-medium text-white">
+                    {routine.exercises.length}
+                  </span>
+                </p>
+                <p className="text-sm text-gray-400 mt-1">
+                  💪 Músculos:{" "}
+                  {Array.from(
+                    new Set(
+                      routine.exercises.map((e: any) =>
+                        capitalizeFirstLetter(e.target)
                       )
-                    ).join(", ")}
-                  </p>
-                </div>
+                    )
+                  ).join(", ")}
+                </p>
               </div>
-            </section>
-          </div>
+
+              <Button
+                onClick={() => setSelectedRoutine(routine)}
+                className="border border-gray-700 bg-gray-900 hover:bg-green-600 hover:text-white justify-self-end flex"
+              >
+                Empezar
+              </Button>
+            </div>
+          </section>
         ))}
       </div>
 
+      {/* Rutinas personalizadas */}
       <div className="mt-8">
-        <h2 className="text-2xl font-semibold text-white mb-2">
-          Rutinas personalizadas
-        </h2>
         <CustomRoutineList />
       </div>
 

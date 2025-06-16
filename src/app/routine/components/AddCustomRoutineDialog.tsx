@@ -1,13 +1,12 @@
 "use client";
-import { Dialog, DialogContent } from "@/components/ui/dialog";
+
+import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useCustomRoutineForm } from "@/app/routine/hooks/useCustomRoutineForm";
 import { useEffect, useState } from "react";
 import { createBrowserClient } from "@supabase/ssr";
 import { Database } from "@/lib/supabase/database.types";
-import { DialogTrigger } from "@/components/ui/dialog";
-import { DialogDescription, DialogTitle } from "@radix-ui/react-dialog";
 import { mutate } from "swr";
 
 export default function AddCustomRoutineDialog() {
@@ -15,6 +14,7 @@ export default function AddCustomRoutineDialog() {
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
   );
+
   const {
     name,
     setName,
@@ -24,14 +24,16 @@ export default function AddCustomRoutineDialog() {
     setRows,
     addRow,
     removeRow,
-    swapRows,
     isValid,
   } = useCustomRoutineForm();
 
-  // cargar ejercicios para el <select>
   const [exerciseOptions, setExerciseOptions] = useState<
     { id: string; name: string }[]
   >([]);
+
+  const [isOpen, setIsOpen] = useState(false); // controla visibilidad modal
+  const [isSaving, setIsSaving] = useState(false); // estado de carga
+  const [isSaved, setIsSaved] = useState(false); // estado final exitoso
 
   useEffect(() => {
     supabase
@@ -47,31 +49,45 @@ export default function AddCustomRoutineDialog() {
       });
   }, [supabase]);
 
+  const resetState = () => {
+    setName("");
+    setDescription("");
+    setRows([]);
+    setIsSaving(false);
+    setIsSaved(false);
+  };
+
   const save = async () => {
+    setIsSaving(true);
+    setIsSaved(false);
     const res = await fetch("/api/custom-routines", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ name, description, exercises: rows }),
     });
+
     if (res.ok) {
       mutate("/api/custom-routines");
-      // TODO: toast éxito + redirect a la rutina recién creada
+      setIsSaved(true);
+      setTimeout(() => {
+        setIsOpen(false);
+        resetState();
+      }, 1000); // cierra con pequeño delay
     } else {
-      // TODO: toast error
+      // Manejar errores aquí si lo deseas
     }
+
+    setIsSaving(false);
   };
 
   return (
-    <Dialog>
+    <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
         <Button size="lg" className="text-black bg-white hover:bg-zinc-300">
           Crear rutina personalizada
         </Button>
       </DialogTrigger>
-      <DialogTitle className="hidden">Añadir rutina personalizada</DialogTitle>
-      <DialogDescription className="hidden">
-        Añadir rutina personalizada
-      </DialogDescription>
+
       <DialogContent className="max-w-2xl">
         <h2 className="text-xl text-black font-bold mb-4">
           Crear rutina personalizada
@@ -149,9 +165,17 @@ export default function AddCustomRoutineDialog() {
         </div>
 
         <div className="flex justify-end mt-6 gap-2 text-black">
-          <Button variant="outline">Cancelar</Button>
-          <Button disabled={!isValid} onClick={save}>
-            Guardar
+          <Button
+            variant="outline"
+            onClick={() => {
+              setIsOpen(false);
+              resetState();
+            }}
+          >
+            Cancelar
+          </Button>
+          <Button disabled={!isValid || isSaving} onClick={save}>
+            {isSaving ? "Guardando..." : isSaved ? "Guardado" : "Guardar"}
           </Button>
         </div>
       </DialogContent>

@@ -5,6 +5,8 @@ import LoadingSpinner from "@/components/common/LoadingSpinner";
 import RoutineRunner from "./RoutineRunner";
 import type { CustomRoutine } from "@/app/routine/types/all";
 import { Trash2 } from "lucide-react";
+import AddCustomRoutineDialog from "./AddCustomRoutineDialog";
+import { Button } from "@/components/ui/button";
 
 const fetcher = (url: string) => fetch(url).then((r) => r.json());
 
@@ -15,8 +17,12 @@ export default function CustomRoutineList() {
   );
 
   const [selected, setSelected] = useState<CustomRoutine | null>(null);
-  const [deletingId, setDeletingId] = useState<string | null>(null); // id que estamos borrando
+  const [deletingId, setDeletingId] = useState<string | null>(null);
   const [errMsg, setErrMsg] = useState<string | null>(null);
+  const [open, setOpen] = useState(false);
+  const [routineToDelete, setRoutineToDelete] = useState<CustomRoutine | null>(
+    null
+  );
 
   if (error)
     return <p className="text-red-500">Error cargando personalizadas</p>;
@@ -29,9 +35,6 @@ export default function CustomRoutineList() {
   }
 
   const deleteRoutine = async (id: string) => {
-    if (!window.confirm("¿Eliminar esta rutina? Esta acción es irreversible."))
-      return;
-
     setDeletingId(id);
     setErrMsg(null);
     try {
@@ -45,8 +48,8 @@ export default function CustomRoutineList() {
         throw new Error(data.error ?? "Error eliminando la rutina");
       }
 
-      // refresca solo esta clave SWR
       mutate("/api/custom-routines");
+      setOpen(false); // cerrar modal
     } catch (e) {
       setErrMsg(e instanceof Error ? e.message : "Error eliminando la rutina");
     } finally {
@@ -61,45 +64,101 @@ export default function CustomRoutineList() {
       )}
 
       <div className="grid gap-6 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
-        {custom.map((r) => (
-          <section
-            key={r.id}
-            className="relative bg-gray-900 border border-gray-700 rounded-xl p-6 shadow-md hover:shadow-lg transition group"
-          >
-            {/* Botón eliminar (esquina) */}
-            <div className="flex w-full justify-between">
-              {/* Contenido tarjeta */}
-              <h2
-                className="text-xl font-bold text-white mb-2 cursor-pointer"
-                onClick={() => setSelected(r)}
+        {custom.length === 0 ? (
+          <div>
+            <p className="text-2xl font-semibold text-white mb-2">
+              No tienes rutinas personalizadas
+            </p>
+            <p className="text-sm text-gray-400 mb-4">
+              Puedes crear una rutina personalizada para tus necesidades.
+            </p>
+            <AddCustomRoutineDialog />
+          </div>
+        ) : (
+          <>
+            <p className="text-2xl font-semibold text-white mb-2 col-span-full">
+              Rutinas personalizadas
+            </p>
+
+            {custom.map((r) => (
+              <section
+                key={r.id}
+                className="relative bg-gray-900 border border-gray-700 rounded-xl p-6 shadow-md hover:shadow-lg transition group"
               >
-                {r.name}
-              </h2>
+                <div className="flex w-full justify-between">
+                  <h2
+                    className="text-xl font-bold text-white mb-2 cursor-pointer"
+                    onClick={() => setSelected(r)}
+                  >
+                    {r.name}
+                  </h2>
+                  <button
+                    title="Eliminar rutina"
+                    onClick={() => {
+                      setOpen(true);
+                      setRoutineToDelete(r);
+                    }}
+                    className="p-1 rounded hover:bg-red-600/20 text-red-400 hover:text-red-500"
+                  >
+                    <Trash2 className="w-5 h-5" />
+                  </button>
+                </div>
+
+                {r.description && (
+                  <p
+                    className="text-sm text-gray-400 mb-4 cursor-pointer"
+                    onClick={() => setSelected(r)}
+                  >
+                    {r.description}
+                  </p>
+                )}
+
+                <span className="text-xs bg-yellow-600 text-white px-2 py-0.5 rounded ">
+                  Personalizada
+                </span>
+                <Button
+                  onClick={() => setSelected(r)}
+                  className="border border-gray-700 bg-gray-900 hover:bg-green-600 hover:text-white justify-self-end flex"
+                >
+                  Empezar
+                </Button>
+              </section>
+            ))}
+          </>
+        )}
+      </div>
+
+      {/* ✅ MODAL CONFIRMACIÓN GLOBAL */}
+      {open && routineToDelete && (
+        <div className="fixed inset-0 bg-gray-900/70 flex items-center justify-center z-50">
+          <div className="bg-gray-900 border border-gray-700 rounded-xl p-6 w-full max-w-sm text-center">
+            <h2 className="text-white text-xl font-semibold mb-4">
+              ¿Eliminar rutina?
+            </h2>
+            <p className="text-gray-400 mb-6">
+              Esta acción no se puede deshacer. ¿Estás seguro?
+            </p>
+
+            <div className="flex justify-center gap-4">
               <button
-                title="Eliminar rutina"
-                disabled={deletingId === r.id}
-                onClick={() => deleteRoutine(r.id)}
-                className=" p-1 rounded hover:bg-red-600/20 text-red-400 hover:text-red-500 disabled:opacity-50"
+                onClick={() => setOpen(false)}
+                className="px-4 py-2 rounded bg-gray-700 hover:bg-gray-600 text-white"
               >
-                <Trash2 className="w-5 h-5" />
+                Cancelar
+              </button>
+              <button
+                onClick={() => deleteRoutine(routineToDelete.id)}
+                disabled={deletingId === routineToDelete.id}
+                className="px-4 py-2 rounded bg-red-600 hover:bg-red-700 text-white disabled:opacity-50"
+              >
+                {deletingId === routineToDelete.id
+                  ? "Eliminando..."
+                  : "Eliminar"}
               </button>
             </div>
-
-            {r.description && (
-              <p
-                className="text-sm text-gray-400 mb-4 cursor-pointer"
-                onClick={() => setSelected(r)}
-              >
-                {r.description}
-              </p>
-            )}
-
-            <span className="inline-block text-xs bg-yellow-600 text-white px-2 py-0.5 rounded">
-              Personalizada
-            </span>
-          </section>
-        ))}
-      </div>
+          </div>
+        </div>
+      )}
     </>
   );
 }
