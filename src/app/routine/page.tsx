@@ -10,7 +10,6 @@ import { useAuth } from "@/context/AuthContext";
 import AddRoutineDialog from "@/app/routine/components/AddRoutineDialog";
 import LoadingSpinner from "@/components/common/LoadingSpinner";
 import AddCustomRoutineDialog from "@/app/routine/components/AddCustomRoutineDialog";
-import CustomRoutineList from "./components/CustomRoutineList";
 
 const fetcher = (url: string) =>
   fetch(url).then(async (res) => {
