@@ -15,7 +15,7 @@ export default function RegisterPage() {
   return (
     // Main container for the registration page with full height and gradient background.
     // This styling is identical to LoginPage and should be moved to a shared auth layout.
-    <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
+    <div className="min-h-screen flex flex-col items-center justify-center bg-[var(--background-color)]">
       {/* Renders the application navbar. This would be part of the shared auth layout. */}
       <Navbar />
       {/* Renders the registration form component. */}
