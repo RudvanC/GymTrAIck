@@ -76,6 +76,11 @@
   --sidebar-ring: oklch(0.704 0.04 256.788);
   --background: oklch(1 0 0);
   --foreground: oklch(0.129 0.042 264.695);
+  --background-color: #0a0a0a;
+  --button-background: #007bff;
+  --button-text-color: #ffffff;
+  --primary-text-color: #ffffff;
+  --secondary-text-color: #b0b0b0;
 }
 
 .dark {
@@ -134,5 +139,5 @@ body {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
-  background: linear-gradient(to bottom right, #0f172a, #6d28d9, #0f172a);
+  background: var(--background-color);
 }

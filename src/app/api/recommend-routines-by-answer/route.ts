@@ -125,3 +125,33 @@ export async function GET(req: Request) {
 
   return NextResponse.json(routines);
 }
+
+export async function DELETE(req: Request) {
+  const { searchParams } = new URL(req.url);
+  const answerId = searchParams.get("answer_id");
+  const routineId = searchParams.get("routine_id");
+
+  if (!answerId || !routineId) {
+    return NextResponse.json(
+      { error: "Parámetros faltantes" },
+      { status: 400 }
+    );
+  }
+
+  try {
+    // ⇢ HARD DELETE
+    await supabase
+      .from("user_routine_plan")
+      .delete()
+      .eq("answer_id", answerId)
+      .eq("routine_id", routineId);
+
+    return NextResponse.json({ ok: true });
+  } catch (err) {
+    console.error(err);
+    return NextResponse.json(
+      { error: "Error eliminando la rutina" },
+      { status: 500 }
+    );
+  }
+}

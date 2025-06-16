@@ -9,7 +9,6 @@ import {
   CardDescription,
   CardTitle,
 } from "@/components/ui/card";
-import Link from "next/link";
 // CAMBIO 1: Importamos el hook desde la nueva ubicación (el contexto)
 import { useAuth } from "@/context/AuthContext";
 
@@ -46,10 +45,12 @@ export default function LoginForm() {
       // Ya no necesitamos el mensaje de "revisa tu correo" para un login con contraseña.
       // router.refresh() es útil para que el servidor re-renderice con la nueva sesión.
       router.refresh();
-      router.push("/dashboard");
+      router.push("/routine");
     } catch (err: unknown) {
       setError(
-        err instanceof Error ? err.message : "Error durante el inicio de sesión."
+        err instanceof Error
+          ? err.message
+          : "Error durante el inicio de sesión."
       );
     } finally {
       setLoading(false);

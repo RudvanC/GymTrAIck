@@ -3,11 +3,12 @@
 
 import { useSearchParams, useRouter } from "next/navigation";
 import RoutineList from "@/app/routine/components/RoutineList";
-import useSWR from "swr";
+import useSWR, { mutate } from "swr";
 import { useEffect, useState } from "react";
 import { createClient } from "@/lib/supabase/supabaseClient";
 import { useAuth } from "@/context/AuthContext";
-import RegenerateButton from "@/app/routine/components/RegenerateButton";
+import AddRoutineDialog from "@/app/routine/components/AddRoutineDialog";
+import LoadingSpinner from "@/components/common/LoadingSpinner";
 
 const fetcher = (url: string) =>
   fetch(url).then(async (res) => {
@@ -76,11 +77,7 @@ export default function RoutinePage() {
 
   /* ───── estados intermedios ───── */
   if (!user || isLoading || checkingLast) {
-    return (
-      <div className="p-8 text-gray-600 max-w-xl mx-auto">
-        Cargando rutinas…
-      </div>
-    );
+    return <LoadingSpinner />;
   }
 
   /* ───── sin parámetro y sin last_answer_id ───── */
@@ -114,7 +111,14 @@ export default function RoutinePage() {
   /* ───── render final ───── */
   return (
     <div className="max-w-7xl mx-auto p-8">
-      <RegenerateButton />
+      <div className="flex justify-end p-4">
+        <AddRoutineDialog
+          answerId={answerId!}
+          onAdded={() =>
+            mutate(`/api/recommend-routines-by-answer?answer_id=${answerId}`)
+          }
+        />
+      </div>
       <RoutineList answerId={answerId} />
     </div>
   );

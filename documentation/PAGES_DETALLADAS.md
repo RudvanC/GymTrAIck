@@ -267,10 +267,39 @@ flowchart TD
   B --> RoutineList --> Card --> '/routine/[id]'
 ```
 
+### Componente `<RegenerateButton />`
+Ubicación: `src/app/routine/components/RegenerateButton.tsx`
+
+#### Propósito
+Permite al usuario regenerar un plan de rutina existente. Al hacer clic, borra el plan actual asociado a `answer_id` para forzar la generación de uno nuevo.
+
+#### Flujo de operación
+1. Obtiene `answer_id` de `useSearchParams()`.
+2. Si no hay `answer_id`, no renderiza nada (early return).
+3. Al hacer clic:
+   - Habilita estado `loading`
+   - Envía `POST /api/regenerate-plan?answer_id=...`
+   - Si hay error, muestra alerta
+   - Si es exitoso, recarga la página con `window.location.reload()`
+
+#### Estados
+- `loading`: booleano que deshabilita el botón durante la petición
+
+#### Dependencias
+- `next/navigation` para `useSearchParams`
+- `react` para estado local
+
+#### Uso típico
+```tsx
+// En cualquier componente dentro de /routine
+<RegenerateButton />
+```
+
 ### Edge-cases
-* Falta `answer_id` y no hay histórico → mensaje instructivo.
-* Error de API → banner rojo.
+* Falta `answer_id` → componente no se renderiza.
+* Error de API → muestra `alert` con mensaje de error.
 * Lista vacía → copy de "sin recomendaciones".
+* Usuario no autenticado → middleware redirige a login.
 
 ---
 

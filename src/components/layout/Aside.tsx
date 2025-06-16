@@ -39,19 +39,19 @@ export default function Sidebar() {
         </div>
         {/* Navigation Links */}
         <nav className="mt-10 flex flex-col space-y-4">
-          <Link href="/dashboard">
-            <Button className="px-4 py-2 rounded hover:bg-gray-700 w-full">
-              Dashboard
-            </Button>
-          </Link>
           <Link href="/routine">
             <Button className="px-4 py-2 rounded hover:bg-gray-700 w-full">
               Routine
             </Button>
-          </Link>
+          </Link>{" "}
           <Link href="/progress">
             <Button className="px-4 py-2 rounded hover:bg-gray-700 w-full">
               Progress
+            </Button>
+          </Link>
+          <Link href="/dashboard">
+            <Button className="px-4 py-2 rounded hover:bg-gray-700 w-full">
+              Dashboard
             </Button>
           </Link>
         </nav>

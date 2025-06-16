@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import type { Routine } from "@/app/api/recommend-routines-by-answer/route";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Dot } from "lucide-react";
 
 // The types for the component's state and props remain the same
 interface SeriesResult {
@@ -105,19 +105,25 @@ export function RoutineRunner({ routine, onBack }: RoutineRunnerProps) {
     }
   };
 
+  function capitalizeFirstLetter(str: string) {
+    return str.charAt(0).toUpperCase() + str.slice(1);
+  }
+
   // The JSX for rendering the component remains exactly the same
   return (
-    <div className="max-w-3xl mx-auto p-6">
+    <div className="max-w-5xl mx-auto p-6">
       <button
         onClick={onBack}
-        className="flex items-center text-gray-600 hover:text-gray-900 mb-6"
+        className="flex items-center text-[var(--secondary-text-color)] hover:text-[var(--primary-text-color)] mb-6"
       >
         <ArrowLeft className="w-5 h-5 mr-1" /> Volver a rutinas
       </button>
 
       <h1 className="text-3xl font-bold mb-2">{routine.name}</h1>
       {routine.description && (
-        <p className="text-gray-700 mb-6">{routine.description}</p>
+        <p className="text-[var(--secondary-text-color)] mb-6">
+          {routine.description}
+        </p>
       )}
 
       <div className="space-y-8">
@@ -127,61 +133,81 @@ export function RoutineRunner({ routine, onBack }: RoutineRunnerProps) {
               <img
                 src={ex.gif_url}
                 alt={ex.name}
-                className="w-24 h-24 rounded"
+                className="w-24 h-24 rounded object-cover"
+                onError={(e) => {
+                  const target = e.target as HTMLImageElement;
+                  target.onerror = null;
+                  target.src = "https://placehold.co/96x96?text=Sin+imagen";
+                }}
               />
               <div>
-                <h2 className="text-xl font-semibold">{ex.name}</h2>
+                <h2 className="text-xl font-semibold">
+                  {capitalizeFirstLetter(ex.name)}
+                </h2>
                 <p className="text-sm text-gray-500">
-                  {ex.sets}×{ex.reps} · {ex.equipment} · {ex.target}
+                  <span className="font-semibold">Equipo:</span>{" "}
+                  {capitalizeFirstLetter(ex.equipment)} <br />
+                  <span className="font-semibold"> Músculos:</span>{" "}
+                  {capitalizeFirstLetter(ex.target)}
                 </p>
               </div>
             </div>
+            {/* Encabezado de columnas */}
+            <div className="grid grid-cols-4 gap-4 text-center font-bold mb-2 px-2">
+              <span>Serie</span>
+              <span>Peso</span>
+              <span>Reps</span>
+              <span>Finalizado</span>
+            </div>
 
-            <div className="space-y-4 justify-around">
+            {/* Filas de series */}
+            <div className="space-y-2">
               {results[ex.id].map((series, idx) => (
                 <div
                   key={idx}
-                  className="flex justify-around gap-4 items-center"
+                  className="grid grid-cols-4 gap-4 items-center px-2 py-2 bg-gray-900 rounded-lg shadow-sm"
                 >
-                  <span className="font-medium">Serie {idx + 1}</span>
+                  {/* Índice de serie */}
+                  <span className="text-center text-white font-medium">
+                    {idx + 1}
+                  </span>
+                  {/* Reps */}
+                  <input
+                    type="number"
+                    value={series.actualReps}
+                    min={0}
+                    onChange={(e) =>
+                      handleSeriesChange(
+                        ex.id,
+                        idx,
+                        "actualReps",
+                        +e.target.value
+                      )
+                    }
+                    className="w-full px-3 py-2 text-center rounded bg-gray-800 text-white border border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    placeholder="Reps"
+                  />
 
-                  <label className="flex items-center space-x-2">
-                    <span>Reps:</span>
-                    <input
-                      type="number"
-                      value={series.actualReps}
-                      min={0}
-                      onChange={(e) =>
-                        handleSeriesChange(
-                          ex.id,
-                          idx,
-                          "actualReps",
-                          +e.target.value
-                        )
-                      }
-                      className="w-16 border rounded px-2 py-1"
-                    />
-                  </label>
+                  {/* Peso */}
+                  <input
+                    type="number"
+                    value={series.weight}
+                    min={0}
+                    onChange={(e) =>
+                      handleSeriesChange(ex.id, idx, "weight", +e.target.value)
+                    }
+                    className="w-full px-3 py-2 text-center rounded bg-gray-800 text-white border border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    placeholder="Peso (kg)"
+                  />
 
-                  <label className="flex items-center space-x-2">
-                    <span>Peso (kg):</span>
-                    <input
-                      type="number"
-                      value={series.weight}
-                      min={0}
-                      onChange={(e) =>
-                        handleSeriesChange(
-                          ex.id,
-                          idx,
-                          "weight",
-                          +e.target.value
-                        )
-                      }
-                      className="w-20 border rounded px-2 py-1"
-                    />
-                  </label>
-
-                  <label className="flex items-center space-x-2">
+                  {/* Finalizado */}
+                  <label
+                    className={`flex items-center justify-center space-x-2 px-4 py-2 rounded text-center cursor-pointer transition ${
+                      series.completed
+                        ? "bg-green-600 hover:bg-green-700"
+                        : "bg-blue-600 hover:bg-blue-700"
+                    } text-white`}
+                  >
                     <input
                       type="checkbox"
                       checked={series.completed}
@@ -193,9 +219,11 @@ export function RoutineRunner({ routine, onBack }: RoutineRunnerProps) {
                           e.target.checked
                         )
                       }
-                      className="form-checkbox"
+                      className="form-checkbox hidden"
                     />
-                    <span>Hecho</span>
+                    <span>
+                      {series.completed ? "✓ Finalizado" : "Marcar finalizado"}
+                    </span>
                   </label>
                 </div>
               ))}

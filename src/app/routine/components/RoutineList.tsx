@@ -1,10 +1,12 @@
 "use client";
 
-import useSWR from "swr";
+import useSWR, { mutate } from "swr";
 import { useState } from "react";
 import type { Routine } from "@/app/api/recommend-routines-by-answer/route";
 import LoadingSpinner from "@/components/common/LoadingSpinner";
 import RoutineRunner from "@/app/routine/components/RoutineRunner";
+import RegenerateButton from "@/app/routine/components/RegenerateButton";
+import { DeleteRoutineButton } from "@/app/routine/components/DeleteRoutineButton";
 
 /* Utilidad genérica para fetch + manejo de errores */
 const fetcher = (url: string) =>
@@ -26,6 +28,7 @@ export default function RoutineList({ answerId }: RoutineListProps) {
     fetcher
   );
 
+  const [open, setOpen] = useState(false);
   const [selectedRoutine, setSelectedRoutine] = useState<Routine | null>(null);
 
   /* Estado de error / carga */
@@ -42,39 +45,80 @@ export default function RoutineList({ answerId }: RoutineListProps) {
     );
   }
 
+  function capitalizeFirstLetter(str: string) {
+    return str.charAt(0).toUpperCase() + str.slice(1);
+  }
+
   /* Vista listado de rutinas */
   return (
-    <div className="grid gap-8">
-      {data.map((routine) => (
-        <section key={routine.id} className="p-6 border rounded-lg shadow">
-          <h2 className="text-2xl font-bold mb-2">{routine.name}</h2>
-
-          {routine.description && (
-            <p className="text-gray-600 mb-4">{routine.description}</p>
-          )}
-
-          <div className="flex justify-between items-center">
-            <div>
-              <p className="font-medium">
-                Ejercicios: {routine.exercises.length}
-              </p>
-              <p className="text-sm text-gray-500">
-                Músculos:{" "}
-                {Array.from(
-                  new Set(routine.exercises.map((e: any) => e.target))
-                ).join(", ")}
-              </p>
+    <>
+      <div className="grid gap-6 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
+        {data.map((routine) => (
+          <section
+            key={routine.id}
+            className="bg-gray-900 border border-gray-700 rounded-xl p-6 shadow-md hover:shadow-lg transition"
+          >
+            <div className="flex w-full justify-between">
+              <h2 className="flex text-xl font-bold text-white items-center">
+                {routine.name}
+              </h2>{" "}
+              <span className="justify-end">
+                <DeleteRoutineButton
+                  answerId={answerId!}
+                  routineId={routine.id}
+                />
+              </span>
             </div>
+            {routine.description && (
+              <p className="text-sm text-gray-400 mb-4">
+                {routine.description}
+              </p>
+            )}
 
-            <button
-              onClick={() => setSelectedRoutine(routine)}
-              className="px-4 py-2 bg-purple-500 text-white rounded hover:bg-purple-600"
-            >
-              Empezar rutina
-            </button>
-          </div>
-        </section>
-      ))}
-    </div>
+            <div className="flex justify-between items-end mt-auto">
+              <div>
+                <p className="text-sm text-gray-300">
+                  🏋️ Ejercicios:{" "}
+                  <span className="font-medium text-white">
+                    {routine.exercises.length}
+                  </span>
+                </p>
+                <p className="text-sm text-gray-400 mt-1">
+                  💪 Músculos:{" "}
+                  {Array.from(
+                    new Set(
+                      routine.exercises.map((e: any) =>
+                        capitalizeFirstLetter(e.target)
+                      )
+                    )
+                  ).join(", ")}
+                </p>
+              </div>
+
+              <button
+                onClick={() => setSelectedRoutine(routine)}
+                className="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-4 py-2 rounded-lg transition"
+              >
+                Empezar rutina
+              </button>
+            </div>
+          </section>
+        ))}
+      </div>
+
+      <div className="bg-gray-900 border border-gray-700 rounded-xl p-6 mt-8 shadow-sm">
+        <h3 className="text-lg font-semibold text-white mb-2">
+          ¿No te gusta esta rutina?
+        </h3>
+        <p className="text-sm text-gray-400 mb-1">
+          Puedes regenerarla si no se ajusta a tus necesidades.
+        </p>
+        <p className="text-sm text-gray-500 mb-4">
+          Esta acción reemplazará la rutina actual. Asegúrate de querer hacerlo.
+        </p>
+
+        <RegenerateButton />
+      </div>
+    </>
   );
 }

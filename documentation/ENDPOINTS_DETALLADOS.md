@@ -187,7 +187,15 @@ curl -X POST https://<host>/api/user-answers \
 Ruta del archivo: `src/app/api/recommend-routines-by-answer/route.ts`
 
 ### Descripción
-Devuelve una lista de rutinas recomendadas para la `answer_id` dada, con sus ejercicios ordenados.
+Devuelve una lista de rutinas recomendadas para la `answer_id` dada, con sus ejercicios ordenados. 
+
+#### Comportamiento idempotente (Actualización • Junio 2025)
+1. Primero busca en `user_routine_plan` un plan existente para el `answer_id` y usuario actual.
+2. Si existe, lo devuelve sin modificar la base de datos.
+3. Si NO existe:
+   - Ejecuta la RPC `recommend_routines_by_answer`.
+   - Inserta las rutinas resultantes en `user_routine_plan` (batch insert).
+   - Devuelve la colección recién creada.
 
 ### Autenticación
 Usa `service-role` key para acceder a una **RPC** sin restricciones RLS.
@@ -317,6 +325,52 @@ curl -X POST https://<host>/api/routine-results \
   -H "Cookie: sb-access-token=<jwt>" \
   -H "Content-Type: application/json" \
   -d '{"routineId":"a1b2-...","date":"2025-06-14","results":{...}}'
+```
+
+---
+
+## POST /api/regenerate-plan
+Ruta del archivo: `src/app/api/regenerate-plan/route.ts`
+
+### Descripción  
+Borra cualquier plan de rutina existente asociado al `answer_id` suministrado y deja que el próximo GET genere uno nuevo.  
+Devuelve `204 No Content` cuando la operación se completa.
+
+### Autenticación  
+Requiere cookie JWT válida; RLS en `user_routine_plan` asegura que solo se puedan borrar filas del propio usuario.
+
+### Parámetros de consulta  
+| Nombre      | Tipo   | Obligatorio | Descripción                             |
+|-------------|--------|-------------|-----------------------------------------|
+| `answer_id` | `uuid` | Sí          | Identificador de la respuesta de usuario|
+
+### Cuerpo de la petición  
+_No necesita cuerpo._
+
+### Respuesta (204 No Content)  
+Sin payload.
+
+### Errores  
+| Código | Condición                        | Ejemplo                               |
+|--------|----------------------------------|---------------------------------------|
+| 400    | Falta `answer_id`                | `{ "error": "Missing answer_id" }`    |
+| 401    | Usuario no autenticado           | `{ "error": "Unauthorized" }`         |
+| 500    | Error Supabase / RLS             | `{ "error": "<mensaje interno>" }`    |
+
+### Flujo interno  
+1. Valida que exista `answer_id`.  
+2. Crea cliente Supabase server-side con cookies.  
+3. `delete().eq('user_id', auth.uid()).eq('answer_id', answerId)` sobre `user_routine_plan`.  
+4. Retorna 204.
+
+### Notas de seguridad / rendimiento  
+* Se usa `delete` filtrado por `user_id`; RLS adicionalmente lo refuerza.  
+* Operación idempotente: si no hay filas, también devuelve 204.
+
+### Ejemplo cURL
+```bash
+curl -X POST "https://<host>/api/regenerate-plan?answer_id=d3387d63-..." \
+     -H "Cookie: sb-access-token=<jwt>"
 ```
 
 ---
