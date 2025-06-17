@@ -30,7 +30,6 @@ export default function RoutineList({ answerId }: RoutineListProps) {
     fetcher
   );
 
-  const [open, setOpen] = useState(false);
   const [selectedRoutine, setSelectedRoutine] = useState<Routine | null>(null);
 
   /* Estado de error / carga */

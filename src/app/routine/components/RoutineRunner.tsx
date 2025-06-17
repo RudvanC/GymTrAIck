@@ -114,7 +114,7 @@ export function RoutineRunner({ routine, onBack }: RoutineRunnerProps) {
     <div className="max-w-5xl mx-auto p-6">
       <button
         onClick={onBack}
-        className="flex items-center text-[var(--secondary-text-color)] hover:text-[var(--primary-text-color)] mb-6"
+        className="flex items-center text-lg font-semibold text-[var(--primary-text-color)] hover:text-[var(--primary-text-color)] mb-6"
       >
         <ArrowLeft className="w-5 h-5 mr-1" /> Volver a rutinas
       </button>
