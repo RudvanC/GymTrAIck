@@ -156,8 +156,8 @@ export function RoutineRunner({ routine, onBack }: RoutineRunnerProps) {
             {/* Encabezado de columnas */}
             <div className="grid grid-cols-4 gap-4 text-center font-bold mb-2 px-2">
               <span>Serie</span>
-              <span>Peso</span>
               <span>Reps</span>
+              <span>Peso</span>
               <span>Finalizado</span>
             </div>
 
