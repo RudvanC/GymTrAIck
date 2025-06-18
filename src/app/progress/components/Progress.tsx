@@ -1,8 +1,8 @@
 // app/progress/components/Progress.tsx
 
-"use client"; // <-- PASO 1: CONVERTIMOS ESTE COMPONENTE EN CLIENTE
+"use client";
 
-import { useState } from "react"; // <-- Importamos useState
+import { useState } from "react";
 import { UserRoutineResult } from "@/types/ProgressType";
 import type { Session } from "@supabase/supabase-js";
 
@@ -13,24 +13,17 @@ interface ProgressProps {
 }
 
 export default function Progress({ results, session, error }: ProgressProps) {
-  // PASO 2: Creamos un estado para saber qué tarjeta está abierta.
-  // Guardamos el 'id' del resultado, o 'null' si ninguna está abierta.
   const [openCardId, setOpenCardId] = useState<number | null>(null);
 
-  // Función para manejar el clic en una tarjeta
   const handleCardClick = (cardId: number) => {
-    // Si la tarjeta clicada ya está abierta, la cerramos (poniendo el id a null).
-    // Si no, la abrimos (guardando su id).
     setOpenCardId(openCardId === cardId ? null : cardId);
   };
 
   if (!session) {
-    // ... (código de 'no sesión' sin cambios)
     return <p>Inicia sesión para ver tu progreso.</p>;
   }
 
   if (error) {
-    // ... (código de error sin cambios)
     return <p>Error al cargar los datos: {error}</p>;
   }
 
@@ -47,21 +40,30 @@ export default function Progress({ results, session, error }: ProgressProps) {
         </p>
       ) : (
         <div className="space-y-4">
-          {" "}
-          {/* Reducimos un poco el espacio entre tarjetas */}
           {results.map((result) => {
-            // Determinamos si la tarjeta actual es la que está abierta
+            // Extraemos el tipo de un ejercicio y de una serie
+            type ExerciseType = UserRoutineResult["results"][number];
+            type SeriesType = ExerciseType["series"][number];
+
+            // 1️⃣ Normalizamos result.results a un array de ExerciseType
+            const exercisesData: ExerciseType[] = Array.isArray(result.results)
+              ? result.results
+              : typeof result.results === "string"
+              ? (JSON.parse(result.results) as ExerciseType[])
+              : result.results
+              ? ([result.results] as ExerciseType[])
+              : [];
+
             const isOpen = openCardId === result.id;
 
             return (
-              // PASO 3: Toda la tarjeta es ahora un botón clickable
               <div
                 key={result.id}
                 className="bg-gray-800 dark:bg-gray-800 rounded-lg shadow-md hover:shadow-lg transition-shadow cursor-pointer"
                 onClick={() => handleCardClick(result.id)}
               >
                 <div className="p-6">
-                  {/* --- Cabecera de la tarjeta --- */}
+                  {/* Cabecera */}
                   <div className="flex justify-between items-start">
                     <div>
                       <h2 className="text-xl font-semibold text-indigo-600 dark:text-indigo-400">
@@ -80,7 +82,6 @@ export default function Progress({ results, session, error }: ProgressProps) {
                         )}
                       </p>
                     </div>
-                    {/* La flecha ahora indica el estado de toda la tarjeta */}
                     <svg
                       className={`w-6 h-6 transform transition-transform duration-300 text-gray-400 ${
                         isOpen ? "rotate-180" : ""
@@ -98,7 +99,7 @@ export default function Progress({ results, session, error }: ProgressProps) {
                     </svg>
                   </div>
 
-                  {/* PASO 4: El contenido desplegable integrado directamente aquí */}
+                  {/* Contenido desplegable */}
                   <div
                     className={`overflow-hidden transition-all duration-500 ease-in-out ${
                       isOpen
@@ -107,43 +108,54 @@ export default function Progress({ results, session, error }: ProgressProps) {
                     }`}
                   >
                     <h3 className="font-semibold text-white dark:text-gray-200 mb-2">
-                      Ejercicios Realizados ({result.results.length})
+                      Ejercicios Realizados ({exercisesData.length})
                     </h3>
                     <ul className="space-y-2">
-                      {result.results.map((exercise) => (
-                        <li
-                          key={exercise.exerciseId}
-                          className="text-sm text-white dark:text-gray-300 pl-4 border-l-2 border-indigo-200 dark:border-indigo-800"
-                        >
-                          <span className="font-medium capitalize">
-                            {exercise.exerciseName}
-                          </span>
-                          <span className="text-gray-500 dark:text-gray-400">
-                            {" "}
-                            - {exercise.series.length} series
-                            <div className="mt-2 pl-4 text-sm text-gray-500 dark:text-gray-400">
-                              <p>
-                                <span className="font-medium text-gray-400 dark:text-gray-300">
-                                  Repeticiones:
-                                </span>{" "}
-                                {exercise.series
-                                  .map((serie) => serie.actualReps)
-                                  .join(" - ")}
-                              </p>
+                      {exercisesData.map((exercise) => {
+                        // 2️⃣ Normalizamos exercise.series a un array de SeriesType
+                        const seriesData: SeriesType[] = Array.isArray(
+                          exercise.series
+                        )
+                          ? exercise.series
+                          : typeof exercise.series === "string"
+                          ? (JSON.parse(exercise.series) as SeriesType[])
+                          : exercise.series
+                          ? ([exercise.series] as SeriesType[])
+                          : [];
 
-                              {/* Opcional: Mostrar los pesos en una línea separada si es necesario */}
-                              <p>
-                                <span className="font-medium text-gray-400 dark:text-gray-300">
-                                  Pesos (kg):     
-                                </span>{" "}
-                                {exercise.series
-                                  .map((serie) => serie.weight)
-                                  .join(" - ")}
-                              </p>
-                            </div>
-                          </span>
-                        </li>
-                      ))}
+                        return (
+                          <li
+                            key={exercise.exerciseId}
+                            className="text-sm text-white dark:text-gray-300 pl-4 border-l-2 border-indigo-200 dark:border-indigo-800"
+                          >
+                            <span className="font-medium capitalize">
+                              {exercise.exerciseName}
+                            </span>
+                            <span className="text-gray-500 dark:text-gray-400">
+                              {" "}
+                              - {seriesData.length} series
+                              <div className="mt-2 pl-4 text-sm text-gray-500 dark:text-gray-400">
+                                <p>
+                                  <span className="font-medium text-gray-400 dark:text-gray-300">
+                                    Repeticiones:
+                                  </span>{" "}
+                                  {seriesData
+                                    .map((s: SeriesType) => s.actualReps)
+                                    .join(" - ")}
+                                </p>
+                                <p>
+                                  <span className="font-medium text-gray-400 dark:text-gray-300">
+                                    Pesos (kg):
+                                  </span>{" "}
+                                  {seriesData
+                                    .map((s: SeriesType) => s.weight)
+                                    .join(" - ")}
+                                </p>
+                              </div>
+                            </span>
+                          </li>
+                        );
+                      })}
                     </ul>
                   </div>
                 </div>
