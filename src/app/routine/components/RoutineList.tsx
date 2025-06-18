@@ -7,6 +7,8 @@ import LoadingSpinner from "@/components/common/LoadingSpinner";
 import RoutineRunner from "@/app/routine/components/RoutineRunner";
 import RegenerateButton from "@/app/routine/components/RegenerateButton";
 import { DeleteRoutineButton } from "@/app/routine/components/DeleteRoutineButton";
+import CustomRoutineList from "./CustomRoutineList";
+import { Button } from "@/components/ui/button";
 
 /* Utilidad genérica para fetch + manejo de errores */
 const fetcher = (url: string) =>
@@ -28,7 +30,6 @@ export default function RoutineList({ answerId }: RoutineListProps) {
     fetcher
   );
 
-  const [open, setOpen] = useState(false);
   const [selectedRoutine, setSelectedRoutine] = useState<Routine | null>(null);
 
   /* Estado de error / carga */
@@ -52,30 +53,33 @@ export default function RoutineList({ answerId }: RoutineListProps) {
   /* Vista listado de rutinas */
   return (
     <>
+      <h2 className="text-2xl font-semibold text-white mb-2">
+        Rutinas recomendadas
+      </h2>
       <div className="grid gap-6 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
         {data.map((routine) => (
           <section
             key={routine.id}
-            className="bg-gray-900 border border-gray-700 rounded-xl p-6 shadow-md hover:shadow-lg transition"
+            className="flex flex-col justify-between bg-gray-900 border border-gray-700 rounded-xl p-6 shadow-md hover:shadow-lg transition min-h-[260px]"
           >
-            <div className="flex w-full justify-between">
-              <h2 className="flex text-xl font-bold text-white items-center">
-                {routine.name}
-              </h2>{" "}
-              <span className="justify-end">
-                <DeleteRoutineButton
-                  answerId={answerId!}
-                  routineId={routine.id}
-                />
-              </span>
+            {/* Título y botón borrar */}
+            <div className="flex justify-between items-start mb-2">
+              <h2 className="text-xl font-bold text-white">{routine.name}</h2>
+              <DeleteRoutineButton
+                answerId={answerId!}
+                routineId={routine.id}
+              />
             </div>
+
+            {/* Descripción */}
             {routine.description && (
               <p className="text-sm text-gray-400 mb-4">
                 {routine.description}
               </p>
             )}
 
-            <div className="flex justify-between items-end mt-auto">
+            {/* Info + botón ejecutar */}
+            <div className="mt-auto flex justify-between items-end">
               <div>
                 <p className="text-sm text-gray-300">
                   🏋️ Ejercicios:{" "}
@@ -95,26 +99,32 @@ export default function RoutineList({ answerId }: RoutineListProps) {
                 </p>
               </div>
 
-              <button
+              <Button
                 onClick={() => setSelectedRoutine(routine)}
-                className="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-4 py-2 rounded-lg transition"
+                className="border border-gray-700 bg-gray-900 hover:bg-green-600 hover:text-white justify-self-end flex"
               >
-                Empezar rutina
-              </button>
+                Empezar
+              </Button>
             </div>
           </section>
         ))}
       </div>
 
+      {/* Rutinas personalizadas */}
+      <div className="mt-8">
+        <CustomRoutineList />
+      </div>
+
       <div className="bg-gray-900 border border-gray-700 rounded-xl p-6 mt-8 shadow-sm">
         <h3 className="text-lg font-semibold text-white mb-2">
-          ¿No te gusta esta rutina?
+          ¿No te gustan estas rutinas?
         </h3>
         <p className="text-sm text-gray-400 mb-1">
-          Puedes regenerarla si no se ajusta a tus necesidades.
+          Puedes regenerarlas si no se ajustan a tus necesidades.
         </p>
         <p className="text-sm text-gray-500 mb-4">
-          Esta acción reemplazará la rutina actual. Asegúrate de querer hacerlo.
+          Esta acción reemplazará las rutinas actuales. Asegúrate de querer
+          hacerlo.
         </p>
 
         <RegenerateButton />

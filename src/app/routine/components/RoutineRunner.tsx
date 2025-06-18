@@ -1,8 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import type { Routine } from "@/app/api/recommend-routines-by-answer/route";
-import { ArrowLeft, Dot } from "lucide-react";
+import type { Routine } from "@/app/routine/types/all";
+import { ArrowLeft } from "lucide-react";
 
 // The types for the component's state and props remain the same
 interface SeriesResult {
@@ -114,7 +114,7 @@ export function RoutineRunner({ routine, onBack }: RoutineRunnerProps) {
     <div className="max-w-5xl mx-auto p-6">
       <button
         onClick={onBack}
-        className="flex items-center text-[var(--secondary-text-color)] hover:text-[var(--primary-text-color)] mb-6"
+        className="flex items-center text-lg font-semibold text-[var(--primary-text-color)] hover:text-[var(--primary-text-color)] mb-6"
       >
         <ArrowLeft className="w-5 h-5 mr-1" /> Volver a rutinas
       </button>
@@ -146,7 +146,8 @@ export function RoutineRunner({ routine, onBack }: RoutineRunnerProps) {
                 </h2>
                 <p className="text-sm text-gray-500">
                   <span className="font-semibold">Equipo:</span>{" "}
-                  {capitalizeFirstLetter(ex.equipment)} <br />
+                  {ex.equipment ? capitalizeFirstLetter(ex.equipment) : ""}{" "}
+                  <br />
                   <span className="font-semibold"> Músculos:</span>{" "}
                   {capitalizeFirstLetter(ex.target)}
                 </p>
@@ -155,8 +156,8 @@ export function RoutineRunner({ routine, onBack }: RoutineRunnerProps) {
             {/* Encabezado de columnas */}
             <div className="grid grid-cols-4 gap-4 text-center font-bold mb-2 px-2">
               <span>Serie</span>
-              <span>Peso</span>
               <span>Reps</span>
+              <span>Peso</span>
               <span>Finalizado</span>
             </div>
 
