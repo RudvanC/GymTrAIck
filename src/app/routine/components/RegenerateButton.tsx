@@ -1,26 +1,33 @@
 // components/RegenerateButton.tsx
+
 "use client";
 
-import { useSearchParams } from "next/navigation";
 import { useState } from "react";
-import { Loader } from "lucide-react"; // icono giratorio ligero
+import { Loader } from "lucide-react";
 
-export default function RegenerateButton() {
-  const searchParams = useSearchParams();
-  const answerId = searchParams.get("answer_id");
+// El componente ahora espera recibir 'answerId' como una prop
+interface RegenerateButtonProps {
+  answerId: string | null;
+}
+
+export default function RegenerateButton({ answerId }: RegenerateButtonProps) {
   const [loading, setLoading] = useState(false);
   const [confirmOpen, setConfirmOpen] = useState(false);
 
-  if (!answerId) return null; // guard – si no hay plan, no mostramos el botón
+  // La lógica para ocultarse sigue siendo la misma, pero ahora usa la prop
+  if (!answerId) {
+    return null;
+  }
 
   async function regenerate() {
     setLoading(true);
     try {
+      // La URL de la API se construye con el answerId recibido por props
       const res = await fetch(`/api/regenerate-plan?answer_id=${answerId}`, {
         method: "POST",
       });
       if (!res.ok) throw new Error("Error regenerando el plan");
-      // Reload para reflejar cambios
+
       window.location.reload();
     } catch (err) {
       alert((err as Error).message);
@@ -32,7 +39,7 @@ export default function RegenerateButton() {
 
   return (
     <>
-      {/* BOTÓN PRINCIPAL */}
+      {/* El resto del JSX del botón y el modal no necesita cambios */}
       <button
         onClick={() => setConfirmOpen(true)}
         disabled={loading}
