@@ -43,7 +43,7 @@ export default function RegenerateButton({ answerId }: RegenerateButtonProps) {
       <button
         onClick={() => setConfirmOpen(true)}
         disabled={loading}
-        className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition disabled:opacity-50"
+        className="inline-flex items-center gap-2 px-6 py-3 bg-cyan-500 text-slate-900 font-semibold rounded-lg transition-transform hover:scale-105 shadow-md hover:shadow-cyan-500/30"
       >
         {loading ? (
           <span className="inline-flex items-center gap-2">
