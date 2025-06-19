@@ -1,17 +1,11 @@
 "use client";
 
-import AvatarUploader from "@/app/profile/components/AvatarUploader";
-import { useAuth } from "@/context/AuthContext";
+import UserInfo from "@/app/profile/components/UserInfo";
 
 export default function ProfilePage() {
-  const { user } = useAuth();
-
   return (
     <>
-      <AvatarUploader
-        initialAvatarUrl={user?.user_metadata.avatar_url}
-        onUploadSuccess={() => {}}
-      />
+      <UserInfo />
     </>
   );
 }

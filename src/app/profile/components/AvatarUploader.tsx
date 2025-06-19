@@ -16,7 +16,7 @@ import { Loader2 } from "lucide-react";
 interface AvatarUploaderProps {
   initialAvatarUrl: string | null;
   onUploadSuccess: (newUrl: string) => void;
-  userEmail: string | undefined;
+  userEmail?: string | undefined;
 }
 
 export default function AvatarUploader({
@@ -135,16 +135,21 @@ export default function AvatarUploader({
 
       {selectedFile && (
         <div className="flex gap-4">
-          <Button onClick={handleUpload} disabled={uploading}>
-            {uploading ? <Loader2 className="animate-spin" /> : "Guardar Foto"}
+          <Button
+            onClick={handleUpload}
+            disabled={uploading}
+            className="bg-green-600 hover:bg-green-700"
+          >
+            {uploading ? <Loader2 className="animate-spin" /> : "Guardar"}
           </Button>
           <Button
-            variant="ghost"
+            variant="destructive"
             onClick={() => {
               setSelectedFile(null);
               setPreviewUrl(null);
             }}
             disabled={uploading}
+            className="bg-red-600 hover:bg-red-700"
           >
             Cancelar
           </Button>
