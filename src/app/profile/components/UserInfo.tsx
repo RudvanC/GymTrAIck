@@ -9,6 +9,7 @@ import AvatarUploader from "@/app/profile/components/AvatarUploader";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { KeyRound, Mail, CalendarClock, User as UserIcon } from "lucide-react";
+import EditableUsername from "./EditableUsername";
 
 // MEJORA: El InfoRow ahora tiene un estilo más limpio y un icono más prominente.
 const InfoRow = ({
@@ -120,10 +121,9 @@ export default function ProfilePage() {
                 <Separator className="mt-2 bg-slate-700/50" />
               </CardHeader>
               <CardContent className="space-y-6">
-                <InfoRow
-                  icon={<UserIcon size={20} />}
-                  label="Nombre de Usuario"
-                  value={profile.username}
+                <EditableUsername
+                  initialUsername={profile.username}
+                  onUpdate={mutate}
                 />
                 <InfoRow
                   icon={<Mail size={20} />}
