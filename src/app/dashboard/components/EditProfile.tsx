@@ -48,8 +48,8 @@ const sessionDurationOptions = [
 
 export function EditAnswer({ currentAnswer, onUpdate }: EditAnswerProps) {
   const [isOpen, setIsOpen] = useState(false);
-  const [loading, setLoading] = useState(false);
-  const [confirmOpen, setConfirmOpen] = useState(false);
+  const [isConfirmOpen, setIsConfirmOpen] = useState(false);
+  const [onfirmOpen, setConfirmOpen] = useState(false);
 
   const [formData, setFormData] = useState<UserAnswer>({
     ...currentAnswer,
@@ -92,13 +92,17 @@ export function EditAnswer({ currentAnswer, onUpdate }: EditAnswerProps) {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
+  };
+
+  const executeSaveAndRegenerate = async () => {
+    setIsSubmitting(true);
+    setConfirmOpen(false); // Cerramos el modal de confirmación
 
     const finalInjuries =
       formData.injuries.length === 0 ? ["none"] : formData.injuries;
     const payloadToSubmit = { ...formData, injuries: finalInjuries };
 
     try {
-      // 1. PRIMERO, guardamos los cambios del perfil
       const updateResponse = await fetch(
         `/api/user-answers?id=${formData.id}`,
         {
@@ -107,29 +111,21 @@ export function EditAnswer({ currentAnswer, onUpdate }: EditAnswerProps) {
           body: JSON.stringify(payloadToSubmit),
         }
       );
+      if (!updateResponse.ok)
+        throw new Error("No se pudieron guardar los cambios.");
 
-      if (!updateResponse.ok) {
-        throw new Error("No se pudieron guardar los cambios en el perfil.");
-      }
-
-      // 2. DESPUÉS, si lo anterior fue bien, regeneramos el plan
       const regenerateResponse = await fetch(
         `/api/regenerate-plan?answer_id=${formData.id}`,
         {
           method: "POST",
         }
       );
+      if (!regenerateResponse.ok)
+        throw new Error("Perfil actualizado, pero hubo un error al regenerar.");
 
-      if (!regenerateResponse.ok) {
-        throw new Error(
-          "Perfil actualizado, pero hubo un error al regenerar las rutinas."
-        );
-      }
-
-      // 3. FINALMENTE, si todo fue bien, avisamos y actualizamos la UI
       alert("¡Perfil actualizado! Se están generando tus nuevas rutinas.");
-      onUpdate(); // Refresca los datos de la página sin recargar
-      setIsOpen(false);
+      onUpdate();
+      setIsOpen(false); // Cerramos el modal principal del formulario
     } catch (error) {
       console.error(error);
       alert((error as Error).message);
@@ -137,7 +133,6 @@ export function EditAnswer({ currentAnswer, onUpdate }: EditAnswerProps) {
       setIsSubmitting(false);
     }
   };
-
   return (
     <>
       <Button onClick={() => setIsOpen(true)}>
@@ -342,6 +337,7 @@ export function EditAnswer({ currentAnswer, onUpdate }: EditAnswerProps) {
                   Cancelar
                 </Button>
                 <Button
+                  onClick={executeSaveAndRegenerate}
                   type="submit"
                   disabled={isSubmitting}
                   className="bg-cyan-500 hover:bg-cyan-600"
