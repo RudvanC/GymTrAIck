@@ -5,7 +5,7 @@
 import { useUserAnswers } from "@/hooks/useUserAnswers";
 import LoadingSpinner from "@/components/common/LoadingSpinner";
 import { AnswerCard } from "@/app/dashboard/components/AnswerCard";
-import { EditProfile } from "@/app/dashboard/components/EditProfile";
+import { EditAnswer } from "@/app/dashboard/components/EditProfile";
 import { ArrowRight } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
@@ -73,7 +73,7 @@ export default function DashboardPage() {
           {/* 2. El botón de editar solo aparece si tenemos una respuesta para editar. */}
           {/* Le pasamos la respuesta actual y la función 'mutate' para que pueda refrescar. */}
           {latestAnswer && (
-            <EditProfile currentAnswer={latestAnswer} onUpdate={mutate} />
+            <EditAnswer currentAnswer={latestAnswer} onUpdate={mutate} />
           )}
         </header>
 
@@ -107,3 +107,7 @@ export default function DashboardPage() {
     </div>
   );
 }
+
+
+
+

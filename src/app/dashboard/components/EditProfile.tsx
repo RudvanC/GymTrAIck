@@ -23,7 +23,7 @@ import {
   trainingExperienceMap,
 } from "@/lib/formatAnswer";
 
-interface EditProfileProps {
+interface EditAnswerProps {
   currentAnswer: UserAnswer;
   onUpdate: () => void;
 }
@@ -46,8 +46,10 @@ const sessionDurationOptions = [
   "120min",
 ];
 
-export function EditProfile({ currentAnswer, onUpdate }: EditProfileProps) {
+export function EditAnswer({ currentAnswer, onUpdate }: EditAnswerProps) {
   const [isOpen, setIsOpen] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [confirmOpen, setConfirmOpen] = useState(false);
 
   const [formData, setFormData] = useState<UserAnswer>({
     ...currentAnswer,
@@ -86,26 +88,47 @@ export function EditProfile({ currentAnswer, onUpdate }: EditProfileProps) {
     });
   };
 
+  // --- MEJORA: handleSubmit ahora es el único responsable y hace todo en orden ---
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
+
     const finalInjuries =
       formData.injuries.length === 0 ? ["none"] : formData.injuries;
-    const payloadToSubmit = {
-      ...formData,
-      injuries: finalInjuries,
-    };
+    const payloadToSubmit = { ...formData, injuries: finalInjuries };
+
     try {
-      const response = await fetch(`/api/user-answers?id=${formData.id}`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payloadToSubmit),
-      });
+      // 1. PRIMERO, guardamos los cambios del perfil
+      const updateResponse = await fetch(
+        `/api/user-answers?id=${formData.id}`,
+        {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payloadToSubmit),
+        }
+      );
 
-      if (!response.ok) throw new Error("No se pudieron guardar los cambios.");
+      if (!updateResponse.ok) {
+        throw new Error("No se pudieron guardar los cambios en el perfil.");
+      }
 
-      alert("¡Perfil actualizado con éxito!");
-      onUpdate();
+      // 2. DESPUÉS, si lo anterior fue bien, regeneramos el plan
+      const regenerateResponse = await fetch(
+        `/api/regenerate-plan?answer_id=${formData.id}`,
+        {
+          method: "POST",
+        }
+      );
+
+      if (!regenerateResponse.ok) {
+        throw new Error(
+          "Perfil actualizado, pero hubo un error al regenerar las rutinas."
+        );
+      }
+
+      // 3. FINALMENTE, si todo fue bien, avisamos y actualizamos la UI
+      alert("¡Perfil actualizado! Se están generando tus nuevas rutinas.");
+      onUpdate(); // Refresca los datos de la página sin recargar
       setIsOpen(false);
     } catch (error) {
       console.error(error);
