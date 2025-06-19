@@ -59,7 +59,7 @@ export default async function ProgressPage() {
     .eq("user_id", session.user.id)
     .order("completed_at", { ascending: false });
 
-  console.log("Datos recibidos de Supabase:", JSON.stringify(data, null, 2));
+  // console.log("Datos recibidos de Supabase:", JSON.stringify(data, null, 2));
 
   if (error) {
     console.error("Error fetching progress data:", error.message);

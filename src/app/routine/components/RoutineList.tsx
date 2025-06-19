@@ -1,8 +1,10 @@
+// components/RoutineList.tsx (Modificado)
+
 "use client";
 
-import useSWR, { mutate } from "swr";
+import useSWR from "swr";
 import { useState } from "react";
-import type { Routine } from "@/app/api/recommend-routines-by-answer/route";
+import type { Routine } from "@/app/api/recommend-routines-by-answer/route"; // Asegúrate que la ruta sea correcta
 import LoadingSpinner from "@/components/common/LoadingSpinner";
 import RoutineRunner from "@/app/routine/components/RoutineRunner";
 import RegenerateButton from "@/app/routine/components/RegenerateButton";
@@ -17,15 +19,14 @@ const fetcher = (url: string) =>
     return res.json();
   });
 
-/* Props: el UUID de la fila en user_answers
-   Pásalo como null/undefined mientras aún no lo tengas */
+/* Props: el UUID de la fila en user_answers */
 interface RoutineListProps {
   answerId: string | null;
 }
 
 export default function RoutineList({ answerId }: RoutineListProps) {
   /* Llama al endpoint solo cuando answerId ya existe */
-  const { data, error } = useSWR<Routine[]>(
+  const { data, error, isLoading } = useSWR<Routine[]>(
     answerId ? `/api/recommend-routines-by-answer?answer_id=${answerId}` : null,
     fetcher
   );
@@ -33,8 +34,12 @@ export default function RoutineList({ answerId }: RoutineListProps) {
   const [selectedRoutine, setSelectedRoutine] = useState<Routine | null>(null);
 
   /* Estado de error / carga */
-  if (error) return <p className="text-red-500">Error cargando rutinas</p>;
-  if (!data) return <LoadingSpinner />;
+  if (error)
+    return (
+      <p className="text-red-500">Error cargando rutinas: {error.message}</p>
+    );
+  if (isLoading) return <LoadingSpinner />; // Usamos isLoading de SWR para más precisión
+  if (!data) return <p className="text-gray-400">No se encontraron rutinas.</p>; // Estado cuando no hay datos
 
   /* Vista runner si ya eligieron una rutina */
   if (selectedRoutine) {
@@ -65,10 +70,13 @@ export default function RoutineList({ answerId }: RoutineListProps) {
             {/* Título y botón borrar */}
             <div className="flex justify-between items-start mb-2">
               <h2 className="text-xl font-bold text-white">{routine.name}</h2>
-              <DeleteRoutineButton
-                answerId={answerId!}
-                routineId={routine.id}
-              />
+              {/* Aseguramos que answerId no sea nulo al pasar al botón de borrado */}
+              {answerId && (
+                <DeleteRoutineButton
+                  answerId={answerId}
+                  routineId={routine.id}
+                />
+              )}
             </div>
 
             {/* Descripción */}
@@ -127,7 +135,8 @@ export default function RoutineList({ answerId }: RoutineListProps) {
           hacerlo.
         </p>
 
-        <RegenerateButton />
+        {/* --- LÍNEA MODIFICADA --- */}
+        <RegenerateButton answerId={answerId} />
       </div>
     </>
   );
