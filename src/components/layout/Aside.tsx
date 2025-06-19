@@ -8,6 +8,7 @@ import {
   LogOut,
   ListTree,
   User,
+  Users,
 } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@radix-ui/react-avatar";
 import { Button } from "@/components/ui/button";
@@ -81,6 +82,11 @@ export default function Sidebar() {
                 <BarChart className="w-5 h-5 mr-2" /> Progreso
               </Button>
             </Link>
+            <Link href="/groups">
+              <Button variant="ghost" className="justify-start w-full">
+                <Users className="w-5 h-5 mr-2" /> Grupos
+              </Button>
+            </Link>
             <Link href="/dashboard">
               <Button variant="ghost" className="justify-start w-full">
                 <LayoutDashboard className="w-5 h-5 mr-2" /> Dashboard
@@ -137,7 +143,17 @@ export default function Sidebar() {
             <BarChart className="w-5 h-5" />
             <span className="text-xs">Progreso</span>
           </Button>
-        </Link>
+        </Link>{" "}
+        <Link href="/groups">
+          <Button
+            variant="ghost"
+            size="icon"
+            className="text-white flex flex-col items-center"
+          >
+            <Users className="w-5 h-5" />
+            <span className="text-xs">Grupos</span>
+          </Button>
+        </Link>{" "}
         <Link href="/dashboard">
           <Button
             variant="ghost"
