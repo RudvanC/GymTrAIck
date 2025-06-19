@@ -1,4 +1,4 @@
-// src/app/community/components/GlobalChat.tsx
+// src/app/community/components/ChatWindow.tsx (CORREGIDO)
 
 "use client";
 
@@ -9,7 +9,6 @@ import { Input } from "@/components/ui/input";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Send } from "lucide-react";
 
-// Definimos los tipos para los mensajes, incluyendo los datos del perfil
 type MessageWithProfile = {
   id: number;
   content: string;
@@ -21,7 +20,16 @@ type MessageWithProfile = {
   } | null;
 };
 
-export default function GlobalChat() {
+type Group = {
+  id: string;
+  name: string;
+};
+
+interface ChatWindowProps {
+  group: Group;
+}
+
+export default function ChatWindow({ group }: ChatWindowProps) {
   const { user, supabase } = useAuth();
   const [messages, setMessages] = useState<MessageWithProfile[]>([]);
   const [newMessage, setNewMessage] = useState("");
@@ -31,29 +39,42 @@ export default function GlobalChat() {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   };
 
-  // Carga de mensajes iniciales (sin cambios)
   useEffect(() => {
     const fetchInitialMessages = async () => {
-      const { data } = await supabase
+      if (!group?.id) return;
+
+      const { data, error } = await supabase
         .from("messages")
-        .select("*, profiles(username, avatar_url)")
+        // FIX 1: Hacemos el JOIN explícito, especificando la columna 'user_id'
+        .select("*, profiles:user_id(username, avatar_url)")
+        .eq("group_id", group.id)
         .order("created_at", { ascending: true })
         .limit(50);
-      setMessages(data || []);
+
+      if (error) {
+        console.error("Error cargando mensajes iniciales:", error);
+      } else {
+        setMessages(data || []);
+      }
     };
     fetchInitialMessages();
-  }, [supabase]);
+  }, [supabase, group.id]);
 
-  // Suscripción en tiempo real (sin cambios)
   useEffect(() => {
+    if (!group?.id) return;
+
     const channel = supabase
-      .channel("public:messages")
+      .channel(`group-chat-${group.id}`)
       .on(
         "postgres_changes",
-        { event: "INSERT", schema: "public", table: "messages" },
+        {
+          event: "INSERT",
+          schema: "public",
+          table: "messages",
+          filter: `group_id=eq.${group.id}`,
+        },
         async (payload) => {
-          // Esta lógica es para los mensajes de OTROS usuarios
-          if (payload.new.user_id === user?.id) return; // Ignoramos nuestro propio eco si llegara
+          if (payload.new.user_id === user?.id) return;
 
           const { data: profileData } = await supabase
             .from("profiles")
@@ -75,13 +96,12 @@ export default function GlobalChat() {
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [supabase, user]);
+  }, [supabase, user, group.id]);
 
   useEffect(() => {
     scrollToBottom();
   }, [messages]);
 
-  // --- FUNCIÓN DE ENVIAR MENSAJE MEJORADA ---
   const handleSendMessage = async (e: React.FormEvent) => {
     e.preventDefault();
     if (newMessage.trim() === "" || !user) return;
@@ -89,28 +109,17 @@ export default function GlobalChat() {
     const content = newMessage.trim();
     setNewMessage("");
 
-    // 1. Insertamos el nuevo mensaje y le pedimos a Supabase que nos lo devuelva
-    //    con los datos del perfil ya incluidos, usando .select()
     const { data: insertedMessage, error } = await supabase
       .from("messages")
-      .insert({ content, user_id: user.id })
-      .select(
-        `
-        *,
-        profiles (
-          username,
-          avatar_url
-        )
-      `
-      )
-      .single(); // .single() para que devuelva un objeto, no un array
+      .insert({ content: content, user_id: user.id, group_id: group.id })
+      // FIX 2: Hacemos el JOIN explícito también aquí
+      .select("*, profiles:user_id(username, avatar_url)")
+      .single();
 
     if (error) {
       console.error("Error enviando el mensaje:", error);
-      setNewMessage(content); // Devolvemos el texto al input si hay un error
+      setNewMessage(content);
     } else if (insertedMessage) {
-      // 2. Si la inserción fue exitosa, añadimos el mensaje completo a nuestro estado local.
-      // ¡Esta es la actualización optimista!
       setMessages((currentMessages) => [
         ...currentMessages,
         insertedMessage as MessageWithProfile,
@@ -119,9 +128,10 @@ export default function GlobalChat() {
   };
 
   return (
+    // FIX 3: Usamos una altura más controlada como h-[80vh] en lugar de h-screen.
     <div className="flex flex-col h-[80vh] bg-slate-900/50 border border-slate-800 rounded-lg">
       <div className="p-4 border-b border-slate-700">
-        <h2 className="text-xl font-bold text-white">Chat de la Comunidad</h2>
+        <h2 className="text-xl font-bold text-white">{group.name}</h2>
       </div>
 
       <div className="flex-1 p-4 overflow-y-auto space-y-4">
@@ -158,7 +168,8 @@ export default function GlobalChat() {
               <Avatar className="h-8 w-8">
                 <AvatarImage src={message.profiles?.avatar_url || undefined} />
                 <AvatarFallback>
-                  {message.profiles?.username?.charAt(0) || "U"}
+                  {/* Podríamos usar profile.username aquí también si lo tuviéramos */}
+                  {user?.email?.charAt(0).toUpperCase() || "U"}
                 </AvatarFallback>
               </Avatar>
             )}
