@@ -12,7 +12,11 @@ interface ProgressProps {
   error?: string;
 }
 
-export default function Progress({ results, session, error }: ProgressProps) {
+export default function ProgressList({
+  results,
+  session,
+  error,
+}: ProgressProps) {
   const [openCardId, setOpenCardId] = useState<number | null>(null);
 
   const handleCardClick = (cardId: number) => {

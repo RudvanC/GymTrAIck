@@ -2,7 +2,7 @@
 
 import { createServerClient, type CookieOptions } from "@supabase/ssr";
 import { cookies } from "next/headers";
-import Progress from "./components/Progress";
+import ProgressList from "@/app/progress/components/ProgressList";
 import { UserRoutineResult } from "@/types/ProgressType";
 
 export default async function ProgressPage() {
@@ -39,7 +39,7 @@ export default async function ProgressPage() {
   } = await supabase.auth.getSession();
 
   if (!session) {
-    return <Progress results={[]} session={null} />;
+    return <ProgressList results={[]} session={null} />;
   }
 
   const { data, error } = await supabase
@@ -63,11 +63,13 @@ export default async function ProgressPage() {
 
   if (error) {
     console.error("Error fetching progress data:", error.message);
-    return <Progress results={[]} error={error.message} session={session} />;
+    return (
+      <ProgressList results={[]} error={error.message} session={session} />
+    );
   }
 
   return (
-    <Progress
+    <ProgressList
       results={data as unknown as UserRoutineResult[]}
       session={session}
     />
