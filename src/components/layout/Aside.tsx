@@ -14,15 +14,43 @@ import { Button } from "@/components/ui/button";
 import { createClient } from "@/lib/supabase/supabaseClient";
 import { useAuth } from "@/context/AuthContext";
 import { useRouter } from "next/navigation";
+import useSWR from "swr";
 
 export default function Sidebar() {
-  const { user } = useAuth();
+  const { user, supabase } = useAuth();
   const router = useRouter();
 
+  // 4. Usamos SWR para obtener los datos del perfil
+  // La 'key' depende del user.id. Si no hay usuario, la key es null y SWR no hace nada.
+  const { data: profile } = useSWR(
+    user ? `profile-${user.id}` : null, // Key única para SWR
+    async () => {
+      // El fetcher ahora es una función anónima aquí dentro
+      const { data, error } = await supabase
+        .from("profiles")
+        .select("avatar_url, username")
+        .eq("id", user!.id) // Usamos '!' porque sabemos que 'user' existe si la key no es null
+        .single();
+
+      if (error) {
+        // No lanzamos un error para no romper toda la UI, solo lo logueamos
+        console.error("Error fetching profile for sidebar:", error.message);
+        return null;
+      }
+      return data;
+    }
+  );
+
   const handleLogout = async () => {
-    await createClient().auth.signOut();
+    await supabase.auth.signOut();
+    router.push("/"); // Redirigimos al inicio después de cerrar sesión
     router.refresh();
   };
+
+  const fallbackLetter =
+    profile?.username?.charAt(0).toUpperCase() ||
+    user?.email?.charAt(0).toUpperCase() ||
+    "U";
 
   return (
     <>
@@ -57,6 +85,11 @@ export default function Sidebar() {
                 <LayoutDashboard className="w-5 h-5 mr-2" /> Dashboard
               </Button>
             </Link>
+            <Link href="/profile">
+              <Button variant="ghost" className="justify-start w-full">
+                <LayoutDashboard className="w-5 h-5 mr-2" /> Perfil
+              </Button>
+            </Link>
           </nav>
         </div>
 
@@ -65,10 +98,10 @@ export default function Sidebar() {
           <Avatar className="w-30 h-20">
             <AvatarImage
               className="rounded-full size-20"
-              src="https://github.com/shadcn.png"
+              src={profile?.avatar_url || undefined}
               alt="User Avatar"
             />
-            <AvatarFallback>GT</AvatarFallback>
+            <AvatarFallback>{fallbackLetter}</AvatarFallback>
           </Avatar>
           <div className="text-sm font-medium w-full text-center m-2">
             Hola, <span className="font-bold text-white">{user?.email}</span>
@@ -112,6 +145,16 @@ export default function Sidebar() {
           >
             <LayoutDashboard className="w-5 h-5" />
             <span className="text-xs">Dashboard</span>
+          </Button>
+        </Link>{" "}
+        <Link href="/profile">
+          <Button
+            variant="ghost"
+            size="icon"
+            className="text-white flex flex-col items-center"
+          >
+            <LayoutDashboard className="w-5 h-5" />
+            <span className="text-xs">Perfil</span>
           </Button>
         </Link>
         <Button
