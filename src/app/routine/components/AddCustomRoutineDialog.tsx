@@ -1,6 +1,14 @@
 "use client";
 
-import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useCustomRoutineForm } from "@/app/routine/hooks/useCustomRoutineForm";
@@ -8,6 +16,16 @@ import { useEffect, useState } from "react";
 import { createBrowserClient } from "@supabase/ssr";
 import { Database } from "@/lib/supabase/database.types";
 import { mutate } from "swr";
+import { Dumbbell, Loader2, PlusCircle, Trash2 } from "lucide-react";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@radix-ui/react-select";
+import { Label } from "@/components/ui/label";
+import ExerciseSearch from "./ExerciseSearch";
 
 export default function AddCustomRoutineDialog() {
   const supabase = createBrowserClient<Database>(
@@ -83,101 +101,159 @@ export default function AddCustomRoutineDialog() {
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
-        <Button size="lg" className="text-black bg-white hover:bg-zinc-300">
-          Crear rutina personalizada
+        <Button
+          size="lg"
+          className="bg-cyan-500 text-slate-900 font-semibold hover:bg-cyan-600 transition-transform hover:scale-105"
+        >
+          <PlusCircle className="mr-2 h-5 w-5" />
+          Crear Rutina Personalizada
         </Button>
       </DialogTrigger>
 
-      <DialogContent className="max-w-2xl">
-        <h2 className="text-xl text-black font-bold mb-4">
-          Crear rutina personalizada
-        </h2>
-        <Input
-          className="text-black"
-          placeholder="Nombre"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-        />
-        <Input
-          className="text-black"
-          placeholder="Descripción (opcional)"
-          value={description}
-          onChange={(e) => setDescription(e.target.value)}
-        />
+      <DialogContent className="max-w-3xl bg-slate-900/80 backdrop-blur-xl border-slate-700 text-white">
+        {/* Usamos un <form> pero el botón de guardar final será de tipo 'button' y llamará a 'save' */}
+        <form
+          onSubmit={(e) => {
+            e.preventDefault();
+            save();
+          }}
+        >
+          <DialogHeader className="mb-4">
+            <DialogTitle className="text-2xl font-bold flex items-center gap-2">
+              <Dumbbell className="text-cyan-400" />
+              Crea tu Rutina Personalizada
+            </DialogTitle>
+            <DialogDescription className="text-slate-400">
+              Dale un nombre a tu rutina y añade los ejercicios, series y
+              repeticiones.
+            </DialogDescription>
+          </DialogHeader>
 
-        <div className="mt-4 space-y-2">
-          {rows.map((row, idx) => (
-            <div key={idx} className="grid grid-cols-5 gap-2 items-center">
-              <select
-                className="col-span-2 input text-black"
-                value={row.exercise_id}
-                onChange={(e) =>
-                  setRows((r) =>
-                    r.map((it, i) =>
-                      i === idx ? { ...it, exercise_id: e.target.value } : it
-                    )
-                  )
-                }
-              >
-                <option value="" disabled>
-                  – Selecciona ejercicio –
-                </option>
-                {exerciseOptions.map((opt) => (
-                  <option key={opt.id} value={opt.id}>
-                    {opt.name}
-                  </option>
-                ))}
-              </select>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+            <div className="space-y-2">
+              <Label htmlFor="routine-name">Nombre de la Rutina</Label>
               <Input
-                className="text-black"
-                type="number"
-                min={1}
-                value={row.sets}
-                onChange={(e) =>
-                  setRows((r) =>
-                    r.map((it, i) =>
-                      i === idx ? { ...it, sets: +e.target.value } : it
-                    )
-                  )
-                }
+                id="routine-name"
+                className="bg-slate-800 border-slate-700 h-11"
+                placeholder="Ej: Día de Empuje"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
               />
-              <Input
-                className="text-black"
-                type="number"
-                min={1}
-                value={row.reps}
-                onChange={(e) =>
-                  setRows((r) =>
-                    r.map((it, i) =>
-                      i === idx ? { ...it, reps: +e.target.value } : it
-                    )
-                  )
-                }
-              />
-              <Button variant="ghost" onClick={() => removeRow(idx)}>
-                🗑
-              </Button>
             </div>
-          ))}
-          <Button variant="secondary" onClick={addRow}>
-            Añadir ejercicio
-          </Button>
-        </div>
+            <div className="space-y-2">
+              <Label htmlFor="routine-desc">Descripción (Opcional)</Label>
+              <Input
+                id="routine-desc"
+                className="bg-slate-800 border-slate-700 h-11"
+                placeholder="Ej: Enfocado en pecho, hombros y tríceps"
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+              />
+            </div>
+          </div>
 
-        <div className="flex justify-end mt-6 gap-2 text-black">
-          <Button
-            variant="outline"
-            onClick={() => {
-              setIsOpen(false);
-              resetState();
-            }}
-          >
-            Cancelar
-          </Button>
-          <Button disabled={!isValid || isSaving} onClick={save}>
-            {isSaving ? "Guardando..." : isSaved ? "Guardado" : "Guardar"}
-          </Button>
-        </div>
+          <div className="space-y-3">
+            <div className="grid grid-cols-12 gap-2 px-2 text-xs font-semibold text-slate-400">
+              <p className="col-span-5">Ejercicio</p>
+              <p className="col-span-3 text-center">Series</p>
+              <p className="col-span-3 text-center">Reps</p>
+              <div className="col-span-2"></div>
+            </div>
+
+            {rows.map((row, idx) => (
+              <div key={idx} className="grid grid-cols-12 gap-2 items-center">
+                <div className="col-span-5">
+                  <ExerciseSearch
+                    options={exerciseOptions}
+                    value={row.exercise_id}
+                    onSelect={(value) =>
+                      setRows((r) =>
+                        r.map((it, i) =>
+                          i === idx ? { ...it, exercise_id: value } : it
+                        )
+                      )
+                    }
+                  />
+                </div>
+                <Input
+                  className="col-span-3 bg-slate-800 border-slate-700 text-center"
+                  type="number"
+                  min={1}
+                  placeholder="3"
+                  value={row.sets}
+                  onChange={(e) =>
+                    setRows((r) =>
+                      r.map((it, i) =>
+                        i === idx ? { ...it, sets: +e.target.value } : it
+                      )
+                    )
+                  }
+                />
+                <Input
+                  className="col-span-3 bg-slate-800 border-slate-700 text-center"
+                  type="number"
+                  min={1}
+                  placeholder="12"
+                  value={row.reps}
+                  onChange={(e) =>
+                    setRows((r) =>
+                      r.map((it, i) =>
+                        i === idx ? { ...it, reps: +e.target.value } : it
+                      )
+                    )
+                  }
+                />
+                <div className="col-span-1 flex justify-end">
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => removeRow(idx)}
+                  >
+                    <Trash2 className="h-4 w-4 text-red-500" />
+                  </Button>
+                </div>
+              </div>
+            ))}
+            <Button
+              type="button"
+              variant="outline"
+              onClick={addRow}
+              className="border-dashed bg-slate-800 border-slate-700 text-slate-300  hover:border-slate-600 w-full"
+            >
+              Añadir Ejercicio
+            </Button>
+          </div>
+
+          <DialogFooter className="mt-6 pt-4 border-t border-slate-800">
+            <Button
+              type="button"
+              variant="ghost"
+              onClick={() => {
+                setIsOpen(false);
+                resetState();
+              }}
+            >
+              Cancelar
+            </Button>
+            {/* Usamos type="button" y onClick para tener control total sobre la llamada a 'save' */}
+            <Button
+              type="button"
+              disabled={!isValid || isSaving}
+              onClick={save}
+              className="bg-cyan-500 hover:bg-cyan-600"
+            >
+              {isSaving ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Guardando...
+                </>
+              ) : (
+                "Guardar Rutina"
+              )}
+            </Button>
+          </DialogFooter>
+        </form>
       </DialogContent>
     </Dialog>
   );
