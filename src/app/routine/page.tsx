@@ -22,10 +22,7 @@ export default function RoutinePage() {
     data: answers,
     error: ansError,
     isLoading: answersLoading,
-  } = useSWR(
-    user ? `/api/user-answers?user_id=${user.id}` : null,
-    fetcher
-  );
+  } = useSWR(user ? `/api/user-answers?user_id=${user.id}` : null, fetcher);
 
   const answerId: string | null =
     answers && answers.length > 0 ? answers[0].id : null;
@@ -47,16 +44,15 @@ export default function RoutinePage() {
   if (!answerId) {
     return (
       <div className="p-8 text-gray-600 max-w-xl mx-auto">
-        No se encontraron rutinas para tu perfil. Completa el cuestionario primero.
+        No se encontraron rutinas para tu perfil. Completa el cuestionario
+        primero.
       </div>
     );
   }
 
-
-
   // Render final
   return (
-    <div className="max-w-7xl mx-auto p-8">
+    <div className="max-w-7xl mx-auto p-8 bg-slate-950">
       <div className="flex gap-4 justify-end p-4">
         <AddCustomRoutineDialog />
         <AddRoutineDialog
