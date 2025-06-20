@@ -1,11 +1,26 @@
+/**
+ * @file api/routine-results/route.ts
+ * @description
+ * API handler to save the results of a completed workout routine by an authenticated user.
+ * This route is called after the user finishes executing a routine.
+ */
+
 import { NextResponse } from "next/server";
 import { createServerClient, type CookieOptions } from "@supabase/ssr";
 import { cookies } from "next/headers";
 
+/**
+ * POST /api/routine-results
+ *
+ * Saves a routine completion record including routine ID, completion date, and exercise results.
+ * Requires user authentication.
+ *
+ * @param request - The incoming POST request with JSON body containing routineId, date, and results.
+ * @returns A JSON response indicating success or failure.
+ */
 export async function POST(request: Request) {
   const cookieStore = await cookies();
 
-  // 1. Creamos un cliente de Supabase que puede leer las cookies de la petición
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
@@ -25,59 +40,52 @@ export async function POST(request: Request) {
   );
 
   try {
-    // 2. Obtenemos la sesión del usuario. Si no hay sesión, 'user' será null.
+    // Get the currently authenticated user
     const {
       data: { user },
     } = await supabase.auth.getUser();
 
-    // 3. ¡Paso clave! Si no hay un usuario logueado, denegamos el acceso.
     if (!user) {
       return NextResponse.json(
-        {
-          error: "No autorizado. Debes iniciar sesión para guardar una rutina.",
-        },
+        { error: "Unauthorized. You must be logged in to save a routine." },
         { status: 401 }
       );
     }
 
-    // 4. Leemos los datos enviados desde el componente RoutineRunner
+    // Parse and destructure request body
     const body = await request.json();
     const { routineId, date, results } = body;
 
-    // 5. Preparamos el objeto que se va a insertar en la base de datos,
-    //    añadiendo el ID del usuario que obtuvimos de la sesión.
+    // Construct data object to insert into the database
     const dataToInsert = {
-      user_id: user.id, // ¡Aquí asociamos el resultado con el usuario!
+      user_id: user.id,
       routine_id: routineId,
       completed_at: date,
-      results: results, // El objeto JSON con los detalles de cada serie
+      results: results,
     };
 
-    // 6. Insertamos los datos en la tabla.
-    //    Asegúrate de que el nombre de tu tabla sea correcto ('user_routine_results' es un ejemplo).
+    // Insert the routine result into the database
     const { data, error } = await supabase
       .from("user_routine_results")
       .insert(dataToInsert)
       .select()
-      .single(); // .single() para obtener el objeto insertado en lugar de un array
+      .single();
 
     if (error) {
-      // Si hay un error en la base de datos, lo devolvemos
-      console.error("Supabase error:", error);
+      console.error("Supabase insert error:", error);
       return NextResponse.json({ error: error.message }, { status: 500 });
     }
 
-    // 7. Si todo sale bien, devolvemos un mensaje de éxito con los datos guardados.
     return NextResponse.json(
-      { message: "Rutina finalizada y guardada con éxito", data },
+      { message: "Routine successfully saved.", data },
       { status: 201 }
     );
   } catch (err: unknown) {
-    console.error("Error en la API route:", err);
+    console.error("Server error in save routine route:", err);
 
     return NextResponse.json(
       {
-        error: "Error en el servidor",
+        error: "Internal server error",
         details: err instanceof Error ? err.message : String(err),
       },
       { status: 500 }

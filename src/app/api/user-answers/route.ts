@@ -1,13 +1,25 @@
-// src/app/api/user-answers/route.ts
+/**
+ * @file api/user-answers/route.ts
+ * @description
+ * API routes to manage user answers with GET, POST and PATCH methods.
+ * Handles authentication and user ownership verification.
+ */
 
 import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
 import { createServerClient, type CookieOptions } from "@supabase/ssr";
 
-// --- GET CORREGIDO ---
+/**
+ * GET /api/user-answers
+ *
+ * Retrieves all answers submitted by the authenticated user, ordered by creation date descending.
+ *
+ * @param request - Incoming GET request.
+ * @returns JSON array of user answers or an error if unauthorized or on failure.
+ */
 export async function GET(request: Request) {
-  // Lógica de cliente Supabase, ahora directamente aquí.
-  const cookieStore = await cookies(); // SIN await, esto es correcto.
+  const cookieStore = await cookies();
+
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
@@ -21,8 +33,8 @@ export async function GET(request: Request) {
             cookiesToSet.forEach(({ name, value, options }) =>
               cookieStore.set(name, value, options)
             );
-          } catch (error) {
-            // Ignorar en Route Handlers.
+          } catch {
+            // Ignore in Route Handlers
           }
         },
       },
@@ -34,7 +46,7 @@ export async function GET(request: Request) {
   } = await supabase.auth.getSession();
 
   if (!session) {
-    return NextResponse.json({ error: "No autenticado" }, { status: 401 });
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
   const { data, error } = await supabase
@@ -44,17 +56,24 @@ export async function GET(request: Request) {
     .order("created_at", { ascending: false });
 
   if (error) {
-    console.error("Error al obtener respuestas:", error);
+    console.error("Error fetching user answers:", error);
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 
   return NextResponse.json(data);
 }
 
-// --- POST CORREGIDO ---
+/**
+ * POST /api/user-answers
+ *
+ * Inserts a new answer for the authenticated user.
+ *
+ * @param request - Incoming POST request with JSON body containing answer data.
+ * @returns JSON of inserted answer or error if unauthorized or on failure.
+ */
 export async function POST(request: Request) {
-  // Lógica de cliente Supabase, repetida para asegurar el contexto.
   const cookieStore = await cookies();
+
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
@@ -68,8 +87,8 @@ export async function POST(request: Request) {
             cookiesToSet.forEach(({ name, value, options }) =>
               cookieStore.set(name, value, options)
             );
-          } catch (error) {
-            /* Ignorar */
+          } catch {
+            // Ignore in Route Handlers
           }
         },
       },
@@ -81,7 +100,7 @@ export async function POST(request: Request) {
   } = await supabase.auth.getSession();
 
   if (!session) {
-    return NextResponse.json({ error: "No autenticado" }, { status: 401 });
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
   try {
@@ -95,24 +114,28 @@ export async function POST(request: Request) {
       .single();
 
     if (error) {
-      console.error("Error de Supabase en POST:", error);
+      console.error("Supabase POST error:", error);
       return NextResponse.json({ error: error.message }, { status: 500 });
     }
 
     return NextResponse.json(data, { status: 201 });
   } catch (err: unknown) {
-    console.error("Error general en POST:", err);
-    return NextResponse.json(
-      { error: "Error en el servidor" },
-      { status: 500 }
-    );
+    console.error("General POST error:", err);
+    return NextResponse.json({ error: "Server error" }, { status: 500 });
   }
 }
 
-// --- PATCH CORREGIDO ---
+/**
+ * PATCH /api/user-answers?id=<answerId>
+ *
+ * Updates an existing answer for the authenticated user.
+ *
+ * @param request - Incoming PATCH request with query parameter `id` and JSON body of updated fields.
+ * @returns JSON of updated answer or error if unauthorized, not found, or on failure.
+ */
 export async function PATCH(request: Request) {
-  // Lógica de cliente Supabase, repetida una vez más.
   const cookieStore = await cookies();
+
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
@@ -126,8 +149,8 @@ export async function PATCH(request: Request) {
             cookiesToSet.forEach(({ name, value, options }) =>
               cookieStore.set(name, value, options)
             );
-          } catch (error) {
-            /* Ignorar */
+          } catch {
+            // Ignore in Route Handlers
           }
         },
       },
@@ -139,7 +162,7 @@ export async function PATCH(request: Request) {
   } = await supabase.auth.getSession();
 
   if (!session) {
-    return NextResponse.json({ error: "No autenticado" }, { status: 401 });
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
   const { searchParams } = new URL(request.url);
@@ -147,7 +170,7 @@ export async function PATCH(request: Request) {
 
   if (!answerId) {
     return NextResponse.json(
-      { error: "Falta el ID de la respuesta a actualizar" },
+      { error: "Missing answer ID to update" },
       { status: 400 }
     );
   }
@@ -164,23 +187,20 @@ export async function PATCH(request: Request) {
       .single();
 
     if (error) {
-      console.error("Error de Supabase en PATCH:", error);
+      console.error("Supabase PATCH error:", error);
       return NextResponse.json({ error: error.message }, { status: 500 });
     }
 
     if (!data) {
       return NextResponse.json(
-        { error: "Respuesta no encontrada o no tienes permiso para editarla" },
+        { error: "Answer not found or no permission to edit" },
         { status: 404 }
       );
     }
 
     return NextResponse.json(data);
   } catch (err: unknown) {
-    console.error("Error general en PATCH:", err);
-    return NextResponse.json(
-      { error: "Error en el servidor" },
-      { status: 500 }
-    );
+    console.error("General PATCH error:", err);
+    return NextResponse.json({ error: "Server error" }, { status: 500 });
   }
 }

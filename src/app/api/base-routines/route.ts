@@ -1,6 +1,17 @@
+/**
+ * @file api/routines/route.ts
+ * @description
+ * API route to fetch all base routines from the Supabase database.
+ * It joins the `base_routines`, `base_routine_exercises`, and `exercises` tables,
+ * transforms the data into a flat structure, and returns it as JSON.
+ */
+
 import { NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 
+/**
+ * Represents a routine with all associated exercise details.
+ */
 export type Routine = {
   id: string;
   slug: string;
@@ -19,6 +30,10 @@ export type Routine = {
   }[];
 };
 
+/**
+ * Represents a single exercise block associated with a routine,
+ * including repetition/sets/sorting metadata.
+ */
 type BaseRoutineExerciseFromDB = {
   sort_order: number;
   sets: number;
@@ -30,9 +45,12 @@ type BaseRoutineExerciseFromDB = {
     equipment: string;
     target: string;
     secondary_muscles: string;
-  }[]; // 👈 aquí debe ser un array porque es lo que está devolviendo Supabase
+  }[]; // Supabase returns this as an array, even if it usually contains a single item
 };
 
+/**
+ * Represents the full shape of a base routine record as returned by Supabase.
+ */
 type BaseRoutineFromDB = {
   id: string;
   slug: string;
@@ -46,6 +64,11 @@ const supabase = createClient(
   process.env.SERVICE_ROLE_KEY!
 );
 
+/**
+ * GET handler for retrieving all routines.
+ *
+ * @returns A JSON response containing an array of routines, or an error message if the fetch fails.
+ */
 export async function GET() {
   const { data, error } = await supabase
     .from("base_routines")
@@ -84,7 +107,7 @@ export async function GET() {
     exercises: r.base_routine_exercises
       .sort((a, b) => a.sort_order - b.sort_order)
       .map((it) => ({
-        ...it.exercises,
+        ...it.exercises[0], // Flatten exercise object (assuming array with one item)
         sets: it.sets,
         reps: it.reps,
         sort_order: it.sort_order,

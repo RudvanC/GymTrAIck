@@ -1,8 +1,23 @@
-// app/api/recommended-routines/route.ts
+/**
+ * @file api/recommended-routines/route.ts
+ * @description
+ * API handler for managing recommended workout routines based on the user's latest answers.
+ *
+ * GET:
+ * - Retrieves recommended routines for the authenticated user.
+ * - If no plan exists, it triggers a recommendation RPC and stores the plan.
+ *
+ * DELETE:
+ * - Removes a specific routine from the user's current recommendation plan.
+ */
+
 import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
-import { createServerClient } from "@supabase/ssr";
+import { createServerClient, type CookieOptions } from "@supabase/ssr";
 
+/**
+ * Structure of a recommended routine returned to the frontend.
+ */
 export type Routine = {
   id: string;
   slug: string;
@@ -21,9 +36,12 @@ export type Routine = {
   }[];
 };
 
-import { type CookieOptions } from "@supabase/ssr";
-
-// Accept anything to avoid type mismatch between Next.js and Supabase helpers
+/**
+ * Creates a Supabase client instance on the server using the current cookie store.
+ *
+ * @param cookieStore - The cookies object returned by `next/headers`.
+ * @returns A configured Supabase client for server-side usage.
+ */
 function getSupabaseServer(cookieStore: any) {
   return createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -40,25 +58,27 @@ function getSupabaseServer(cookieStore: any) {
   );
 }
 
+/**
+ * GET /api/recommended-routines
+ *
+ * Returns a list of recommended routines for the authenticated user.
+ * If no recommendation plan exists for the latest questionnaire answers, one is generated and persisted.
+ */
 export async function GET(req: Request) {
-  // 1️⃣ Recupera las cookies de la petición
   const cookieStore = cookies();
-
-  // 2️⃣ Inicializa Supabase SSR
   const supabase = getSupabaseServer(cookieStore);
 
-  // 3️⃣ Obtiene la sesión del usuario
   const {
     data: { session },
     error: sessionErr,
   } = await supabase.auth.getSession();
 
   if (sessionErr || !session?.user) {
-    return NextResponse.json({ error: "No autenticado" }, { status: 401 });
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
+
   const userId = session.user.id;
 
-  // 4️⃣ Recupera el último answer_id
   const { data: answers, error: ansErr } = await supabase
     .from("user_answers")
     .select("id")
@@ -72,9 +92,9 @@ export async function GET(req: Request) {
   if (!answers || answers.length === 0) {
     return NextResponse.json([], { status: 200 });
   }
+
   const answerId = answers[0].id;
 
-  // 5️⃣ Comprueba si ya existe un plan persistido
   const { data: persisted, error: persistErr } = await supabase
     .from("user_routine_plan")
     .select("routine_id, sort_order")
@@ -86,27 +106,27 @@ export async function GET(req: Request) {
   }
 
   let routineIds: string[];
+
   if (!persisted || persisted.length === 0) {
-    // 6️⃣ Genera nuevas recomendaciones vía RPC
-    // Supabase RPC devuelve cualquier tipo; lo tipamos como {routine_id:string}[]
-    const { data: recs, error: rpcError } = await supabase.rpc(
+    const { data: recs, error: rpcError } = (await supabase.rpc(
       "recommend_routines_by_answer",
       { p_answer_id: answerId }
-    ) as { data: { routine_id: string }[] | null; error: any };
+    )) as { data: { routine_id: string }[] | null; error: any };
 
     if (rpcError) {
       return NextResponse.json({ error: rpcError.message }, { status: 500 });
     }
+
     if (!recs || recs.length === 0) {
       return NextResponse.json([], { status: 200 });
     }
 
-    // 7️⃣ Inserta el plan congelado
     const rows = recs.map((r, idx) => ({
       answer_id: answerId,
       routine_id: r.routine_id,
       sort_order: idx,
     }));
+
     const { error: insertErr } = await supabase
       .from("user_routine_plan")
       .insert(rows);
@@ -114,13 +134,12 @@ export async function GET(req: Request) {
     if (insertErr) {
       return NextResponse.json({ error: insertErr.message }, { status: 500 });
     }
+
     routineIds = rows.map((row) => row.routine_id);
   } else {
-    // 8️⃣ Usa el plan ya existente
     routineIds = persisted.map((p) => p.routine_id);
   }
 
-  // 9️⃣ Recupera los detalles de las rutinas
   const { data, error } = await supabase
     .from("base_routines")
     .select(
@@ -150,7 +169,6 @@ export async function GET(req: Request) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 
-  // 🔟 Da forma al resultado
   const routines: Routine[] = data!.map((r) => ({
     id: r.id,
     slug: r.slug,
@@ -177,22 +195,28 @@ export async function GET(req: Request) {
   return NextResponse.json(routines);
 }
 
+/**
+ * DELETE /api/recommended-routines?routine_id=<id>
+ *
+ * Removes a specific routine from the user's current recommendation plan.
+ *
+ * @param req - Request object including the `routine_id` query param.
+ */
 export async function DELETE(req: Request) {
-  // 1️⃣ Recupera cookies
   const cookieStore = cookies();
   const supabase = getSupabaseServer(cookieStore);
 
-  // 2️⃣ Verifica sesión
   const {
     data: { session },
     error: sessionErr,
   } = await supabase.auth.getSession();
+
   if (sessionErr || !session?.user) {
-    return NextResponse.json({ error: "No autenticado" }, { status: 401 });
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
+
   const userId = session.user.id;
 
-  // 3️⃣ Obtén el último answer_id
   const { data: answers, error: ansErr } = await supabase
     .from("user_answers")
     .select("id")
@@ -202,20 +226,23 @@ export async function DELETE(req: Request) {
 
   if (ansErr || !answers || answers.length === 0) {
     return NextResponse.json(
-      { error: "No hay respuestas previas" },
+      { error: "No previous answers found" },
       { status: 400 }
     );
   }
+
   const answerId = answers[0].id;
 
-  // 4️⃣ Lee el routine_id del query param
   const { searchParams } = new URL(req.url);
   const routineId = searchParams.get("routine_id");
+
   if (!routineId) {
-    return NextResponse.json({ error: "Falta routine_id" }, { status: 400 });
+    return NextResponse.json(
+      { error: "Missing 'routine_id'" },
+      { status: 400 }
+    );
   }
 
-  // 5️⃣ Elimina la rutina del plan
   const { error: deleteErr } = await supabase
     .from("user_routine_plan")
     .delete()
@@ -225,5 +252,6 @@ export async function DELETE(req: Request) {
   if (deleteErr) {
     return NextResponse.json({ error: deleteErr.message }, { status: 500 });
   }
+
   return NextResponse.json({ ok: true });
 }

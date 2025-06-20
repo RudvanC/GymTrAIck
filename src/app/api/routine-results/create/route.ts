@@ -1,17 +1,33 @@
+/**
+ * @file api/add-routine-to-plan/route.ts
+ * @description
+ * API handler to add a specific routine to a user's recommendation plan based on their answer.
+ * Prevents duplicate entries and automatically calculates the next sort order.
+ */
+
 import { NextRequest, NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabase/server";
 
+/**
+ * POST /api/add-routine-to-plan
+ *
+ * Adds a routine to a recommendation plan if it does not already exist.
+ * Automatically assigns the correct `sort_order` based on existing entries.
+ *
+ * @param req - The incoming POST request with JSON body containing `answer_id` and `routine_id`.
+ * @returns JSON response indicating success or error.
+ */
 export async function POST(req: NextRequest) {
   const { answer_id, routine_id } = await req.json();
 
   if (!answer_id || !routine_id) {
     return NextResponse.json(
-      { error: "Faltan parámetros (answer_id, routine_id)" },
+      { error: "Missing parameters: answer_id and routine_id are required." },
       { status: 400 }
     );
   }
 
-  /* 1. Evitar duplicados */
+  // Step 1: Prevent duplicate routine entries for the same answer
   const { data: exists, error: existsErr } = await supabaseAdmin
     .from("user_routine_plan")
     .select("routine_id")
@@ -21,12 +37,12 @@ export async function POST(req: NextRequest) {
 
   if (exists && !existsErr) {
     return NextResponse.json(
-      { error: "La rutina ya está en el plan" },
+      { error: "This routine is already part of the plan." },
       { status: 409 }
     );
   }
 
-  /* 2. Obtener sort_order */
+  // Step 2: Determine the next sort_order for this answer_id
   const { data: last } = await supabaseAdmin
     .from("user_routine_plan")
     .select("sort_order")
@@ -37,7 +53,7 @@ export async function POST(req: NextRequest) {
 
   const nextOrder = (last?.sort_order ?? -1) + 1;
 
-  /* 3. Insertar vínculo */
+  // Step 3: Insert the new routine entry into the plan
   const { error: insertErr } = await supabaseAdmin
     .from("user_routine_plan")
     .insert({
@@ -47,9 +63,9 @@ export async function POST(req: NextRequest) {
     });
 
   if (insertErr) {
-    console.error(insertErr);
+    console.error("Failed to insert routine into plan:", insertErr);
     return NextResponse.json(
-      { error: "No se pudo añadir la rutina" },
+      { error: "Failed to add routine to the plan." },
       { status: 500 }
     );
   }

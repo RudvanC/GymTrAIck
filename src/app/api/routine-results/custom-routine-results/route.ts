@@ -1,11 +1,30 @@
+/**
+ * @file api/routine-results/custom-routine-results/route.ts
+ * @description
+ * API route to save the completion results of a custom routine by an authenticated user.
+ * Receives routine details and stores them in the database associated with the user.
+ */
+
 import { NextResponse } from "next/server";
 import { createServerClient, type CookieOptions } from "@supabase/ssr";
 import { cookies } from "next/headers";
 
+/**
+ * POST /api/save-custom-routine-result
+ *
+ * Saves the completed routine results for the logged-in user.
+ *
+ * @param request - Incoming POST request with JSON body containing:
+ *  - routineId: string, the ID of the routine
+ *  - date: string, the completion date
+ *  - results: object, details of each set performed
+ *
+ * @returns JSON response with success message and saved data or error message.
+ */
 export async function POST(request: Request) {
   const cookieStore = await cookies();
 
-  // 1. Creamos un cliente de Supabase que puede leer las cookies de la petición
+  // Create Supabase client that reads cookies from the request
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
@@ -25,59 +44,57 @@ export async function POST(request: Request) {
   );
 
   try {
-    // 2. Obtenemos la sesión del usuario. Si no hay sesión, 'user' será null.
+    // Get the current authenticated user; user will be null if no session exists
     const {
       data: { user },
     } = await supabase.auth.getUser();
 
-    // 3. ¡Paso clave! Si no hay un usuario logueado, denegamos el acceso.
+    // Deny access if no logged-in user found
     if (!user) {
       return NextResponse.json(
         {
-          error: "No autorizado. Debes iniciar sesión para guardar una rutina.",
+          error: "Unauthorized. You must be logged in to save a routine.",
         },
         { status: 401 }
       );
     }
 
-    // 4. Leemos los datos enviados desde el componente RoutineRunner
+    // Parse the JSON body sent from the front-end RoutineRunner component
     const body = await request.json();
     const { routineId, date, results } = body;
 
-    // 5. Preparamos el objeto que se va a insertar en la base de datos,
-    //    añadiendo el ID del usuario que obtuvimos de la sesión.
+    // Prepare the object to insert into the database, linking it to the user
     const dataToInsert = {
-      user_id: user.id, // ¡Aquí asociamos el resultado con el usuario!
+      user_id: user.id, // Associates the result with the authenticated user
       routine_id: routineId,
       completed_at: date,
-      results: results, // El objeto JSON con los detalles de cada serie
+      results: results, // JSON object with details of each performed set
     };
 
-    // 6. Insertamos los datos en la tabla.
-    //    Asegúrate de que el nombre de tu tabla sea correcto ('user_routine_results' es un ejemplo).
+    // Insert the routine completion data into the database
+    // Ensure the table name matches your schema ('user_custom_routine_results' used as example)
     const { data, error } = await supabase
       .from("user_custom_routine_results")
       .insert(dataToInsert)
       .select()
-      .single(); // .single() para obtener el objeto insertado en lugar de un array
+      .single(); // Use .single() to get inserted row object instead of array
 
     if (error) {
-      // Si hay un error en la base de datos, lo devolvemos
       console.error("Supabase error:", error);
       return NextResponse.json({ error: error.message }, { status: 500 });
     }
 
-    // 7. Si todo sale bien, devolvemos un mensaje de éxito con los datos guardados.
+    // Return success message and inserted data on successful save
     return NextResponse.json(
-      { message: "Rutina finalizada y guardada con éxito", data },
+      { message: "Routine completed and saved successfully", data },
       { status: 201 }
     );
   } catch (err: unknown) {
-    console.error("Error en la API route:", err);
+    console.error("API route error:", err);
 
     return NextResponse.json(
       {
-        error: "Error en el servidor",
+        error: "Server error",
         details: err instanceof Error ? err.message : String(err),
       },
       { status: 500 }
