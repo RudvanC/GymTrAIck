@@ -2,7 +2,7 @@
 import useSWR, { mutate } from "swr";
 import { useState } from "react";
 import LoadingSpinner from "@/components/common/LoadingSpinner";
-import RoutineRunner from "./RoutineRunner";
+import CustomRoutineRunner from "@/app/routine/components/CustomRoutineRunner";
 import type { CustomRoutine } from "@/app/routine/types/all";
 import { Trash2 } from "lucide-react";
 import AddCustomRoutineDialog from "./AddCustomRoutineDialog";
@@ -30,7 +30,10 @@ export default function CustomRoutineList() {
 
   if (selected) {
     return (
-      <RoutineRunner routine={selected} onBack={() => setSelected(null)} />
+      <CustomRoutineRunner
+        routine={selected}
+        onBack={() => setSelected(null)}
+      />
     );
   }
 
