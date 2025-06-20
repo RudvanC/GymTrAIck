@@ -10,7 +10,13 @@ import { Button } from "@/components/ui/button";
 
 const fetcher = (url: string) => fetch(url).then((r) => r.json());
 
-export default function CustomRoutineList() {
+interface CustomRoutineListProps {
+  answerId: string | null;
+}
+
+export default function CustomRoutineList({
+  answerId,
+}: CustomRoutineListProps) {
   const { data: custom, error } = useSWR<CustomRoutine[]>(
     "/api/custom-routines",
     fetcher

@@ -19,6 +19,7 @@ interface RoutineRunnerProps {
 }
 
 export function RoutineRunner({ routine, onBack }: RoutineRunnerProps) {
+  console.log(routine);
   // State initialization remains the same
   const [results, setResults] = useState<ExerciseResultsMap>(() => {
     const init: ExerciseResultsMap = {};

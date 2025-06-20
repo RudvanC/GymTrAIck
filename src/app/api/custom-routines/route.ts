@@ -60,7 +60,8 @@ export async function GET() {
           position,
           exercises (
             name,
-            target
+            target,
+            gif_url
           )
         )
       `
@@ -85,6 +86,7 @@ export async function GET() {
         target: e.exercises?.target,
         sets: e.sets,
         reps: e.reps,
+        gif_url: e.exercises?.gif_url,
       })),
   }));
 

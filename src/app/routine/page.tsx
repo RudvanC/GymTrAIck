@@ -7,6 +7,7 @@ import AddCustomRoutineDialog from "@/app/routine/components/AddCustomRoutineDia
 import LoadingSpinner from "@/components/common/LoadingSpinner";
 import useSWR, { mutate } from "swr";
 import { useAuth } from "@/context/AuthContext";
+import CustomRoutineList from "@/app/routine/components/CustomRoutineList";
 
 const fetcher = (url: string) =>
   fetch(url).then(async (res) => {
@@ -63,6 +64,7 @@ export default function RoutinePage() {
         />
       </div>
       <RoutineList answerId={answerId} />
+      <CustomRoutineList answerId={answerId} />
     </div>
   );
 }

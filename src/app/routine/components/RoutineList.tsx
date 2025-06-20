@@ -9,7 +9,6 @@ import LoadingSpinner from "@/components/common/LoadingSpinner";
 import RoutineRunner from "@/app/routine/components/RoutineRunner";
 import RegenerateButton from "@/app/routine/components/RegenerateButton";
 import { DeleteRoutineButton } from "@/app/routine/components/DeleteRoutineButton";
-import CustomRoutineList from "./CustomRoutineList";
 import { Button } from "@/components/ui/button";
 
 /* Utilidad genérica para fetch + manejo de errores */
@@ -118,11 +117,7 @@ export default function RoutineList({ answerId }: RoutineListProps) {
         ))}
       </div>
 
-      {/* Rutinas personalizadas */}
-      <div className="mt-8">
-        <CustomRoutineList />
-      </div>
-
+  
       <div className="bg-gray-900 border border-gray-700 rounded-xl p-6 mt-8 shadow-sm">
         <h3 className="text-lg font-semibold text-white mb-2">
           ¿No te gustan estas rutinas?
