@@ -12,7 +12,7 @@ export default function RoutineLayout({
   return (
     <div className="flex">
       <Sidebar />
-      <main className="flex-1">{children}</main>
+      <main className="flex-1 bg-slate-950">{children}</main>
     </div>
   );
 }
