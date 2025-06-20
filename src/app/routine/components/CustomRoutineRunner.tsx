@@ -111,7 +111,7 @@ export function RoutineRunner({ routine, onBack }: RoutineRunnerProps) {
 
   // The JSX for rendering the component remains exactly the same
   return (
-    <div className="max-w-5xl mx-auto p-6">
+    <div className="top-0 max-w-5xl mx-auto p-6">
       <button
         onClick={onBack}
         className="flex items-center text-lg font-semibold text-[var(--primary-text-color)] hover:text-[var(--primary-text-color)] mb-6"
