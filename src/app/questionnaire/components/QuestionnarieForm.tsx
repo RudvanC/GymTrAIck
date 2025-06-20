@@ -1,6 +1,13 @@
 "use client";
 import React, { useState, useEffect } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
@@ -13,6 +20,24 @@ import {
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
+import {
+  Activity,
+  ArrowRight,
+  BarChart,
+  CalendarDays,
+  Dumbbell,
+  Gauge,
+  HeartPulse,
+  Loader2,
+  ShieldCheck,
+  Sparkles,
+  Target,
+  Timer,
+  UserIcon,
+} from "lucide-react";
+import { Checkbox } from "@radix-ui/react-checkbox";
+import SelectionCard from "./SelectionCard";
+import { Injuries } from "@/types/UserAnswer";
 
 const injuriesOptions = [
   { value: "none", label: "Ninguna" },
@@ -180,211 +205,325 @@ export default function QuestionnaireForm() {
     }
   }
 
+  const handleInjuryChange = (injuryValue: string, isChecked: boolean) => {
+    setFormData((prev) => {
+      // Usamos un Set para manejar fácilmente el añadir/quitar elementos
+      let currentInjuries = new Set(prev.injuries);
+
+      // CASO 1: El usuario hace clic en "Ninguna"
+      if (injuryValue === "none") {
+        // Si la marca, la lista solo debe contener 'none'.
+        // Si la desmarca, la lista debe quedar vacía (y luego la regla final la rellenará).
+        currentInjuries = isChecked ? new Set(["none"]) : new Set();
+
+        // CASO 2: El usuario hace clic en una lesión específica
+      } else {
+        // Si va a marcar una lesión, primero nos aseguramos de quitar "Ninguna" de la lista.
+        currentInjuries.delete("none");
+
+        if (isChecked) {
+          currentInjuries.add(injuryValue as Injuries);
+        } else {
+          currentInjuries.delete(injuryValue as Injuries);
+        }
+      }
+
+      // REGLA FINAL: Si después de todas las operaciones la lista ha quedado vacía,
+      // forzamos que "Ninguna" sea la opción seleccionada.
+      if (currentInjuries.size === 0) {
+        currentInjuries.add("none");
+      }
+
+      return { ...prev, injuries: Array.from(currentInjuries) };
+    });
+  };
+
   return (
-    <Card className="max-w-2xl mx-auto mt-10 mb-10">
-      <form onSubmit={handleSubmit}>
-        <CardHeader className="text-center">
-          <CardTitle className="text-xl sm:text-2xl">
-            Cuestionario de Entrenamiento
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-6 p-4 sm:p-6">
-          {/* Experiencia */}
-          <div className="space-y-2">
-            <Label htmlFor="training_experience">
-              ¿Cuánto tiempo has estado entrenando?
-            </Label>
-            <Select
-              name="training_experience"
-              onValueChange={(value) =>
-                handleSelectChange("training_experience", value)
-              }
-              value={formData.training_experience}
-            >
-              <SelectTrigger id="training_experience">
-                <SelectValue placeholder="Selecciona tu experiencia" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="none">Nunca entrené</SelectItem>
-                <SelectItem value="little">Menos de 6 meses</SelectItem>
-                <SelectItem value="moderate">6 meses - 2 años</SelectItem>
-                <SelectItem value="advanced">Más de 2 años</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-
-          {/* Disponibilidad */}
-          <div className="space-y-2">
-            <Label htmlFor="availability">
-              ¿Cuántos días a la semana puedes entrenar?
-            </Label>
-            <Input
-              id="availability"
-              type="number"
-              name="availability"
-              placeholder="Ej: 3"
-              min={1}
-              max={7}
-              value={formData.availability}
-              onChange={handleChange}
-              required
-            />
-          </div>
-
-          {/* Lesiones */}
-          <div className="space-y-2">
-            <Label>
-              ¿Tienes alguna lesión o condición física a considerar?
-            </Label>
-            <div className="flex flex-col gap-1">
-              {injuriesOptions.map((inj) => (
-                <label
-                  key={inj.value}
-                  className="inline-flex items-center space-x-2"
-                >
-                  <input
-                    type="checkbox"
-                    name="injuries"
-                    value={inj.value}
-                    checked={formData.injuries.includes(inj.value)}
-                    onChange={handleChange}
-                  />
-                  <span>{inj.label}</span>
-                </label>
-              ))}
+    <div className="bg-slate-950 min-h-screen p-4 sm:p-6 flex items-center justify-center">
+      <Card className="w-full max-w-2xl bg-slate-900/50 backdrop-blur-xl border border-slate-700/50 shadow-2xl rounded-2xl">
+        <form onSubmit={handleSubmit}>
+          {/* MEJORA VISUAL: Cabecera más impactante */}
+          <CardHeader className="text-center p-6 sm:p-8">
+            <div className="flex justify-center mb-4">
+              <div className="w-16 h-16 rounded-full bg-gradient-to-br from-purple-600 to-cyan-500 flex items-center justify-center shadow-lg">
+                <Sparkles className="h-8 w-8 text-white" />
+              </div>
             </div>
-          </div>
+            <CardTitle className="text-3xl font-bold bg-gradient-to-r from-purple-400 to-cyan-400 bg-clip-text text-transparent">
+              Crea Tu Plan Perfecto
+            </CardTitle>
+            <CardDescription className="text-slate-400 pt-1">
+              Tus respuestas nos ayudarán a generar el plan ideal para ti.
+            </CardDescription>
+          </CardHeader>
 
-          {/* Acceso a equipo */}
-          <div className="space-y-2">
-            <Label htmlFor="equipment_access">
-              ¿Tienes acceso a equipo de gimnasio o pesas?
-            </Label>
-            <Select
-              name="equipment_access"
-              onValueChange={(value) =>
-                handleSelectChange("equipment_access", value === "true")
-              }
-              value={formData.equipment_access.toString()}
-            >
-              <SelectTrigger id="equipment_access">
-                <SelectValue placeholder="Selecciona una opción" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="true">Sí, tengo acceso completo</SelectItem>
-                <SelectItem value="false">
-                  No, entreno en casa (poco o nada de equipo)
-                </SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
+          {/* MEJORA VISUAL: Contenido con más espaciado y estructura */}
+          <CardContent className="space-y-8 p-6 sm:p-8">
+            {/* Pregunta 1: Experiencia */}
+            <div className="space-y-3">
+              <Label
+                htmlFor="training_experience"
+                className="flex items-center gap-2 text-lg font-semibold text-white"
+              >
+                <Activity size={20} className="text-cyan-400" />
+                ¿Tu experiencia entrenando?
+              </Label>
+              <Select
+                name="training_experience"
+                onValueChange={(value) =>
+                  handleSelectChange("training_experience", value)
+                }
+                value={formData.training_experience}
+              >
+                <SelectTrigger
+                  id="training_experience"
+                  className="bg-slate-800 text-white border-slate-700 h-12 text-base w-full"
+                >
+                  <SelectValue placeholder="Selecciona tu experiencia" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="none">Nunca entrené</SelectItem>
+                  <SelectItem value="little">Menos de 6 meses</SelectItem>
+                  <SelectItem value="moderate">6 meses - 2 años</SelectItem>
+                  <SelectItem value="advanced">Más de 2 años</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
 
-          {/* Objetivo */}
-          <div className="space-y-2">
-            <Label htmlFor="goal">
-              ¿Cuál es tu objetivo principal de entrenamiento?
-            </Label>
-            <Select
-              name="goal"
-              onValueChange={(value) => handleSelectChange("goal", value)}
-              value={formData.goal}
-            >
-              <SelectTrigger id="goal">
-                <SelectValue placeholder="Selecciona tu objetivo" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="muscle_gain">Ganar masa muscular</SelectItem>
-                <SelectItem value="fat_loss">Perder grasa</SelectItem>
-                <SelectItem value="maintenance">
-                  Mantener condición física
-                </SelectItem>
-                <SelectItem value="general_health">
-                  Mejorar salud general
-                </SelectItem>
-                <SelectItem value="strength_increase">
-                  Aumentar fuerza
-                </SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
+            {/* Pregunta 2: Disponibilidad */}
+            <div className="space-y-3">
+              <Label
+                htmlFor="availability"
+                className="flex items-center gap-2 text-lg font-semibold text-white"
+              >
+                <CalendarDays size={20} className="text-cyan-400" />
+                ¿Cuántos días por semana?
+              </Label>
+              <Input
+                id="availability"
+                type="number"
+                name="availability"
+                placeholder="Ej: 3"
+                min={1}
+                max={7}
+                value={formData.availability}
+                onChange={handleChange}
+                required
+                className="bg-slate-800 text-white border-slate-700 h-12 text-base"
+              />
+            </div>
 
-          {/* Nivel físico */}
-          <div className="space-y-2">
-            <Label htmlFor="fitness_level">
-              ¿Cómo describirías tu nivel de condición física actual?
-            </Label>
-            <Select
-              name="fitness_level"
-              onValueChange={(value) =>
-                handleSelectChange("fitness_level", value)
-              }
-              value={formData.fitness_level}
-            >
-              <SelectTrigger id="fitness_level">
-                <SelectValue placeholder="Selecciona tu nivel actual" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="beginner">
-                  Principiante (Poco o nada activo)
-                </SelectItem>
-                <SelectItem value="intermediate">
-                  Intermedio (Activo algunas veces por semana)
-                </SelectItem>
-                <SelectItem value="advanced">
-                  Avanzado (Activo regularmente)
-                </SelectItem>
-                <SelectItem value="athlete">Atleta o similar</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
+            {/* Pregunta 3: Lesiones */}
+            <div className="space-y-3">
+              <Label className="flex items-center gap-2 text-lg font-semibold text-white">
+                <HeartPulse size={20} className="text-cyan-400" />
+                ¿Alguna lesión a considerar?
+              </Label>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 p-2 bg-slate-800/50 border border-slate-700 rounded-lg">
+                {injuriesOptions.map((inj) => {
+                  // Comprobamos si la opción actual está seleccionada para aplicar los estilos
+                  const isSelected = formData.injuries.includes(inj.value);
 
-          {/* Duración sesión */}
-          <div className="space-y-2">
-            <Label htmlFor="session_duration">
-              Duración promedio de tus sesiones de entrenamiento
-            </Label>
-            <Select
-              name="session_duration"
-              onValueChange={(value) =>
-                handleSelectChange("session_duration", value)
-              }
-              value={formData.session_duration}
-            >
-              <SelectTrigger id="session_duration">
-                <SelectValue placeholder="Selecciona duración" />
-              </SelectTrigger>
-              <SelectContent>
+                  return (
+                    // MEJORA: Hacemos que toda la fila sea clickable y cambie de color
+                    <Label
+                      key={inj.value}
+                      htmlFor={inj.value}
+                      className={`flex items-center space-x-3 p-3 rounded-md cursor-pointer transition-colors duration-200 ${
+                        isSelected
+                          ? "bg-cyan-900/50 text-cyan-300"
+                          : "text-slate-400 hover:bg-slate-700/50"
+                      }`}
+                    >
+                      <Checkbox
+                        id={inj.value}
+                        checked={isSelected}
+                        // MEJORA: Llamamos a nuestra nueva función, que es más limpia
+                        onCheckedChange={(checked) => {
+                          handleInjuryChange(inj.value, !!checked);
+                        }}
+                        // MEJORA: Clases para que el checkbox también coja el color de acento
+                        className="border-slate-500 data-[state=checked]:bg-cyan-500 data-[state=checked]:border-cyan-400"
+                      />
+                      <span className="font-medium">{inj.label}</span>
+                    </Label>
+                  );
+                })}
+              </div>
+              <p className="text-xs text-slate-500 px-1">
+                Si no tienes lesiones, simplemente no selecciones ninguna.
+              </p>
+            </div>
+
+            {/* Pregunta 4: Acceso a Equipamiento */}
+            <div className="space-y-3">
+              <Label className="flex items-center gap-2 text-lg font-semibold text-white">
+                <Dumbbell size={20} className="text-cyan-400" />
+                ¿Tienes acceso a equipamiento?
+              </Label>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <SelectionCard
+                  icon={<Dumbbell size={24} />}
+                  title="Sí, gimnasio completo"
+                  description="Entreno con pesas, máquinas, etc."
+                  isSelected={formData.equipment_access === true}
+                  onClick={() => handleSelectChange("equipment_access", true)}
+                />
+                <SelectionCard
+                  icon={<UserIcon size={24} />}
+                  title="No, en casa"
+                  description="Entreno con peso corporal o poco equipo."
+                  isSelected={formData.equipment_access === false}
+                  onClick={() => handleSelectChange("equipment_access", false)}
+                />
+              </div>
+            </div>
+
+            {/* --- Pregunta: Objetivo Principal --- */}
+            <div className="space-y-3">
+              <Label className="flex items-center gap-2 text-lg font-semibold text-white">
+                <Target size={20} className="text-cyan-400" />
+                ¿Cuál es tu objetivo principal?
+              </Label>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <SelectionCard
+                  icon={<Dumbbell size={24} />}
+                  title="Ganar Músculo"
+                  description="Hipertrofia y volumen."
+                  isSelected={formData.goal === "muscle_gain"}
+                  onClick={() => handleSelectChange("goal", "muscle_gain")}
+                />
+                <SelectionCard
+                  icon={<Activity size={24} />}
+                  title="Perder Grasa"
+                  description="Definición y cardio."
+                  isSelected={formData.goal === "fat_loss"}
+                  onClick={() => handleSelectChange("goal", "fat_loss")}
+                />
+                <SelectionCard
+                  icon={<ShieldCheck size={24} />}
+                  title="Mantener"
+                  description="Conservar mi estado físico actual."
+                  isSelected={formData.goal === "maintenance"}
+                  onClick={() => handleSelectChange("goal", "maintenance")}
+                />
+                <SelectionCard
+                  icon={<HeartPulse size={24} />}
+                  title="Salud General"
+                  description="Moverme y sentirme mejor."
+                  isSelected={formData.goal === "general_health"}
+                  onClick={() => handleSelectChange("goal", "general_health")}
+                />
+                <SelectionCard
+                  icon={<BarChart size={24} />}
+                  title="Ganar Fuerza"
+                  description="Levantar más peso."
+                  isSelected={formData.goal === "strength_increase"}
+                  onClick={() =>
+                    handleSelectChange("goal", "strength_increase")
+                  }
+                />
+              </div>
+            </div>
+
+            {/* --- Pregunta: Nivel Físico --- */}
+            <div className="space-y-3">
+              <Label className="flex items-center gap-2 text-lg font-semibold text-white">
+                <Gauge size={20} className="text-cyan-400" />
+                ¿Cómo describirías tu nivel físico?
+              </Label>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <SelectionCard
+                  icon={<Activity size={24} />}
+                  title="Principiante"
+                  description="Poco o nada activo."
+                  isSelected={formData.fitness_level === "beginner"}
+                  onClick={() =>
+                    handleSelectChange("fitness_level", "beginner")
+                  }
+                />
+                <SelectionCard
+                  icon={<Activity size={24} />}
+                  title="Intermedio"
+                  description="Activo algunas veces por semana."
+                  isSelected={formData.fitness_level === "intermediate"}
+                  onClick={() =>
+                    handleSelectChange("fitness_level", "intermediate")
+                  }
+                />
+                <SelectionCard
+                  icon={<Activity size={24} />}
+                  title="Avanzado"
+                  description="Activo de forma regular."
+                  isSelected={formData.fitness_level === "advanced"}
+                  onClick={() =>
+                    handleSelectChange("fitness_level", "advanced")
+                  }
+                />
+                <SelectionCard
+                  icon={<Dumbbell size={24} />}
+                  title="Atleta"
+                  description="Entrenamiento de alto rendimiento."
+                  isSelected={formData.fitness_level === "athlete"}
+                  onClick={() => handleSelectChange("fitness_level", "athlete")}
+                />
+              </div>
+            </div>
+
+            {/* --- Pregunta: Duración Sesión --- */}
+            <div className="space-y-3">
+              <Label className="flex items-center gap-2 text-lg font-semibold text-white">
+                <Timer size={20} className="text-cyan-400" />
+                ¿De cuánto tiempo dispones por sesión?
+              </Label>
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
                 {sessionDurationOptions.map((option) => (
-                  <SelectItem key={option.value} value={option.value}>
-                    {option.label}
-                  </SelectItem>
+                  <SelectionCard
+                    key={option.value}
+                    icon={<Timer size={24} />}
+                    title={option.label}
+                    description="" // Dejamos la descripción vacía para un look más limpio
+                    isSelected={formData.session_duration === option.value}
+                    onClick={() =>
+                      handleSelectChange("session_duration", option.value)
+                    }
+                  />
                 ))}
-              </SelectContent>
-            </Select>
-          </div>
+              </div>
+            </div>
+          </CardContent>
 
-          {/* Mensajes */}
-          {error && (
-            <p className="text-red-600 font-semibold text-center">{error}</p>
-          )}
+          <CardFooter className="p-6 sm:p-8 flex flex-col gap-4">
+            {/* Mensajes de feedback */}
+            {error && (
+              <p className="text-red-400 font-semibold text-center">{error}</p>
+            )}
+            {success && (
+              <p className="text-green-400 font-semibold text-center">
+                Respuestas guardadas. Redirigiendo...
+              </p>
+            )}
 
-          {success && (
-            <p className="text-green-600 font-semibold text-center">
-              Respuestas guardadas correctamente. Redirigiendo...
-            </p>
-          )}
-
-          {/* Botón */}
-          <Button
-            type="submit"
-            className="w-full"
-            disabled={loading}
-            aria-busy={loading}
-          >
-            {loading ? "Guardando..." : "Enviar respuestas"}
-          </Button>
-        </CardContent>
-      </form>
-    </Card>
+            {/* MEJORA VISUAL: Botón con estilo primario */}
+            <Button
+              type="submit"
+              className="w-full h-12 text-lg font-semibold bg-cyan-500 text-slate-900 hover:bg-cyan-600 transition-transform hover:scale-105"
+              disabled={loading}
+              aria-busy={loading}
+            >
+              {loading ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Guardando...
+                </>
+              ) : (
+                <>
+                  Generar Mi Plan <ArrowRight className="ml-2 h-4 w-4" />
+                </>
+              )}
+            </Button>
+          </CardFooter>
+        </form>
+      </Card>
+    </div>
   );
 }
