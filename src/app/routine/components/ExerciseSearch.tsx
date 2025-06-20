@@ -1,4 +1,4 @@
-// src/app/routine/components/ExerciseSearch.tsx (Versión Final Optimizada y Simplificada)
+// src/app/routine/components/ExerciseSearch.tsx (Versión Definitiva con Rendimiento Optimizado)
 
 "use client";
 
@@ -13,7 +13,7 @@ import {
   CommandInput,
   CommandItem,
   CommandList,
-} from "@/components/ui/command"; // <-- Usamos el Command original de shadcn
+} from "@/components/ui/command";
 import {
   Popover,
   PopoverContent,
@@ -32,10 +32,27 @@ export default function ExerciseSearch({
   onSelect,
 }: ExerciseSearchProps) {
   const [open, setOpen] = React.useState(false);
+  const [search, setSearch] = React.useState("");
 
   const selectedExerciseName =
     options.find((option) => option.id === value)?.name ||
     "Selecciona un ejercicio...";
+
+  // --- LA LÓGICA CLAVE ESTÁ AQUÍ ---
+  const filteredOptions = React.useMemo(() => {
+    // Si la barra de búsqueda está vacía, muestra solo los primeros 20.
+    // Esto hace que la apertura sea instantánea.
+    if (search === "") {
+      return options.slice(0, 20);
+    }
+
+    // Si el usuario está buscando, filtra la lista completa.
+    // El .map posterior solo renderizará esta lista ya filtrada (que será mucho más corta).
+    return options.filter((option) =>
+      option.name.toLowerCase().includes(search.toLowerCase())
+    );
+  }, [search, options]);
+  // ------------------------------------
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
@@ -51,29 +68,25 @@ export default function ExerciseSearch({
         </Button>
       </PopoverTrigger>
       <PopoverContent className="w-[var(--radix-popover-trigger-width)] max-h-[40vh] p-0 bg-slate-900 border-slate-700 text-white">
-        {/* Command ahora renderiza una lista que SIEMPRE es corta */}
-        <Command
-          // MEJORA CLAVE: El filtro se aplica sobre la lista completa, pero solo se renderiza un subconjunto
-          filter={(value, search) => {
-            const parts = search.toLowerCase().split(" ");
-            const allPartsInName = parts.every((part) =>
-              value.toLowerCase().includes(part)
-            );
-            return allPartsInName ? 1 : 0;
-          }}
-        >
-          <CommandInput placeholder="Buscar ejercicio..." />
+        <Command>
+          {/* El input ahora controla nuestro estado 'search' */}
+          <CommandInput
+            placeholder="Buscar ejercicio..."
+            value={search}
+            onValueChange={setSearch}
+          />
           <CommandList>
             <CommandEmpty>No se encontró ningún ejercicio.</CommandEmpty>
             <CommandGroup>
-              {/* Le pasamos la lista completa, CMDK la filtra internamente de forma eficiente */}
-              {options.map((option) => (
+              {/* Mapeamos sobre nuestra lista inteligentemente filtrada y cortada */}
+              {filteredOptions.map((option) => (
                 <CommandItem
                   key={option.id}
-                  value={option.name} // 'value' es lo que usa CMDK para filtrar
+                  // No es necesario 'value' aquí porque ya hemos filtrado nosotros
                   onSelect={() => {
                     onSelect(option.id);
                     setOpen(false);
+                    setSearch(""); // Reseteamos la búsqueda al seleccionar
                   }}
                 >
                   <Check
@@ -87,6 +100,13 @@ export default function ExerciseSearch({
                   <span className="capitalize">{option.name}</span>
                 </CommandItem>
               ))}
+              {/* Mensaje de ayuda si la búsqueda está vacía y hay más opciones */}
+              {search === "" && options.length > 20 && (
+                <div className="p-2 text-center text-xs text-slate-500">
+                  Mostrando 20 de {options.length}. Escribe para buscar en
+                  todos...
+                </div>
+              )}
             </CommandGroup>
           </CommandList>
         </Command>
