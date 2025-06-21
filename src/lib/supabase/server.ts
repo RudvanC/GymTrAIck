@@ -1,20 +1,38 @@
-// lib/supabase/server.ts
+// src/lib/supabase/server.ts
 
-/**
- * Supabase Admin Client (Server-Side Only)
- *
- * This file exports a Supabase client instance using the `SERVICE_ROLE_KEY`,
- * intended for secure, server-side operations such as database mutations
- * or user management.
- *
- * ⚠️ WARNING: Never expose the `SERVICE_ROLE_KEY` to the client.
- * This client must only be used in server environments (API routes, server actions, etc).
- */
+import { createServerClient, type CookieOptions } from "@supabase/ssr";
+import { cookies } from "next/headers";
 
-import { createClient } from "@supabase/supabase-js";
+// No es necesario pasar cookieStore como argumento,
+// ya que podemos importar y llamar a cookies() directamente aquí.
+export async function createClient() {
+  const cookieStore = await cookies();
 
-export const supabaseAdmin = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  // ⚠️ ONLY use this key in the backend, never in the client!
-  process.env.SERVICE_ROLE_KEY!
-);
+  return createServerClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    {
+      cookies: {
+        get: (name: string) => cookieStore.get(name)?.value,
+        set: (name: string, value: string, options: CookieOptions) => {
+          try {
+            cookieStore.set({ name, value, ...options });
+          } catch (error) {
+            // The `set` method was called from a Server Component.
+            // This can be ignored if you have middleware refreshing
+            // user sessions.
+          }
+        },
+        remove: (name: string, options: CookieOptions) => {
+          try {
+            cookieStore.set({ name, value: "", ...options });
+          } catch (error) {
+            // The `delete` method was called from a Server Component.
+            // This can be ignored if you have middleware refreshing
+            // user sessions.
+          }
+        },
+      },
+    }
+  );
+}
