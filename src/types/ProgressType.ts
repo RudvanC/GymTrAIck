@@ -42,12 +42,12 @@ export interface UserRoutineResult {
   /** List of exercise results within the routine. */
   results: ExerciseResult[];
 
-  /** ID of the original routine. */
-  routine_id: string;
+  /** The ID of the user who completed the routine. */
+  user_id: string; // La añadimos porque la vista la incluye
 
-  /** Information about the base routine, if applicable. */
-  base_routines: {
-    /** Name of the base routine. */
-    name: string;
-  } | null;
+  /** A simple string indicating the type of routine ('base' or 'custom'). */
+  routine_type: "base" | "custom";
+
+  /** The unified name of the routine, regardless of its type. */
+  routine_name: string;
 }

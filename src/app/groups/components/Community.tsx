@@ -88,8 +88,7 @@ export default function CommunityPage() {
       <div className="container mx-auto p-4">
         <Button
           onClick={() => setActiveGroup(null)}
-          variant="outline"
-          className="mb-4" // Quité 'text-black' para que se adapte mejor a temas oscuros
+          className="mb-4 hover:bg-cyan-700 hover:transition-colors duration-300 ease-in-out hover:text-white"
         >
           &larr; Volver a la lista de grupos
         </Button>

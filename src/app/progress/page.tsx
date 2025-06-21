@@ -60,18 +60,8 @@ export default async function ProgressPage() {
 
   // Fetch completed workout routines for the logged-in user
   const { data, error } = await supabase
-    .from("user_routine_results")
-    .select(
-      `
-      id,
-      completed_at,
-      results,
-      routine_id,
-      base_routines (
-        name
-      )
-    `
-    )
+    .from("combined_routine_results")
+    .select("*")
     .eq("user_id", session.user.id)
     .order("completed_at", { ascending: false });
 

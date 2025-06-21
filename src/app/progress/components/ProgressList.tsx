@@ -98,7 +98,7 @@ export default function ProgressList({
                   <div className="flex justify-between items-start">
                     <div>
                       <h2 className="text-xl font-semibold text-indigo-600 dark:text-indigo-400">
-                        {result.base_routines?.name || "Unnamed Routine"}
+                        {result.routine_name || "Unnamed Routine"}
                       </h2>
                       <p className="text-sm text-white dark:text-gray-400 mt-1">
                         Completed on:{" "}
