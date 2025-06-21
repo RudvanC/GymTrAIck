@@ -33,6 +33,8 @@ export interface ExerciseResult {
  * Represents a full routine result completed by the user.
  */
 export interface UserRoutineResult {
+  unique_id: string;
+
   /** Unique identifier for the result entry. */
   id: number;
 

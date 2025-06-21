@@ -21,7 +21,7 @@
 import { useState } from "react";
 import type { Routine } from "@/app/routine/types/all";
 import { ArrowLeft } from "lucide-react";
-import router from "next/router";
+import { useRouter } from "next/navigation";
 
 // Tipado para los datos por serie
 interface SeriesResult {
@@ -38,6 +38,7 @@ interface RoutineRunnerProps {
 }
 
 export function RoutineRunner({ routine }: RoutineRunnerProps) {
+  const router = useRouter();
   // Estado inicial: resultados por ejercicio
   const [results, setResults] = useState<ExerciseResultsMap>(() => {
     const init: ExerciseResultsMap = {};

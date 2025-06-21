@@ -38,7 +38,7 @@ export default function ProgressList({
   session,
   error,
 }: ProgressProps) {
-  const [openCardId, setOpenCardId] = useState<number | null>(null);
+  const [openCardId, setOpenCardId] = useState<string | null>(null);
 
   /**
    * Handles toggling the accordion card.
@@ -46,7 +46,7 @@ export default function ProgressList({
    *
    * @param cardId - ID of the card to toggle
    */
-  const handleCardClick = (cardId: number) => {
+  const handleCardClick = (cardId: string) => {
     setOpenCardId(openCardId === cardId ? null : cardId);
   };
 
@@ -85,13 +85,13 @@ export default function ProgressList({
               ? ([result.results] as ExerciseType[])
               : [];
 
-            const isOpen = openCardId === result.id;
+            const isOpen = openCardId === result.unique_id;
 
             return (
               <div
-                key={result.id}
+                key={result.unique_id}
                 className="bg-gray-800 dark:bg-gray-800 rounded-lg shadow-md hover:shadow-lg transition-shadow cursor-pointer"
-                onClick={() => handleCardClick(result.id)}
+                onClick={() => handleCardClick(result.unique_id)}
               >
                 <div className="p-6">
                   {/* Header section */}
