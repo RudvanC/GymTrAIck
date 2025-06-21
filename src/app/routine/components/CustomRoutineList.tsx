@@ -22,11 +22,11 @@
 import useSWR, { mutate } from "swr";
 import { useState } from "react";
 import LoadingSpinner from "@/components/common/LoadingSpinner";
-import CustomRoutineRunner from "@/app/routine/components/CustomRoutineRunner";
 import type { CustomRoutine } from "@/app/routine/types/all";
 import { Trash2 } from "lucide-react";
 import AddCustomRoutineDialog from "./AddCustomRoutineDialog";
 import { Button } from "@/components/ui/button";
+import { useRouter } from "next/navigation";
 
 const fetcher = (url: string) => fetch(url).then((r) => r.json());
 
@@ -37,13 +37,13 @@ interface CustomRoutineListProps {
 export default function CustomRoutineList({
   answerId,
 }: CustomRoutineListProps) {
+  const router = useRouter();
   // Fetch custom routines with SWR
   const { data: custom, error } = useSWR<CustomRoutine[]>(
     "/api/custom-routines",
     fetcher
   );
 
-  const [selected, setSelected] = useState<CustomRoutine | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [errMsg, setErrMsg] = useState<string | null>(null);
   const [open, setOpen] = useState(false);
@@ -54,16 +54,6 @@ export default function CustomRoutineList({
   if (error)
     return <p className="text-red-500">Error cargando personalizadas</p>;
   if (!custom) return <LoadingSpinner />;
-
-  // When a routine is selected, display the runner
-  if (selected) {
-    return (
-      <CustomRoutineRunner
-        routine={selected}
-        onBack={() => setSelected(null)}
-      />
-    );
-  }
 
   // Delete routine handler
   const deleteRoutine = async (id: string) => {
@@ -121,10 +111,7 @@ export default function CustomRoutineList({
               >
                 {/* Routine header with name and delete button */}
                 <div className="flex w-full justify-between">
-                  <h2
-                    className="text-xl font-bold text-white mb-2 cursor-pointer"
-                    onClick={() => setSelected(r)}
-                  >
+                  <h2 className="text-xl font-bold text-white mb-2 cursor-pointer">
                     {r.name}
                   </h2>
                   <button
@@ -141,10 +128,7 @@ export default function CustomRoutineList({
 
                 {/* Optional description */}
                 {r.description && (
-                  <p
-                    className="text-sm text-gray-400 mb-4 cursor-pointer"
-                    onClick={() => setSelected(r)}
-                  >
+                  <p className="text-sm text-gray-400 mb-4 cursor-pointer">
                     {r.description}
                   </p>
                 )}
@@ -154,7 +138,7 @@ export default function CustomRoutineList({
                   Personalizada
                 </span>
                 <Button
-                  onClick={() => setSelected(r)}
+                  onClick={() => router.push(`/routine/custom-runner/${r.id}`)}
                   className="border border-gray-700 bg-gray-900 hover:bg-green-600 hover:text-white justify-self-end flex"
                 >
                   Empezar

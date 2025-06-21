@@ -21,6 +21,7 @@
 import { useState } from "react";
 import type { Routine } from "@/app/routine/types/all";
 import { ArrowLeft } from "lucide-react";
+import router from "next/router";
 
 // Tipado para los datos por serie
 interface SeriesResult {
@@ -34,10 +35,9 @@ type ExerciseResultsMap = Record<number, SeriesResult[]>;
 
 interface RoutineRunnerProps {
   routine: Routine;
-  onBack: () => void;
 }
 
-export function RoutineRunner({ routine, onBack }: RoutineRunnerProps) {
+export function RoutineRunner({ routine }: RoutineRunnerProps) {
   // Estado inicial: resultados por ejercicio
   const [results, setResults] = useState<ExerciseResultsMap>(() => {
     const init: ExerciseResultsMap = {};
@@ -107,8 +107,7 @@ export function RoutineRunner({ routine, onBack }: RoutineRunnerProps) {
         const errorData = await res.json();
         throw new Error(errorData.error || "Ocurrió un error en el servidor.");
       }
-
-      onBack();
+      router.push("/routine");
     } catch (err: unknown) {
       setError(
         err instanceof Error ? err.message : "Ocurrió un error en el servidor."
@@ -125,7 +124,7 @@ export function RoutineRunner({ routine, onBack }: RoutineRunnerProps) {
   return (
     <div className="top-0 max-w-5xl mx-auto p-6">
       <button
-        onClick={onBack}
+        onClick={() => router.push("/routine")}
         className="flex items-center text-lg font-semibold text-[var(--primary-text-color)] hover:text-[var(--primary-text-color)] mb-6"
       >
         <ArrowLeft className="w-5 h-5 mr-1" /> Volver a rutinas

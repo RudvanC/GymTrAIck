@@ -22,10 +22,9 @@ import useSWR from "swr";
 import { useState } from "react";
 import type { Routine } from "@/app/api/recommend-routines-by-answer/route";
 import LoadingSpinner from "@/components/common/LoadingSpinner";
-import RoutineRunner from "@/app/routine/components/RoutineRunner";
-import RegenerateButton from "@/app/routine/components/RegenerateButton";
 import { DeleteRoutineButton } from "@/app/routine/components/DeleteRoutineButton";
 import { Button } from "@/components/ui/button";
+import { useRouter } from "next/navigation";
 
 const fetcher = (url: string) =>
   fetch(url).then((res) => {
@@ -38,12 +37,11 @@ interface RoutineListProps {
 }
 
 export default function RoutineList({ answerId }: RoutineListProps) {
+  const router = useRouter();
   const { data, error, isLoading } = useSWR<Routine[]>(
     answerId ? `/api/recommend-routines-by-answer?answer_id=${answerId}` : null,
     fetcher
   );
-
-  const [selectedRoutine, setSelectedRoutine] = useState<Routine | null>(null);
 
   if (error)
     return (
@@ -56,15 +54,6 @@ export default function RoutineList({ answerId }: RoutineListProps) {
         No routines found. Try generating a new plan.
       </p>
     );
-
-  if (selectedRoutine) {
-    return (
-      <RoutineRunner
-        routine={selectedRoutine}
-        onBack={() => setSelectedRoutine(null)}
-      />
-    );
-  }
 
   const capitalizeFirstLetter = (str: string) =>
     str.charAt(0).toUpperCase() + str.slice(1);
@@ -117,7 +106,9 @@ export default function RoutineList({ answerId }: RoutineListProps) {
               </div>
 
               <Button
-                onClick={() => setSelectedRoutine(routine)}
+                onClick={() =>
+                  router.push(`/routine/base-runner/${routine.id}`)
+                }
                 className="border border-gray-700 bg-gray-900 hover:bg-green-600 hover:text-white justify-self-end flex"
               >
                 Start
