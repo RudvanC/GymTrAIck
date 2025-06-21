@@ -61,13 +61,13 @@ export default function ProgressList({
   return (
     <div className="container mx-auto p-4 md:p-8">
       <h1 className="text-3xl font-bold mb-6 text-white dark:text-gray-100">
-        Workout History
+        Historial de entrenamientos
       </h1>
 
       {results.length === 0 ? (
         <p className="text-white dark:text-gray-400">
-          You haven't completed any routines yet. Start one to see your
-          progress!
+          No has completado ninguna rutina todavía. Inicia una para ver tu
+          progreso!
         </p>
       ) : (
         <div className="space-y-4">
@@ -101,9 +101,9 @@ export default function ProgressList({
                         {result.routine_name || "Unnamed Routine"}
                       </h2>
                       <p className="text-sm text-white dark:text-gray-400 mt-1">
-                        Completed on:{" "}
+                        Completado el:{" "}
                         {new Date(result.completed_at).toLocaleDateString(
-                          "en-US",
+                          "es-ES",
                           {
                             weekday: "long",
                             year: "numeric",
@@ -139,7 +139,7 @@ export default function ProgressList({
                     }`}
                   >
                     <h3 className="font-semibold text-white dark:text-gray-200 mb-2">
-                      Exercises Performed ({exercisesData.length})
+                      Ejercicios Realizados ({exercisesData.length})
                     </h3>
                     <ul className="space-y-2">
                       {exercisesData.map((exercise) => {
@@ -168,7 +168,7 @@ export default function ProgressList({
                               <div className="mt-2 pl-4 text-sm text-gray-500 dark:text-gray-400">
                                 <p>
                                   <span className="font-medium text-gray-400 dark:text-gray-300">
-                                    Reps:
+                                    Repeticiones:
                                   </span>{" "}
                                   {seriesData
                                     .map((s) => s.actualReps)
@@ -176,7 +176,7 @@ export default function ProgressList({
                                 </p>
                                 <p>
                                   <span className="font-medium text-gray-400 dark:text-gray-300">
-                                    Weights (kg):
+                                     Peso (kg):
                                   </span>{" "}
                                   {seriesData.map((s) => s.weight).join(" - ")}
                                 </p>

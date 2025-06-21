@@ -96,7 +96,7 @@ export default function ProfilePage() {
   if (error) {
     return (
       <p className="text-center mt-20 text-red-500">
-        Failed to load profile: {error.message}
+        No se pudo cargar tu perfil: {error.message}
       </p>
     );
   }
@@ -104,7 +104,7 @@ export default function ProfilePage() {
   if (!user || !profile) {
     return (
       <p className="text-center mt-20 text-slate-400">
-        User profile not found.
+        No se encontró tu perfil.
       </p>
     );
   }
@@ -114,11 +114,11 @@ export default function ProfilePage() {
       <div className="max-w-7xl mx-auto p-4 sm:p-6 lg:p-8">
         <header className="mb-10">
           <h1 className="text-4xl sm:text-5xl font-bold tracking-tight text-white">
-            Your Profile
+            Tu Perfil
           </h1>
           <p className="text-slate-400 mt-2 max-w-2xl">
-            Manage your personal info, update your avatar, and review your
-            account details.
+            Gestiona tu información personal, actualiza tu avatar y revisa tus
+            detalles de cuenta.
           </p>
         </header>
 
@@ -141,7 +141,7 @@ export default function ProfilePage() {
             <Card className="w-full bg-slate-900/50 backdrop-blur-xl border border-slate-700/50 shadow-2xl rounded-2xl">
               <CardHeader>
                 <CardTitle className="text-2xl text-white">
-                  Account Details
+                  Detalles de la cuenta
                 </CardTitle>
                 <Separator className="mt-2 bg-slate-700/50" />
               </CardHeader>
@@ -157,8 +157,8 @@ export default function ProfilePage() {
                 />
                 <InfoRow
                   icon={<CalendarClock size={20} />}
-                  label="Member Since"
-                  value={new Date(user.created_at).toLocaleDateString("en-GB", {
+                  label="Miembro desde"
+                  value={new Date(user.created_at).toLocaleDateString("es-ES", {
                     year: "numeric",
                     month: "long",
                     day: "numeric",

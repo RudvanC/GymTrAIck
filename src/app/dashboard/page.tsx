@@ -44,14 +44,14 @@ function TodayRoutine() {
   return (
     <div className="w-full flex flex-col justify-between p-8 border border-slate-800 rounded-2xl bg-slate-900 shadow-lg h-full hover:border-cyan-500/50 transition-colors duration-300">
       <div>
-        <h2 className="text-3xl font-bold text-white mb-2">Today's Routine</h2>
+        <h2 className="text-3xl font-bold text-white mb-2">Rutina diaria</h2>
         <p className="text-slate-400 mb-6">
-          Your personalized plan is ready. Let’s get to it!
+          Tu plan personalizado está listo. ¡Vamos a ello!
         </p>
       </div>
       <Link href="/routine" passHref>
         <button className="w-full inline-flex items-center justify-center gap-2 px-6 py-3 bg-cyan-500 text-slate-900 font-semibold rounded-lg transition-transform hover:scale-105 shadow-md hover:shadow-cyan-500/30">
-          Start Training <ArrowRight className="w-5 h-5" />
+          Iniciar entrenamiento <ArrowRight className="w-5 h-5" />
         </button>
       </Link>
     </div>
@@ -73,7 +73,7 @@ export default function DashboardPage() {
     return (
       <div className="flex justify-center items-center h-screen bg-slate-950">
         <p className="text-center text-red-500 font-semibold">
-          Failed to load your profile: {error.message}
+          No se pudo cargar tu perfil: {error.message}
         </p>
       </div>
     );
@@ -90,7 +90,7 @@ export default function DashboardPage() {
               Dashboard
             </h1>
             <p className="text-slate-400 mt-2">
-              Welcome back. Here’s your progress and today’s routine.
+              Bienvenido de vuelta. Aquí está tu progreso y tu rutina diaria.
             </p>
           </div>
 
@@ -106,15 +106,14 @@ export default function DashboardPage() {
             <div className="h-full flex items-center justify-center p-8 border border-dashed border-slate-700 rounded-2xl">
               <div className="text-center">
                 <h2 className="text-2xl font-semibold text-white mb-2">
-                  Welcome to your Dashboard!
+                  Bienvenido a tu Dashboard!
                 </h2>
                 <p className="text-slate-400 mb-4">
-                  It looks like you haven't completed our initial questionnaire
-                  yet.
+                  Parece que aún no has completado nuestro cuestionario inicial.
                 </p>
                 <Link href="/quiz" passHref>
                   <Button className="bg-cyan-500 hover:bg-cyan-600 text-slate-900">
-                    Create My Training Plan
+                    Crear mi plan de entrenamiento
                   </Button>
                 </Link>
               </div>

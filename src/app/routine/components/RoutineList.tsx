@@ -61,7 +61,7 @@ export default function RoutineList({ answerId }: RoutineListProps) {
   return (
     <>
       <h2 className="text-2xl font-semibold text-white mb-2">
-        Recommended Routines
+        Rutinas recomendadas
       </h2>
       <div className="grid gap-6 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
         {data.map((routine) => (
@@ -88,13 +88,13 @@ export default function RoutineList({ answerId }: RoutineListProps) {
             <div className="mt-auto flex justify-between items-end">
               <div>
                 <p className="text-sm text-gray-300">
-                  🏋️ Exercises:{" "}
+                  🏋️ Ejercicios:{" "}
                   <span className="font-medium text-white">
                     {routine.exercises.length}
                   </span>
                 </p>
                 <p className="text-sm text-gray-400 mt-1">
-                  💪 Muscles:{" "}
+                  💪 Musculos:{" "}
                   {Array.from(
                     new Set(
                       routine.exercises.map((e: any) =>
@@ -111,7 +111,7 @@ export default function RoutineList({ answerId }: RoutineListProps) {
                 }
                 className="border border-gray-700 bg-gray-900 hover:bg-green-600 hover:text-white justify-self-end flex"
               >
-                Start
+                Iniciar
               </Button>
             </div>
           </section>

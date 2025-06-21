@@ -84,13 +84,13 @@ function RoutinePage() {
       {/* Regenerate prompt box */}
       <div className="bg-gray-900 border border-gray-700 rounded-xl p-6 mt-8 shadow-sm">
         <h3 className="text-lg font-semibold text-white mb-2">
-          Not satisfied with the routines?
+          ¿No te satisface el plan?
         </h3>
         <p className="text-sm text-gray-400 mb-1">
-          You can regenerate them if they don’t fit your goals.
+          Puedes regenerarlas si no cumplen con tus objetivos.
         </p>
         <p className="text-sm text-gray-500 mb-4">
-          This action will replace all current routines. Proceed with caution.
+          Esta acción reemplazará todas las rutinas actuales. Procede con precaución.
         </p>
 
         <RegenerateButton answerId={answerId} />
