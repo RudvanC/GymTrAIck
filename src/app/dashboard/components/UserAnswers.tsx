@@ -2,7 +2,7 @@
 
 import { useUserAnswers } from "@/hooks/useUserAnswers";
 import LoadingSpinner from "@/components/common/LoadingSpinner";
-import { AnswerCard } from "@/app/dashboard/components/AnswerCard";
+import { QuestionAnswerCard } from "@/app/dashboard/components/QuestionAnswerCard";
 import type { UserAnswer } from "@/types/UserAnswer"; // Importar el tipo centralizado
 
 /**
@@ -25,7 +25,7 @@ export default function DashboardPage() {
   if (error) {
     return (
       <p className="text-center mt-20 text-red-600 font-semibold">
-        Error al cargar las respuestas: {error}
+        Error al cargar las respuestas: {error.message}
       </p>
     );
   }
@@ -94,7 +94,7 @@ export default function DashboardPage() {
           {/* Mapeamos el array transformado y renderizamos una AnswerCard para cada una. */}
           {/* Ahora 'ans' tiene el formato correcto { id, question, answer } que AnswerCard espera. */}
           {displayableAnswers.map((ans) => (
-            <AnswerCard key={ans.id} answer={ans} />
+            <QuestionAnswerCard key={ans.id} item={ans} />
           ))}
         </div>
       )}

@@ -1,4 +1,24 @@
+/**
+ * CustomRoutineList
+ *
+ * Displays a list of user-defined custom workout routines.
+ * Allows:
+ * - Viewing all custom routines retrieved from `/api/custom-routines`
+ * - Running a selected routine with the `CustomRoutineRunner` component
+ * - Creating a new routine via `AddCustomRoutineDialog`
+ * - Deleting routines with confirmation modal
+ *
+ * Props:
+ * - `answerId` (string | null): The user's answer ID, passed down for possible future use.
+ *
+ * Features:
+ * - Uses `useSWR` for real-time data fetching and revalidation.
+ * - Conditionally renders loader, error messages, or list content.
+ * - Maintains internal state for selection, deletion, errors, and modal control.
+ */
+
 "use client";
+
 import useSWR, { mutate } from "swr";
 import { useState } from "react";
 import LoadingSpinner from "@/components/common/LoadingSpinner";
@@ -17,6 +37,7 @@ interface CustomRoutineListProps {
 export default function CustomRoutineList({
   answerId,
 }: CustomRoutineListProps) {
+  // Fetch custom routines with SWR
   const { data: custom, error } = useSWR<CustomRoutine[]>(
     "/api/custom-routines",
     fetcher
@@ -34,6 +55,7 @@ export default function CustomRoutineList({
     return <p className="text-red-500">Error cargando personalizadas</p>;
   if (!custom) return <LoadingSpinner />;
 
+  // When a routine is selected, display the runner
   if (selected) {
     return (
       <CustomRoutineRunner
@@ -43,6 +65,7 @@ export default function CustomRoutineList({
     );
   }
 
+  // Delete routine handler
   const deleteRoutine = async (id: string) => {
     setDeletingId(id);
     setErrMsg(null);
@@ -57,8 +80,8 @@ export default function CustomRoutineList({
         throw new Error(data.error ?? "Error eliminando la rutina");
       }
 
-      mutate("/api/custom-routines");
-      setOpen(false); // cerrar modal
+      mutate("/api/custom-routines"); // refresh list
+      setOpen(false);
     } catch (e) {
       setErrMsg(e instanceof Error ? e.message : "Error eliminando la rutina");
     } finally {
@@ -68,10 +91,12 @@ export default function CustomRoutineList({
 
   return (
     <>
+      {/* Error message */}
       {errMsg && (
         <p className="text-red-500 text-sm mb-4 text-center">{errMsg}</p>
       )}
 
+      {/* Routines list or creation UI */}
       <div className="grid gap-6 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
         {custom.length === 0 ? (
           <div>
@@ -94,6 +119,7 @@ export default function CustomRoutineList({
                 key={r.id}
                 className="relative bg-gray-900 border border-gray-700 rounded-xl p-6 shadow-md hover:shadow-lg transition group"
               >
+                {/* Routine header with name and delete button */}
                 <div className="flex w-full justify-between">
                   <h2
                     className="text-xl font-bold text-white mb-2 cursor-pointer"
@@ -113,6 +139,7 @@ export default function CustomRoutineList({
                   </button>
                 </div>
 
+                {/* Optional description */}
                 {r.description && (
                   <p
                     className="text-sm text-gray-400 mb-4 cursor-pointer"
@@ -122,6 +149,7 @@ export default function CustomRoutineList({
                   </p>
                 )}
 
+                {/* Routine badge and action button */}
                 <span className="text-xs bg-yellow-600 text-white px-2 py-0.5 rounded ">
                   Personalizada
                 </span>
@@ -137,7 +165,7 @@ export default function CustomRoutineList({
         )}
       </div>
 
-      {/* ✅ MODAL CONFIRMACIÓN GLOBAL */}
+      {/* Confirmation modal for deletion */}
       {open && routineToDelete && (
         <div className="fixed inset-0 bg-gray-900/70 flex items-center justify-center z-50">
           <div className="bg-gray-900 border border-gray-700 rounded-xl p-6 w-full max-w-sm text-center">

@@ -1,4 +1,22 @@
-// src/app/dashboard/components/AnswerCard.tsx
+/**
+ * Renders the visual card component that summarizes the user's current training preferences.
+ *
+ * Used on the dashboard page to display key details from the user's latest answer,
+ * including goals, fitness level, experience, availability, and more.
+ *
+ * @remarks
+ * The card is built using UI components like `Card`, `Badge`, and `Separator`, with icons from Lucide.
+ * Visual effects include gradients, blur, and hover transitions. Dynamic colors are applied to badges
+ * based on the type and value of each item.
+ *
+ * @example
+ * ```tsx
+ * <AnswerCard answer={userAnswer} />
+ * ```
+ *
+ * @param answer - The user’s most recent answer object.
+ * @returns A styled summary card with structured training profile information.
+ */
 
 import { UserAnswer } from "@/types/UserAnswer";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -22,10 +40,9 @@ import {
   formatSessionDuration,
 } from "@/lib/formatAnswer";
 
-// CORRECCIÓN: Había un 'Bell' en lugar de 'Barbell', lo he corregido.
 const iconMap = {
   Target,
-  Bell, // Corregido
+  Bell,
   Gauge,
   CalendarDays,
   Timer,
@@ -35,8 +52,13 @@ const iconMap = {
 };
 type IconName = keyof typeof iconMap;
 
-// --- MEJORA: FUNCIÓN PARA LOS COLORES DINÁMICOS ---
-// Esta función centraliza toda la lógica de los colores de las insignias.
+/**
+ * Determines the dynamic badge style (color classes) based on the data type and value.
+ *
+ * @param type - The type of user data (e.g. 'experience', 'fitness', 'injuries').
+ * @param value - The textual value of the data.
+ * @returns A string with Tailwind CSS classes applied to the badge.
+ */
 const getBadgeStyle = (type: string, value: string): string => {
   const baseStyle =
     "border text-base font-semibold transition-all duration-300 hover:scale-105 cursor-default text-center w-full";
@@ -62,11 +84,22 @@ const getBadgeStyle = (type: string, value: string): string => {
       if (value.toLowerCase() !== "sin lesiones")
         return `${baseStyle} bg-red-900/50 text-red-300 border-red-700/50`;
       return `${baseStyle} bg-green-900/50 text-green-300 border-green-700/50`;
-    // Puedes añadir más casos para 'goal', 'availability', etc.
   }
-  return `${baseStyle} bg-slate-700/50 text-slate-300 border-slate-600/50`; // Estilo por defecto
+
+  return `${baseStyle} bg-slate-700/50 text-slate-300 border-slate-600/50`; // default style
 };
 
+/**
+ * Renders a stylized information block showing a title, icon, and a badge value.
+ *
+ * @param icon - The name of the icon to render.
+ * @param title - The label displayed above the badge.
+ * @param value - The value shown inside the badge.
+ * @param colorClass - Tailwind gradient classes for background glow effect.
+ * @param type - The type of value, used to determine badge color dynamically.
+ *
+ * @returns A styled info card block as a React element.
+ */
 const InfoBlock = ({
   icon,
   title,
@@ -83,10 +116,9 @@ const InfoBlock = ({
   const IconComponent = iconMap[icon];
   return (
     <div className="relative group h-full">
-      {/* MEJORA: Efecto de brillo sutil que se intensifica al pasar el ratón */}
       <div
         className={`absolute -inset-0.5 bg-gradient-to-r ${colorClass} rounded-xl blur opacity-30 group-hover:opacity-60 transition-opacity duration-300`}
-      ></div>
+      />
       <div className="relative bg-slate-900/70 backdrop-blur-sm rounded-xl p-4 border border-slate-800 hover:border-slate-700 transition-all duration-300 h-full">
         <div className="flex items-center gap-3 mb-2">
           <div className="p-2 rounded-lg bg-slate-800">
@@ -94,15 +126,22 @@ const InfoBlock = ({
           </div>
           <span className="font-semibold text-slate-300">{title}</span>
         </div>
-        {/* MEJORA: La clase de la insignia ahora es dinámica */}
         <Badge className={getBadgeStyle(type, value)}>{value}</Badge>
       </div>
     </div>
   );
 };
 
+/**
+ * `AnswerCard` is a dashboard UI component that summarizes key attributes from a user's profile.
+ *
+ * Each field (goal, experience, fitness level, availability, etc.) is represented visually with
+ * an icon, title, and dynamically styled badge.
+ *
+ * @param answer - The user's latest `UserAnswer` object.
+ * @returns A React component showing a full training profile card.
+ */
 export function AnswerCard({ answer }: { answer: UserAnswer }) {
-  // MEJORA: Añadimos un campo 'type' para que la lógica de colores funcione.
   const profileData = [
     {
       type: "goal",
@@ -179,7 +218,7 @@ export function AnswerCard({ answer }: { answer: UserAnswer }) {
               title={item.title}
               value={item.value}
               colorClass={item.color}
-              type={item.type} // Pasamos el 'type' al InfoBlock
+              type={item.type}
             />
           ))}
         </div>

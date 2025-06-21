@@ -1,4 +1,19 @@
-// src/app/routine/components/ExerciseSearch.tsx (Versión Definitiva con Rendimiento Optimizado)
+/**
+ * ExerciseSearch
+ *
+ * This component renders a searchable dropdown (combobox) optimized for performance when handling large datasets.
+ * It is used to select an exercise from a provided list of options.
+ *
+ * Features:
+ * - Displays only the first 20 items by default to ensure fast rendering.
+ * - Filters options dynamically as the user types.
+ * - Resets the search and closes the popover on selection.
+ *
+ * Props:
+ * @param options - List of exercise options to choose from, each with an `id` and `name`.
+ * @param value - The currently selected exercise ID.
+ * @param onSelect - Callback invoked when the user selects an exercise.
+ */
 
 "use client";
 
@@ -38,21 +53,14 @@ export default function ExerciseSearch({
     options.find((option) => option.id === value)?.name ||
     "Selecciona un ejercicio...";
 
-  // --- LA LÓGICA CLAVE ESTÁ AQUÍ ---
   const filteredOptions = React.useMemo(() => {
-    // Si la barra de búsqueda está vacía, muestra solo los primeros 20.
-    // Esto hace que la apertura sea instantánea.
     if (search === "") {
       return options.slice(0, 20);
     }
-
-    // Si el usuario está buscando, filtra la lista completa.
-    // El .map posterior solo renderizará esta lista ya filtrada (que será mucho más corta).
     return options.filter((option) =>
       option.name.toLowerCase().includes(search.toLowerCase())
     );
   }, [search, options]);
-  // ------------------------------------
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
@@ -69,7 +77,6 @@ export default function ExerciseSearch({
       </PopoverTrigger>
       <PopoverContent className="w-[var(--radix-popover-trigger-width)] max-h-[40vh] p-0 bg-slate-900 border-slate-700 text-white">
         <Command>
-          {/* El input ahora controla nuestro estado 'search' */}
           <CommandInput
             placeholder="Buscar ejercicio..."
             value={search}
@@ -78,15 +85,13 @@ export default function ExerciseSearch({
           <CommandList>
             <CommandEmpty>No se encontró ningún ejercicio.</CommandEmpty>
             <CommandGroup>
-              {/* Mapeamos sobre nuestra lista inteligentemente filtrada y cortada */}
               {filteredOptions.map((option) => (
                 <CommandItem
                   key={option.id}
-                  // No es necesario 'value' aquí porque ya hemos filtrado nosotros
                   onSelect={() => {
                     onSelect(option.id);
                     setOpen(false);
-                    setSearch(""); // Reseteamos la búsqueda al seleccionar
+                    setSearch("");
                   }}
                 >
                   <Check
@@ -100,7 +105,6 @@ export default function ExerciseSearch({
                   <span className="capitalize">{option.name}</span>
                 </CommandItem>
               ))}
-              {/* Mensaje de ayuda si la búsqueda está vacía y hay más opciones */}
               {search === "" && options.length > 20 && (
                 <div className="p-2 text-center text-xs text-slate-500">
                   Mostrando 20 de {options.length}. Escribe para buscar en

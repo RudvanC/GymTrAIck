@@ -1,12 +1,12 @@
 /**
- * @file Define los tipos relacionados con las respuestas del usuario al cuestionario de entrenamiento.
+ * @file Defines types related to the user's answers to the fitness questionnaire.
  *
- * @suggestion Renombrar este archivo a `UserAnswer.ts` ya que solo contiene definiciones de tipos.
+ * @suggestion Consider renaming this file to `UserAnswer.ts` since it only contains type definitions.
  */
 
 /**
- * Tipos de experiencia en entrenamiento disponibles.
- * Usar literales de string mejora la seguridad de tipo.
+ * Available training experience levels.
+ * Using string literals improves type safety.
  */
 export type TrainingExperienceType =
   | "none"
@@ -15,7 +15,7 @@ export type TrainingExperienceType =
   | "advanced";
 
 /**
- * Objetivos de entrenamiento posibles para el usuario.
+ * Possible training goals the user can select.
  */
 export type GoalType =
   | "muscle_gain"
@@ -25,7 +25,7 @@ export type GoalType =
   | "strength_increase";
 
 /**
- * Tipos de lesiones o limitaciones físicas que puede tener el usuario.
+ * Types of injuries or physical limitations a user may have.
  */
 export type Injuries =
   | "none"
@@ -37,7 +37,7 @@ export type Injuries =
   | "other";
 
 /**
- * Duraciones posibles para una sesión de entrenamiento.
+ * Valid options for preferred session duration.
  */
 export type SessionDurationType =
   | "15min"
@@ -48,7 +48,7 @@ export type SessionDurationType =
   | "120min";
 
 /**
- * Niveles de condición física autoevaluados por el usuario.
+ * Self-assessed fitness levels available to the user.
  */
 export type FitnessLevelType =
   | "beginner"
@@ -57,21 +57,21 @@ export type FitnessLevelType =
   | "athlete";
 
 /**
- * Representa una respuesta completa del usuario al cuestionario de entrenamiento.
+ * Represents a complete response from a user to the training questionnaire.
  *
- * @property id - Identificador único de la respuesta (por lo general UUID).
- * @property created_at - Fecha y hora en formato ISO cuando se envió la respuesta.
- * @property training_experience - Nivel de experiencia declarado.
- * @property availability - Días por semana disponibles para entrenar. Se guarda como string.
- * @property injuries - Lista de lesiones declaradas (puede estar vacía).
- * @property equipment_access - Si el usuario tiene acceso a equipamiento de gimnasio.
- * @property goal - Objetivo principal de entrenamiento.
- * @property fitness_level - Nivel actual de condición física del usuario.
- * @property session_duration - Duración preferida para las sesiones.
+ * @property id - Unique identifier for the response (usually a UUID).
+ * @property created_at - ISO timestamp of when the response was submitted.
+ * @property training_experience - Declared training experience level.
+ * @property availability - Number of days per week the user can train (stored as a string).
+ * @property injuries - List of declared injuries or limitations (can be empty).
+ * @property equipment_access - Whether the user has access to gym equipment.
+ * @property goal - User’s primary fitness goal.
+ * @property fitness_level - User's current fitness level.
+ * @property session_duration - Preferred duration of each workout session.
  *
  * @remarks
- * El campo `user_id` puede ser utilizado en operaciones de base de datos,
- * aunque no necesariamente está incluido en este tipo base.
+ * The `user_id` field might be used in database operations,
+ * but it is not necessarily included in this base type.
  */
 export interface UserAnswer {
   id: string;

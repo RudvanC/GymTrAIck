@@ -1,4 +1,27 @@
-// src/app/dashboard/components/EditProfile.tsx
+/**
+ * EditAnswer component.
+ *
+ * Provides an interactive modal form for editing a user's training profile,
+ * including goal, experience, fitness level, availability, injuries, session duration,
+ * and equipment access.
+ *
+ * The form supports form validation, state control, and a PATCH API call to persist changes.
+ * After a successful update, it also triggers a regeneration of the user's training plan.
+ *
+ * @remarks
+ * This component uses Tailwind CSS and Headless UI components for a responsive, accessible UI.
+ * It shows a loading spinner during submission, and resets the form state after saving.
+ *
+ * @example
+ * ```tsx
+ * <EditAnswer currentAnswer={userAnswer} onUpdate={refetchUserAnswers} />
+ * ```
+ *
+ * @param currentAnswer - The current `UserAnswer` data used to populate the form fields.
+ * @param onUpdate - A callback triggered after a successful update and plan regeneration.
+ *
+ * @returns A button that opens a modal with the editable profile form.
+ */
 
 "use client";
 
@@ -23,6 +46,9 @@ import {
   trainingExperienceMap,
 } from "@/lib/formatAnswer";
 
+/**
+ * Props for the `EditAnswer` component.
+ */
 interface EditAnswerProps {
   currentAnswer: UserAnswer;
   onUpdate: () => void;
@@ -37,6 +63,7 @@ const injuryMap: { [key: string]: string } = {
   wrist: "Muñeca",
   none: "Ninguna",
 };
+
 const sessionDurationOptions = [
   "15min",
   "30min",
@@ -48,9 +75,7 @@ const sessionDurationOptions = [
 
 export function EditAnswer({ currentAnswer, onUpdate }: EditAnswerProps) {
   const [isOpen, setIsOpen] = useState(false);
-  const [isConfirmOpen, setIsConfirmOpen] = useState(false);
-  const [onfirmOpen, setConfirmOpen] = useState(false);
-
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [formData, setFormData] = useState<UserAnswer>({
     ...currentAnswer,
     injuries: Array.isArray(currentAnswer.injuries)
@@ -58,24 +83,30 @@ export function EditAnswer({ currentAnswer, onUpdate }: EditAnswerProps) {
       : [],
   });
 
-  const [isSubmitting, setIsSubmitting] = useState(false);
-
+  /**
+   * Handles changes to standard input/select fields.
+   *
+   * @param field - The field name to update.
+   * @param value - The new value for the field.
+   */
   const handleChange = (field: keyof UserAnswer, value: string | boolean) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
   };
 
+  /**
+   * Handles checkbox input logic for injury selection.
+   * Supports multi-select behavior and "none" exclusivity.
+   *
+   * @param injury - The injury option being toggled.
+   * @param checked - Whether the checkbox is selected or not.
+   */
   const handleInjuryChange = (injury: string, checked: boolean) => {
     setFormData((prev) => {
       let currentInjuries: Set<Injuries>;
 
-      // Caso 1: El usuario interactúa con la opción "Ninguna"
       if (injury === "none") {
-        // Si la marca, el array solo contendrá 'none'. Si la desmarca, el array se queda vacío.
         currentInjuries = checked ? new Set(["none"]) : new Set();
-      }
-      // Caso 2: El usuario interactúa con una lesión específica
-      else {
-        // Empezamos con las lesiones que ya tenía, pero quitamos 'none' si estaba.
+      } else {
         currentInjuries = new Set(prev.injuries.filter((i) => i !== "none"));
         if (checked) {
           currentInjuries.add(injury as Injuries);
@@ -88,18 +119,27 @@ export function EditAnswer({ currentAnswer, onUpdate }: EditAnswerProps) {
     });
   };
 
-  // --- MEJORA: handleSubmit ahora es el único responsable y hace todo en orden ---
+  /**
+   * Handles form submission (placeholder - logic is delegated to `executeSaveAndRegenerate`).
+   *
+   * @param e - The form event.
+   */
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
   };
 
+  /**
+   * Submits the updated form data via PATCH request and triggers regeneration of the training plan.
+   * Handles loading state, error handling, and UI reset.
+   */
   const executeSaveAndRegenerate = async () => {
     setIsSubmitting(true);
-    setConfirmOpen(false); // Cerramos el modal de confirmación
+    setIsOpen(false);
 
     const finalInjuries =
       formData.injuries.length === 0 ? ["none"] : formData.injuries;
+
     const payloadToSubmit = { ...formData, injuries: finalInjuries };
 
     try {
@@ -111,8 +151,9 @@ export function EditAnswer({ currentAnswer, onUpdate }: EditAnswerProps) {
           body: JSON.stringify(payloadToSubmit),
         }
       );
+
       if (!updateResponse.ok)
-        throw new Error("No se pudieron guardar los cambios.");
+        throw new Error("Failed to save changes. Please try again.");
 
       const regenerateResponse = await fetch(
         `/api/regenerate-plan?answer_id=${formData.id}`,
@@ -120,12 +161,14 @@ export function EditAnswer({ currentAnswer, onUpdate }: EditAnswerProps) {
           method: "POST",
         }
       );
-      if (!regenerateResponse.ok)
-        throw new Error("Perfil actualizado, pero hubo un error al regenerar.");
 
-      alert("¡Perfil actualizado! Se están generando tus nuevas rutinas.");
+      if (!regenerateResponse.ok)
+        throw new Error(
+          "Profile was updated, but there was an error regenerating the plan."
+        );
+
+      alert("Profile updated successfully. Your new routines are on the way!");
       onUpdate();
-      setIsOpen(false); // Cerramos el modal principal del formulario
     } catch (error) {
       console.error(error);
       alert((error as Error).message);
@@ -133,18 +176,20 @@ export function EditAnswer({ currentAnswer, onUpdate }: EditAnswerProps) {
       setIsSubmitting(false);
     }
   };
+
   return (
     <>
       <Button onClick={() => setIsOpen(true)}>
-        <Pencil className="mr-2 h-4 w-4" /> Editar Perfil
+        <Pencil className="mr-2 h-4 w-4" /> Edit Profile
       </Button>
 
       {isOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm">
           <div className="relative w-full max-w-2xl bg-slate-900 border border-slate-700 rounded-xl shadow-lg m-4">
             <form onSubmit={handleSubmit} className="p-6">
+              {/* Form header */}
               <div className="flex justify-between items-center mb-4">
-                <h2 className="text-2xl font-bold text-white">Editar Perfil</h2>
+                <h2 className="text-2xl font-bold text-white">Edit Profile</h2>
                 <Button
                   variant="ghost"
                   size="icon"
@@ -156,12 +201,14 @@ export function EditAnswer({ currentAnswer, onUpdate }: EditAnswerProps) {
                 </Button>
               </div>
 
+              {/* Form content */}
               <div className="max-h-[70vh] overflow-y-auto pr-4 space-y-6">
+                {/* Goal and Experience */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {/* Objetivo */}
+                  {/* Goal */}
                   <div className="space-y-2">
                     <Label htmlFor="goal" className="text-slate-300">
-                      Objetivo Principal
+                      Main Goal
                     </Label>
                     <Select
                       value={formData.goal}
@@ -180,10 +227,10 @@ export function EditAnswer({ currentAnswer, onUpdate }: EditAnswerProps) {
                     </Select>
                   </div>
 
-                  {/* Experiencia */}
+                  {/* Experience */}
                   <div className="space-y-2">
                     <Label htmlFor="experience" className="text-slate-300">
-                      Experiencia
+                      Training Experience
                     </Label>
                     <Select
                       value={formData.training_experience}
@@ -207,11 +254,11 @@ export function EditAnswer({ currentAnswer, onUpdate }: EditAnswerProps) {
                   </div>
                 </div>
 
+                {/* Fitness Level and Availability */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {/* Nivel Físico */}
                   <div className="space-y-2">
                     <Label htmlFor="fitness_level" className="text-slate-300">
-                      Nivel Físico
+                      Fitness Level
                     </Label>
                     <Select
                       value={formData.fitness_level}
@@ -232,10 +279,9 @@ export function EditAnswer({ currentAnswer, onUpdate }: EditAnswerProps) {
                     </Select>
                   </div>
 
-                  {/* --- CAMPO AÑADIDO DE NUEVO --- */}
                   <div className="space-y-2">
                     <Label htmlFor="availability" className="text-slate-300">
-                      Días por semana
+                      Days per Week
                     </Label>
                     <Input
                       id="availability"
@@ -248,13 +294,12 @@ export function EditAnswer({ currentAnswer, onUpdate }: EditAnswerProps) {
                       }
                     />
                   </div>
-                  {/* --- FIN DEL CAMPO AÑADIDO --- */}
                 </div>
 
-                {/* ... El resto del formulario (Duración, Lesiones, Equipo) no cambia ... */}
+                {/* Session Duration */}
                 <div className="space-y-2">
                   <Label htmlFor="session_duration" className="text-slate-300">
-                    Duración por Sesión
+                    Session Duration
                   </Label>
                   <Select
                     value={formData.session_duration}
@@ -263,21 +308,22 @@ export function EditAnswer({ currentAnswer, onUpdate }: EditAnswerProps) {
                     }
                   >
                     <SelectTrigger>
-                      <SelectValue placeholder="Selecciona una duración" />
+                      <SelectValue placeholder="Select a duration" />
                     </SelectTrigger>
                     <SelectContent>
                       {sessionDurationOptions.map((option) => (
                         <SelectItem key={option} value={option}>
-                          {option.replace("min", " minutos")}
+                          {option.replace("min", " minutes")}
                         </SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
                 </div>
 
+                {/* Injuries */}
                 <div className="space-y-3">
                   <Label className="text-base text-slate-300">
-                    Lesiones (selecciona las que apliquen)
+                    Injuries (select all that apply)
                   </Label>
                   <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 p-4 rounded-md border border-slate-700 bg-slate-900/50">
                     {injuryOptions.map((injuryKey) => (
@@ -305,16 +351,17 @@ export function EditAnswer({ currentAnswer, onUpdate }: EditAnswerProps) {
                   </div>
                 </div>
 
+                {/* Equipment Access */}
                 <div className="flex items-center justify-between rounded-lg border p-4 border-slate-700 bg-slate-900/50">
                   <div className="space-y-0.5">
                     <Label
                       htmlFor="equipment_access"
                       className="text-base text-slate-300"
                     >
-                      ¿Tienes acceso a un gimnasio?
+                      Do you have access to a gym?
                     </Label>
                     <p className="text-sm text-slate-500">
-                      Actívalo si entrenas con equipamiento completo.
+                      Enable if you train with full equipment.
                     </p>
                   </div>
                   <Switch
@@ -327,6 +374,7 @@ export function EditAnswer({ currentAnswer, onUpdate }: EditAnswerProps) {
                 </div>
               </div>
 
+              {/* Actions */}
               <div className="flex justify-end gap-4 pt-6 border-t border-slate-700 mt-6">
                 <Button
                   variant="ghost"
@@ -334,7 +382,7 @@ export function EditAnswer({ currentAnswer, onUpdate }: EditAnswerProps) {
                   onClick={() => setIsOpen(false)}
                   disabled={isSubmitting}
                 >
-                  Cancelar
+                  Cancel
                 </Button>
                 <Button
                   onClick={executeSaveAndRegenerate}
@@ -345,7 +393,7 @@ export function EditAnswer({ currentAnswer, onUpdate }: EditAnswerProps) {
                   {isSubmitting ? (
                     <Loader2 className="animate-spin" />
                   ) : (
-                    "Guardar Cambios"
+                    "Save Changes"
                   )}
                 </Button>
               </div>

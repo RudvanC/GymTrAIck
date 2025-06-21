@@ -1,3 +1,14 @@
+/**
+ * QuestionnaireForm Component
+ *
+ * A guided form that collects user input to generate a personalized workout plan.
+ * It uses controlled components, local state, validation, and Supabase integration.
+ *
+ * @remarks
+ * - Includes questions about experience, availability, injuries, goals, equipment, and more.
+ * - Upon successful submission, redirects to `/routine` after a short delay.
+ */
+
 "use client";
 import React, { useState, useEffect } from "react";
 import {

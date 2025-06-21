@@ -1,4 +1,16 @@
-/* app/(protected)/routine/page.tsx */
+/**
+ * RoutinePage
+ *
+ * This is the main protected page where users can:
+ * - View AI-generated recommended routines
+ * - Add routines manually or create custom ones
+ * - Regenerate their plan if unsatisfied
+ *
+ * Requirements:
+ * - Must be authenticated (uses `useAuth` context)
+ * - Must have completed the questionnaire (answerId available)
+ */
+
 "use client";
 
 import RoutineList from "@/app/routine/components/RoutineList";
@@ -16,10 +28,10 @@ const fetcher = (url: string) =>
     return res.json();
   });
 
-export default function RoutinePage() {
+function RoutinePage() {
   const { user } = useAuth();
 
-  // Obtenemos el último answer_id del usuario
+  // Fetch the latest answer from the user to get their profile ID
   const {
     data: answers,
     error: ansError,
@@ -29,16 +41,14 @@ export default function RoutinePage() {
   const answerId: string | null =
     answers && answers.length > 0 ? answers[0].id : null;
 
-  // Mientras no haya sesión o cargue…
   if (!user || answersLoading) {
     return <LoadingSpinner />;
   }
 
-  // Si hubo error…
   if (ansError) {
     return (
       <div className="p-8 text-red-600 max-w-xl mx-auto">
-        Error al cargar datos: {ansError.message}
+        Error loading profile data: {ansError.message}
       </div>
     );
   }
@@ -46,41 +56,46 @@ export default function RoutinePage() {
   if (!answerId) {
     return (
       <div className="p-8 text-gray-600 max-w-xl mx-auto">
-        No se encontraron rutinas para tu perfil. Completa el cuestionario
-        primero.
+        No routines found for your profile. Please complete the questionnaire
+        first.
       </div>
     );
   }
 
-  // Render final
   return (
     <div className="max-w-7xl mx-auto p-8 bg-slate-950 gap-8 flex flex-col">
+      {/* Top right actions: add routine */}
       <div className="flex gap-4 justify-end p-4">
         <AddCustomRoutineDialog />
         <AddRoutineDialog
-          answerId={answerId!}
+          answerId={answerId}
           onAdded={() =>
             mutate(`/api/recommend-routines-by-answer?answer_id=${answerId}`)
           }
         />
       </div>
+
+      {/* AI-generated routines */}
       <RoutineList answerId={answerId} />
+
+      {/* User-created custom routines */}
       <CustomRoutineList answerId={answerId} />
+
+      {/* Regenerate prompt box */}
       <div className="bg-gray-900 border border-gray-700 rounded-xl p-6 mt-8 shadow-sm">
         <h3 className="text-lg font-semibold text-white mb-2">
-          ¿No te gustan estas rutinas?
+          Not satisfied with the routines?
         </h3>
         <p className="text-sm text-gray-400 mb-1">
-          Puedes regenerarlas si no se ajustan a tus necesidades.
+          You can regenerate them if they don’t fit your goals.
         </p>
         <p className="text-sm text-gray-500 mb-4">
-          Esta acción reemplazará las rutinas actuales. Asegúrate de querer
-          hacerlo.
+          This action will replace all current routines. Proceed with caution.
         </p>
 
-        {/* --- LÍNEA MODIFICADA --- */}
         <RegenerateButton answerId={answerId} />
       </div>
     </div>
   );
 }
+export default RoutinePage;

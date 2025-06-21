@@ -1,37 +1,54 @@
-// src/hooks/useUserAnswers.ts
+/**
+ * useUserAnswers Hook
+ *
+ * This hook provides access to the authenticated user's questionnaire answers.
+ * It uses SWR for efficient data fetching, caching, and revalidation.
+ *
+ * Features:
+ * - Automatically fetches answers after authentication.
+ * - Includes loading and error states.
+ * - Supports manual cache mutation with SWR.
+ *
+ * Usage:
+ * const { answers, loading, error, mutate } = useUserAnswers();
+ */
 
 "use client";
-import useSWR, { type MutatorCallback } from "swr"; // <-- 1. Importamos useSWR y el tipo MutatorCallback
+
+import useSWR, { type MutatorCallback } from "swr";
 import { UserAnswer } from "@/types/UserAnswer";
 import { useAuth } from "@/context/AuthContext";
 
 /**
  * UserAnswersState
- * Estructura del estado retornado por el hook `useUserAnswers`.
+ * Structure of the state returned by the `useUserAnswers` hook.
  */
 export interface UserAnswersState {
-  /** Lista de respuestas del usuario. */
+  /** List of the authenticated user's answers. */
   answers: UserAnswer[];
 
-  /** Indicador de carga mientras se recuperan las respuestas. */
+  /** Indicates whether the data is still being loaded. */
   loading: boolean;
 
-  /** Mensaje de error en caso de que ocurra uno. */
+  /** Any error encountered while fetching the data. */
   error: Error | null;
 
-  /** Función para refrescar los datos manualmente. */
+  /** Function to manually refresh or mutate the data. */
   mutate: (
     data?: UserAnswer[] | Promise<UserAnswer[]> | MutatorCallback<UserAnswer[]>,
     options?: any
   ) => Promise<UserAnswer[] | undefined>;
 }
 
-// 2. Definimos una función 'fetcher' que SWR usará para todas las peticiones.
+/**
+ * Generic fetcher used by SWR.
+ * Throws an error if the response is not OK.
+ */
 const fetcher = async (url: string): Promise<UserAnswer[]> => {
   const res = await fetch(url);
   if (!res.ok) {
-    const errorData = await res.json().catch(() => ({})); // Intenta parsear el error, si no, objeto vacío
-    throw new Error(errorData.error || "Error al cargar los datos.");
+    const errorData = await res.json().catch(() => ({}));
+    throw new Error(errorData.error || "Failed to load user answers.");
   }
   return res.json();
 };
@@ -39,31 +56,23 @@ const fetcher = async (url: string): Promise<UserAnswer[]> => {
 /**
  * useUserAnswers
  *
- * Hook personalizado para obtener y gestionar las respuestas del usuario autenticado,
- * ahora potenciado por SWR para cacheo, revalidación y la función 'mutate'.
+ * Custom hook to retrieve and manage the current user's answers using SWR.
+ * Handles caching, revalidation, and authentication context.
  */
 export function useUserAnswers(): UserAnswersState {
   const { user: authUser, loading: authLoading } = useAuth();
 
-  // 3. La 'key' de SWR. Si el usuario no está cargado (authUser es null),
-  // SWR no hará la petición. ¡Esto maneja la autenticación por nosotros!
-  //
-  // NOTA IMPORTANTE: He quitado el `?user_id=...` de la URL.
-  // Recuerda que hicimos que nuestro endpoint fuera más seguro obteniendo el ID
-  // de la sesión en el servidor, así que ya no es necesario pasarlo.
+  // Only call the API if the user is authenticated
   const swrKey = authUser ? "/api/user-answers" : null;
 
-  // 4. La llamada principal al hook de SWR.
   const { data, error, isLoading, mutate } = useSWR(swrKey, fetcher, {
-    // Opcional: configuración extra de SWR
-    shouldRetryOnError: false, // No reintentar si la API da un error
+    shouldRetryOnError: false,
   });
 
   return {
-    // 5. Devolvemos un objeto con la misma "forma" que antes, pero con datos de SWR.
-    answers: data || [], // Si 'data' aún no ha llegado, devolvemos un array vacío.
-    loading: isLoading || authLoading, // La carga depende de SWR o de la autenticación.
+    answers: data || [],
+    loading: isLoading || authLoading,
     error,
-    mutate, // ¡Aquí está la función que necesitas!
+    mutate,
   };
 }

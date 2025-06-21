@@ -1,3 +1,29 @@
+/**
+ * AddCustomRoutineDialog
+ *
+ * This React client component renders a modal dialog that allows users
+ * to create a custom workout routine. Users can name the routine, optionally
+ * add a description, and dynamically add multiple exercises with sets and reps.
+ *
+ * Internally, it:
+ * - Fetches available exercises from Supabase on mount
+ * - Uses a custom hook (`useCustomRoutineForm`) to manage form state
+ * - Handles form submission and sends data to the `/api/custom-routines` endpoint
+ * - Uses SWR to revalidate the list of custom routines on successful save
+ *
+ * The component uses Radix UI dialog primitives and custom UI components for styling.
+ *
+ * Features:
+ * - Dynamic exercise rows with autocomplete search
+ * - Form validation (e.g., empty fields, disabled submit)
+ * - Graceful error handling and reset on close
+ *
+ * Usage:
+ * ```tsx
+ * <AddCustomRoutineDialog />
+ * ```
+ */
+
 "use client";
 
 import {
@@ -17,13 +43,6 @@ import { createBrowserClient } from "@supabase/ssr";
 import { Database } from "@/lib/supabase/database.types";
 import { mutate } from "swr";
 import { Dumbbell, Loader2, PlusCircle, Trash2 } from "lucide-react";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@radix-ui/react-select";
 import { Label } from "@/components/ui/label";
 import ExerciseSearch from "./ExerciseSearch";
 

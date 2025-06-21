@@ -1,4 +1,22 @@
-// app/progress/components/Progress.tsx
+/**
+ * `ProgressList` is a component that displays a list of completed user routines with collapsible details.
+ *
+ * @remarks
+ * - It accepts a list of results and a session.
+ * - If the session is not present, it asks the user to log in.
+ * - If results exist, it shows each workout with a toggleable section for exercises and series performed.
+ *
+ * @example
+ * ```tsx
+ * <ProgressList results={routineResults} session={session} />
+ * ```
+ *
+ * @param results - The list of completed user routines to display.
+ * @param session - The current user session (used to ensure login).
+ * @param error - Optional error message to display if data fetching fails.
+ *
+ * @returns A component that renders collapsible cards for workout history.
+ */
 
 "use client";
 
@@ -6,6 +24,9 @@ import { useState } from "react";
 import { UserRoutineResult } from "@/types/ProgressType";
 import type { Session } from "@supabase/supabase-js";
 
+/**
+ * Props expected by the `ProgressList` component.
+ */
 interface ProgressProps {
   results: UserRoutineResult[];
   session: Session | null;
@@ -19,37 +40,43 @@ export default function ProgressList({
 }: ProgressProps) {
   const [openCardId, setOpenCardId] = useState<number | null>(null);
 
+  /**
+   * Handles toggling the accordion card.
+   * If the card is open, close it. Otherwise, open it.
+   *
+   * @param cardId - ID of the card to toggle
+   */
   const handleCardClick = (cardId: number) => {
     setOpenCardId(openCardId === cardId ? null : cardId);
   };
 
   if (!session) {
-    return <p>Inicia sesión para ver tu progreso.</p>;
+    return <p>Please log in to view your progress.</p>;
   }
 
   if (error) {
-    return <p>Error al cargar los datos: {error}</p>;
+    return <p>Error loading progress: {error}</p>;
   }
 
   return (
     <div className="container mx-auto p-4 md:p-8">
       <h1 className="text-3xl font-bold mb-6 text-white dark:text-gray-100">
-        Historial de Entrenamientos
+        Workout History
       </h1>
 
       {results.length === 0 ? (
         <p className="text-white dark:text-gray-400">
-          Aún no has completado ninguna rutina. ¡Completa una para ver tu
-          progreso!
+          You haven't completed any routines yet. Start one to see your
+          progress!
         </p>
       ) : (
         <div className="space-y-4">
           {results.map((result) => {
-            // Extraemos el tipo de un ejercicio y de una serie
+            // Extract exercise and series types
             type ExerciseType = UserRoutineResult["results"][number];
             type SeriesType = ExerciseType["series"][number];
 
-            // 1️⃣ Normalizamos result.results a un array de ExerciseType
+            // Normalize exercises
             const exercisesData: ExerciseType[] = Array.isArray(result.results)
               ? result.results
               : typeof result.results === "string"
@@ -67,16 +94,16 @@ export default function ProgressList({
                 onClick={() => handleCardClick(result.id)}
               >
                 <div className="p-6">
-                  {/* Cabecera */}
+                  {/* Header section */}
                   <div className="flex justify-between items-start">
                     <div>
                       <h2 className="text-xl font-semibold text-indigo-600 dark:text-indigo-400">
-                        {result.base_routines?.name || "Rutina sin nombre"}
+                        {result.base_routines?.name || "Unnamed Routine"}
                       </h2>
                       <p className="text-sm text-white dark:text-gray-400 mt-1">
-                        Completado el:{" "}
+                        Completed on:{" "}
                         {new Date(result.completed_at).toLocaleDateString(
-                          "es-ES",
+                          "en-US",
                           {
                             weekday: "long",
                             year: "numeric",
@@ -103,7 +130,7 @@ export default function ProgressList({
                     </svg>
                   </div>
 
-                  {/* Contenido desplegable */}
+                  {/* Toggleable section with exercises and series */}
                   <div
                     className={`overflow-hidden transition-all duration-500 ease-in-out ${
                       isOpen
@@ -112,11 +139,11 @@ export default function ProgressList({
                     }`}
                   >
                     <h3 className="font-semibold text-white dark:text-gray-200 mb-2">
-                      Ejercicios Realizados ({exercisesData.length})
+                      Exercises Performed ({exercisesData.length})
                     </h3>
                     <ul className="space-y-2">
                       {exercisesData.map((exercise) => {
-                        // 2️⃣ Normalizamos exercise.series a un array de SeriesType
+                        // Normalize series
                         const seriesData: SeriesType[] = Array.isArray(
                           exercise.series
                         )
@@ -137,23 +164,21 @@ export default function ProgressList({
                             </span>
                             <span className="text-gray-500 dark:text-gray-400">
                               {" "}
-                              - {seriesData.length} series
+                              - {seriesData.length} sets
                               <div className="mt-2 pl-4 text-sm text-gray-500 dark:text-gray-400">
                                 <p>
                                   <span className="font-medium text-gray-400 dark:text-gray-300">
-                                    Repeticiones:
+                                    Reps:
                                   </span>{" "}
                                   {seriesData
-                                    .map((s: SeriesType) => s.actualReps)
+                                    .map((s) => s.actualReps)
                                     .join(" - ")}
                                 </p>
                                 <p>
                                   <span className="font-medium text-gray-400 dark:text-gray-300">
-                                    Pesos (kg):
+                                    Weights (kg):
                                   </span>{" "}
-                                  {seriesData
-                                    .map((s: SeriesType) => s.weight)
-                                    .join(" - ")}
+                                  {seriesData.map((s) => s.weight).join(" - ")}
                                 </p>
                               </div>
                             </span>

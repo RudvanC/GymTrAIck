@@ -1,3 +1,17 @@
+/**
+ * DeleteRoutineButton
+ *
+ * Este componente permite al usuario eliminar una rutina recomendada asociada a una respuesta específica.
+ * Al hacer clic en el botón de la papelera, se abre un diálogo de confirmación.
+ * Si se confirma, se hace una petición DELETE al backend y se actualiza el estado global de SWR.
+ *
+ * Props:
+ * - `answerId` (string): ID de la respuesta asociada a la rutina.
+ * - `routineId` (string): ID de la rutina a eliminar.
+ *
+ * Revalida automáticamente la key `/api/user-routines` tras la eliminación.
+ */
+
 import { useState } from "react";
 import { Trash2 } from "lucide-react";
 import useSWRMutation from "swr/mutation";
@@ -24,9 +38,9 @@ export function DeleteRoutineButton({ answerId, routineId }: DeleteProps) {
       alert("Error eliminando la rutina");
       return;
     }
-    // Revalida la key de tu listado principal
-    mutate("/api/user-routines"); // o la key que uses en SWR
 
+    // Revalida la cache de rutinas
+    mutate("/api/user-routines");
     setConfirmOpen(false);
     alert("Rutina eliminada");
 

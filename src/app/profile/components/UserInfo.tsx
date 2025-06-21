@@ -1,4 +1,25 @@
-// app/profile/page.tsx (Versión Mejorada)
+/**
+ * `ProfilePage` displays the authenticated user's profile.
+ *
+ * It provides an interface to view and manage account information,
+ * including profile picture upload, username editing, and static data like email and join date.
+ *
+ * @remarks
+ * Uses Supabase for data storage and authentication. Data is fetched via SWR and revalidated on changes.
+ * Avatar uploads are handled via Supabase Storage and updated in the `profiles` table.
+ * The layout uses responsive Tailwind Grid and Cards with visual enhancements (blur, shadows, etc.).
+ *
+ * @returns A fully responsive and editable user profile page.
+ *
+ * @example
+ * ```tsx
+ * // Rendered automatically when the user navigates to /profile
+ * <ProfilePage />
+ * ```
+ *
+ * @see {@link AvatarUploader} - Allows users to upload a new profile image.
+ * @see {@link EditableUsername} - Inline editor for updating the username.
+ */
 
 "use client";
 
@@ -8,10 +29,18 @@ import LoadingSpinner from "@/components/common/LoadingSpinner";
 import AvatarUploader from "@/app/profile/components/AvatarUploader";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
-import { KeyRound, Mail, CalendarClock, User as UserIcon } from "lucide-react";
+import { Mail, CalendarClock } from "lucide-react";
 import EditableUsername from "./EditableUsername";
 
-// MEJORA: El InfoRow ahora tiene un estilo más limpio y un icono más prominente.
+/**
+ * `InfoRow` renders a labeled piece of user information with an icon.
+ *
+ * @param icon - Icon to display at the beginning of the row.
+ * @param label - Descriptive label (e.g., "Email").
+ * @param value - Actual value (e.g., "user@example.com").
+ *
+ * @returns A single row of formatted user information.
+ */
 const InfoRow = ({
   icon,
   label,
@@ -28,13 +57,12 @@ const InfoRow = ({
     <div>
       <p className="text-sm text-slate-400">{label}</p>
       <p className="font-semibold text-white break-all">
-        {value || "No especificado"}
+        {value || "Not specified"}
       </p>
     </div>
   </div>
 );
 
-// Por consistencia, renombramos el componente a ProfilePage
 export default function ProfilePage() {
   const { user, supabase, loading: authLoading } = useAuth();
 
@@ -44,7 +72,6 @@ export default function ProfilePage() {
     isLoading,
     mutate,
   } = useSWR(user ? `profile-${user.id}` : null, async () => {
-    // Tu lógica de fetcher con SWR está perfecta, la mantenemos.
     const { data, error } = await supabase
       .from("profiles")
       .select("*")
@@ -69,7 +96,7 @@ export default function ProfilePage() {
   if (error) {
     return (
       <p className="text-center mt-20 text-red-500">
-        Error al cargar el perfil: {error.message}
+        Failed to load profile: {error.message}
       </p>
     );
   }
@@ -77,33 +104,31 @@ export default function ProfilePage() {
   if (!user || !profile) {
     return (
       <p className="text-center mt-20 text-slate-400">
-        No se pudo encontrar el perfil de usuario.
+        User profile not found.
       </p>
     );
   }
 
   return (
-    // MEJORA: Añadimos un fondo degradado sutil a toda la página
     <div className="bg-slate-950 text-slate-50 min-h-screen">
       <div className="max-w-7xl mx-auto p-4 sm:p-6 lg:p-8">
         <header className="mb-10">
           <h1 className="text-4xl sm:text-5xl font-bold tracking-tight text-white">
-            Tu Perfil
+            Your Profile
           </h1>
           <p className="text-slate-400 mt-2 max-w-2xl">
-            Gestiona tu información personal, actualiza tu foto y revisa los
-            detalles de tu cuenta.
+            Manage your personal info, update your avatar, and review your
+            account details.
           </p>
         </header>
 
-        {/* --- MEJORA DE LAYOUT: Pasamos de Flex a un Grid más robusto y responsivo --- */}
         <main className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
-          {/* --- Columna Izquierda: Tarjeta de Identidad --- */}
+          {/* Avatar Section */}
           <div className="lg:col-span-1 lg:sticky lg:top-8">
             <Card className="w-full bg-slate-900/50 backdrop-blur-xl border border-slate-700/50 shadow-2xl rounded-2xl">
               <CardContent className="p-6 flex flex-col items-center text-center">
                 <AvatarUploader
-                  initialAvatarUrl={profile.avatar_url} // Se lo pasamos desde el 'profile' de SWR
+                  initialAvatarUrl={profile.avatar_url}
                   onUploadSuccess={handleAvatarUpdate}
                   userEmail={user.email}
                 />
@@ -111,12 +136,12 @@ export default function ProfilePage() {
             </Card>
           </div>
 
-          {/* --- Columna Derecha: Tarjeta de Información --- */}
+          {/* Profile Details Section */}
           <div className="lg:col-span-2">
             <Card className="w-full bg-slate-900/50 backdrop-blur-xl border border-slate-700/50 shadow-2xl rounded-2xl">
               <CardHeader>
                 <CardTitle className="text-2xl text-white">
-                  Detalles de la Cuenta
+                  Account Details
                 </CardTitle>
                 <Separator className="mt-2 bg-slate-700/50" />
               </CardHeader>
@@ -132,8 +157,8 @@ export default function ProfilePage() {
                 />
                 <InfoRow
                   icon={<CalendarClock size={20} />}
-                  label="Miembro desde"
-                  value={new Date(user.created_at).toLocaleDateString("es-ES", {
+                  label="Member Since"
+                  value={new Date(user.created_at).toLocaleDateString("en-GB", {
                     year: "numeric",
                     month: "long",
                     day: "numeric",

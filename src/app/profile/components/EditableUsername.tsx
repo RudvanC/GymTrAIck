@@ -1,4 +1,26 @@
-// src/app/profile/components/EditableUsername.tsx
+/**
+ * `EditableUsername` component.
+ *
+ * Displays the user's current username and allows inline editing with save and cancel options.
+ * On successful update, it triggers a callback to allow the parent component to refresh data.
+ *
+ * @remarks
+ * This component uses the `useAuth` context to access the current user and Supabase client.
+ * It prevents saving if the field is empty or the user is not authenticated.
+ *
+ * @example
+ * ```tsx
+ * <EditableUsername
+ *   initialUsername={profile.username}
+ *   onUpdate={() => mutateProfile()}
+ * />
+ * ```
+ *
+ * @param initialUsername - The current username to be displayed and edited.
+ * @param onUpdate - Callback executed after a successful update to refresh the parent state.
+ *
+ * @returns A user interface element that toggles between display and edit modes.
+ */
 
 "use client";
 
@@ -9,9 +31,12 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Loader2, User as UserIcon, Check, X } from "lucide-react";
 
+/**
+ * Props for the `EditableUsername` component.
+ */
 interface EditableUsernameProps {
   initialUsername: string | null;
-  onUpdate: () => void; // Función para refrescar los datos (mutate)
+  onUpdate: () => void;
 }
 
 export default function EditableUsername({
@@ -23,8 +48,11 @@ export default function EditableUsername({
   const [username, setUsername] = useState(initialUsername || "");
   const [isLoading, setIsLoading] = useState(false);
 
+  /**
+   * Handles saving the new username to the database and notifies the parent.
+   */
   const handleSave = async () => {
-    if (!user || !username.trim()) return; // No guardar si está vacío
+    if (!user || !username.trim()) return;
 
     setIsLoading(true);
     try {
@@ -35,29 +63,30 @@ export default function EditableUsername({
 
       if (error) throw error;
 
-      // Si todo va bien, notificamos al padre para que refresque y salimos del modo edición
       onUpdate();
       setIsEditing(false);
     } catch (error) {
-      console.error("Error al actualizar el nombre de usuario:", error);
-      alert("No se pudo guardar el nombre de usuario.");
+      console.error("Failed to update username:", error);
+      alert("Could not save the username. Please try again.");
     } finally {
       setIsLoading(false);
     }
   };
 
+  /**
+   * Cancels editing and restores the original username value.
+   */
   const handleCancel = () => {
-    // Restauramos el nombre original y salimos del modo edición
     setUsername(initialUsername || "");
     setIsEditing(false);
   };
 
-  // Modo Edición
+  // Edit mode view
   if (isEditing) {
     return (
-      <div className="p-2 m-4F rounded-lg bg-slate-800/50 border border-slate-700">
+      <div className="p-2 rounded-lg bg-slate-800/50 border border-slate-700">
         <Label htmlFor="username-input" className="text-sm text-slate-400">
-          Editar Nombre de Usuario
+          Edit Username
         </Label>
         <div className="flex items-center gap-2 mt-2">
           <Input
@@ -92,7 +121,7 @@ export default function EditableUsername({
     );
   }
 
-  // Modo Vista (por defecto)
+  // View mode (default)
   return (
     <div className="flex items-center justify-between gap-4 p-2 -m-2 rounded-lg transition-colors hover:bg-slate-800/50">
       <div className="flex items-start gap-4">
@@ -100,9 +129,9 @@ export default function EditableUsername({
           <UserIcon size={20} />
         </div>
         <div>
-          <p className="text-sm text-slate-400">Nombre de Usuario</p>
+          <p className="text-sm text-slate-400">Username</p>
           <p className="font-semibold text-white">
-            {initialUsername || "No especificado"}
+            {initialUsername || "Not specified"}
           </p>
         </div>
       </div>
@@ -111,7 +140,7 @@ export default function EditableUsername({
         size="sm"
         onClick={() => setIsEditing(true)}
       >
-        Editar
+        Edit
       </Button>
     </div>
   );

@@ -1,3 +1,27 @@
+/**
+ * AddRoutineDialog
+ *
+ * This client-side component displays a dialog that allows users to add an existing routine
+ * to a given user answer (`answerId`). The user can search routines via a search box
+ * powered by SWR and dynamically fetched results from `/api/routine-results/search`.
+ *
+ * Main Features:
+ * - Modal dialog using Radix UI `Dialog`
+ * - Search input with debounce-like behavior using `useSWR`
+ * - Displays search results dynamically
+ * - Allows selecting one routine and submitting it via `/api/routine-results/create`
+ * - Shows loading indicators when fetching or submitting
+ *
+ * Props:
+ * - `answerId` (string): ID of the user answer to which a routine will be attached.
+ * - `onAdded` (function): Callback called after a successful addition to refresh parent state.
+ *
+ * Example usage:
+ * ```tsx
+ * <AddRoutineDialog answerId="1234" onAdded={() => refetch()} />
+ * ```
+ */
+
 "use client";
 
 import { useState, useEffect } from "react";
@@ -33,7 +57,7 @@ export default function AddRoutineDialog({
   const [selected, setSelected] = useState<Routine | null>(null);
   const [adding, setAdding] = useState(false);
 
-  // SWR fetcher
+  // Fetch routines matching the query using SWR
   const { data: results, isValidating } = useSWR<Routine[]>(
     query.length > 0
       ? `/api/routine-results/search?q=${encodeURIComponent(query)}`
@@ -41,6 +65,7 @@ export default function AddRoutineDialog({
     (url: string) => fetch(url).then((r) => r.json())
   );
 
+  // Reset dialog state when it is closed
   useEffect(() => {
     if (!open) {
       setQuery("");
@@ -48,19 +73,16 @@ export default function AddRoutineDialog({
     }
   }, [open]);
 
+  // Submit selected routine to the server
   async function handleAdd() {
     if (!selected) return;
     setAdding(true);
-    console.log("About to add:", {
-      answer_id: answerId,
-      routine_id: selected!.routine_id,
-    });
     const res = await fetch("/api/routine-results/create", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         answer_id: answerId,
-        routine_id: selected!.routine_id,
+        routine_id: selected.routine_id,
       }),
     });
     setAdding(false);
@@ -89,6 +111,7 @@ export default function AddRoutineDialog({
           <DialogTitle>Añadir rutina a tu plan</DialogTitle>
         </DialogHeader>
 
+        {/* Search input */}
         <div className="relative">
           <Search className="absolute left-3 top-3 w-4 h-4 text-black" />
           <Input
@@ -99,6 +122,7 @@ export default function AddRoutineDialog({
           />
         </div>
 
+        {/* Search results */}
         <div className="max-h-56 overflow-y-auto mt-4 space-y-1">
           {isValidating && (
             <p className="flex items-center gap-2 text-sm text-black">
@@ -123,6 +147,7 @@ export default function AddRoutineDialog({
           ))}
         </div>
 
+        {/* Footer with add button */}
         <DialogFooter>
           <Button
             disabled={!selected || adding}

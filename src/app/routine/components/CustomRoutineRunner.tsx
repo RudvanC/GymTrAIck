@@ -1,16 +1,35 @@
+/**
+ * RoutineRunner
+ *
+ * Este componente permite a un usuario registrar el resultado de su rutina personalizada.
+ * Muestra cada ejercicio con su nombre, equipo, y músculo objetivo, seguido por sus series.
+ *
+ * Por cada serie, el usuario puede:
+ * - Indicar la cantidad real de repeticiones realizadas
+ * - Registrar el peso utilizado
+ * - Marcar la serie como completada
+ *
+ * Al finalizar, los datos se transforman y envían al endpoint `/api/routine-results/custom-routine-results`.
+ *
+ * Props:
+ * - `routine` (Routine): La rutina personalizada con ejercicios, sets y reps.
+ * - `onBack` (function): Callback para regresar a la vista anterior.
+ */
+
 "use client";
 
 import { useState } from "react";
 import type { Routine } from "@/app/routine/types/all";
 import { ArrowLeft } from "lucide-react";
 
-// The types for the component's state and props remain the same
+// Tipado para los datos por serie
 interface SeriesResult {
   completed: boolean;
   actualReps: number;
   weight: number;
 }
 
+// Mapa de ID de ejercicio → array de resultados por serie
 type ExerciseResultsMap = Record<number, SeriesResult[]>;
 
 interface RoutineRunnerProps {
@@ -19,7 +38,7 @@ interface RoutineRunnerProps {
 }
 
 export function RoutineRunner({ routine, onBack }: RoutineRunnerProps) {
-  // State initialization remains the same
+  // Estado inicial: resultados por ejercicio
   const [results, setResults] = useState<ExerciseResultsMap>(() => {
     const init: ExerciseResultsMap = {};
     routine.exercises.forEach((ex) => {
@@ -31,10 +50,11 @@ export function RoutineRunner({ routine, onBack }: RoutineRunnerProps) {
     });
     return init;
   });
+
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // The function to handle series changes remains the same
+  // Maneja el cambio de reps, peso o completado
   const handleSeriesChange = (
     exerciseId: number,
     seriesIndex: number,
@@ -51,37 +71,31 @@ export function RoutineRunner({ routine, onBack }: RoutineRunnerProps) {
     });
   };
 
-  // --- CAMBIO PRINCIPAL AQUÍ ---
-  // The handleSubmit function is updated to transform the data before sending
+  // Envío final de resultados
   const handleSubmit = async () => {
     setIsSubmitting(true);
     setError(null);
+
     try {
-      // 1. Transform the 'results' object into a more descriptive array
       const resultsPayload = Object.entries(results).map(
         ([exerciseId, seriesData]) => {
-          // Find the corresponding exercise in the routine to get its name
           const exercise = routine.exercises.find(
             (ex) => ex.id === Number(exerciseId)
           );
-
           return {
             exerciseId: Number(exerciseId),
-            // Add the exercise name to the payload
             exerciseName: exercise ? exercise.name : "Ejercicio Desconocido",
-            series: seriesData, // Keep the series data
+            series: seriesData,
           };
         }
       );
 
-      // 2. Create the final payload with the new 'results' format
       const payload = {
         routineId: routine.id,
         date: new Date().toISOString(),
-        results: resultsPayload, // Use the new descriptive array
+        results: resultsPayload,
       };
 
-      // 3. The fetch request remains the same, sending the new payload
       const res = await fetch("/api/routine-results/custom-routine-results", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -90,7 +104,6 @@ export function RoutineRunner({ routine, onBack }: RoutineRunnerProps) {
       });
 
       if (!res.ok) {
-        // Try to parse the error message from the server response
         const errorData = await res.json();
         throw new Error(errorData.error || "Ocurrió un error en el servidor.");
       }
@@ -109,7 +122,6 @@ export function RoutineRunner({ routine, onBack }: RoutineRunnerProps) {
     return str.charAt(0).toUpperCase() + str.slice(1);
   }
 
-  // The JSX for rendering the component remains exactly the same
   return (
     <div className="top-0 max-w-5xl mx-auto p-6">
       <button
@@ -126,6 +138,7 @@ export function RoutineRunner({ routine, onBack }: RoutineRunnerProps) {
         </p>
       )}
 
+      {/* Lista de ejercicios */}
       <div className="space-y-8">
         {routine.exercises.map((ex) => (
           <div key={ex.id} className="p-4 border rounded-lg shadow-sm">
@@ -148,12 +161,13 @@ export function RoutineRunner({ routine, onBack }: RoutineRunnerProps) {
                   <span className="font-semibold">Equipo:</span>{" "}
                   {ex.equipment ? capitalizeFirstLetter(ex.equipment) : ""}{" "}
                   <br />
-                  <span className="font-semibold"> Músculos:</span>{" "}
+                  <span className="font-semibold">Músculos:</span>{" "}
                   {capitalizeFirstLetter(ex.target)}
                 </p>
               </div>
             </div>
-            {/* Encabezado de columnas */}
+
+            {/* Encabezado */}
             <div className="grid grid-cols-4 gap-4 text-center font-bold mb-2 px-2">
               <span>Serie</span>
               <span>Reps</span>
@@ -161,18 +175,17 @@ export function RoutineRunner({ routine, onBack }: RoutineRunnerProps) {
               <span>Finalizado</span>
             </div>
 
-            {/* Filas de series */}
+            {/* Series */}
             <div className="space-y-2">
               {results[ex.id].map((series, idx) => (
                 <div
                   key={idx}
                   className="grid grid-cols-4 gap-4 items-center px-2 py-2 bg-gray-900 rounded-lg shadow-sm"
                 >
-                  {/* Índice de serie */}
                   <span className="text-center text-white font-medium">
                     {idx + 1}
                   </span>
-                  {/* Reps */}
+
                   <input
                     type="number"
                     value={series.actualReps}
@@ -189,7 +202,6 @@ export function RoutineRunner({ routine, onBack }: RoutineRunnerProps) {
                     placeholder="Reps"
                   />
 
-                  {/* Peso */}
                   <input
                     type="number"
                     value={series.weight}
@@ -201,7 +213,6 @@ export function RoutineRunner({ routine, onBack }: RoutineRunnerProps) {
                     placeholder="Peso (kg)"
                   />
 
-                  {/* Finalizado */}
                   <label
                     className={`flex items-center justify-center space-x-2 px-4 py-2 rounded text-center cursor-pointer transition ${
                       series.completed
@@ -233,8 +244,10 @@ export function RoutineRunner({ routine, onBack }: RoutineRunnerProps) {
         ))}
       </div>
 
+      {/* Error en el envío */}
       {error && <p className="text-red-500 text-center mt-4">Error: {error}</p>}
 
+      {/* Botón de finalización */}
       <button
         onClick={handleSubmit}
         disabled={isSubmitting}
