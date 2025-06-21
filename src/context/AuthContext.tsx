@@ -1,15 +1,3 @@
-/**
- * AuthProvider and useAuth Hook
- *
- * Provides authentication context using Supabase.
- * - Exposes the current user, loading state, and the Supabase client
- * - Automatically listens to auth state changes (login/logout)
- * - Prevents rendering children until auth status is known
- *
- * Usage:
- * Wrap your app with <AuthProvider> to access `useAuth()` anywhere.
- */
-
 "use client";
 
 import { createContext, useContext, useEffect, useState } from "react";
@@ -21,25 +9,25 @@ import type {
   Session,
 } from "@supabase/supabase-js";
 
-// Type definition for the auth context
+// Define la estructura del contexto
 interface AuthContextType {
   user: User | null;
   supabase: SupabaseClient;
   loading: boolean;
 }
 
-// Create the context with undefined as default to enforce usage within provider
+// Crea el contexto con un valor por defecto
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-// Context provider component
+// Crea el componente Proveedor del contexto
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const supabase = createClient();
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Fetch the initial user session
     async function getUser() {
+      // Obtenemos la sesión inicial
       const {
         data: { user },
       } = await supabase.auth.getUser();
@@ -49,17 +37,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     getUser();
 
-    // Subscribe to auth state changes (login, logout)
+    // Escuchamos cambios en la autenticación (signIn, signOut)
     const { data: authListener } = supabase.auth.onAuthStateChange(
       (event: AuthChangeEvent, session: Session | null) => {
-        console.log("Auth event:", event);
+        console.log("Event:", event);
         console.log("Session:", session);
         setUser(session?.user ?? null);
         setLoading(false);
       }
     );
 
-    // Cleanup listener on unmount
+    // Limpiamos el listener cuando el componente se desmonta
     return () => {
       authListener.subscription.unsubscribe();
     };
@@ -71,7 +59,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     loading,
   };
 
-  // Prevent rendering children until auth state is determined
+  // El `!loading` evita mostrar contenido que dependa del usuario antes de saber si está logueado o no
   return (
     <AuthContext.Provider value={value}>
       {!loading && children}
@@ -79,11 +67,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   );
 }
 
-// Custom hook to access the auth context
+// Crea un hook personalizado para usar el contexto fácilmente
 export function useAuth() {
   const context = useContext(AuthContext);
   if (context === undefined) {
-    throw new Error("useAuth must be used within an AuthProvider");
+    throw new Error("useAuth debe ser usado dentro de un AuthProvider");
   }
   return context;
 }
