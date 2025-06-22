@@ -251,7 +251,7 @@ export function RoutineRunner({ routine }: RoutineRunnerProps) {
       <button
         onClick={handleSubmit}
         disabled={isSubmitting}
-        className="mt-8 w-full px-6 py-3 bg-green-600 text-white rounded hover:bg-green-700 disabled:opacity-50"
+        className="mt-8 w-full px-6 py-3 max-md:mb-16 bg-green-600 text-white rounded hover:bg-green-700 disabled:opacity-50"
       >
         {isSubmitting ? "Enviando..." : "Finalizar rutina"}
       </button>

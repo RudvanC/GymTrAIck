@@ -250,7 +250,7 @@ export default function QuestionnaireForm() {
   };
 
   return (
-    <div className="bg-slate-950 min-h-screen p-4 sm:p-6 flex items-center justify-center">
+    <div className="bg-slate-950 p-4 sm:p-6 flex items-center justify-center">
       <Card className="w-full max-w-2xl bg-slate-900/50 backdrop-blur-xl border border-slate-700/50 shadow-2xl rounded-2xl">
         <form onSubmit={handleSubmit}>
           {/* MEJORA VISUAL: Cabecera más impactante */}

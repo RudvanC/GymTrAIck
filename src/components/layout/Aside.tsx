@@ -22,7 +22,7 @@ import { useState } from "react"; // Importamos useState
 const navLinks = [
   { href: "/routine", label: "Rutinas", icon: ListTree },
   { href: "/progress", label: "Progreso", icon: BarChart },
-  { href: "/community", label: "Comunidad", icon: Users },
+  { href: "/groups", label: "Grupos", icon: Users },
   { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
   { href: "/profile", label: "Perfil", icon: User },
 ];

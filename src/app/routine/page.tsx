@@ -64,7 +64,7 @@ function RoutinePage() {
 
   return (
     // ===== 1. CONTENEDOR PRINCIPAL RESPONSIVE =====
-    <div className="max-w-7xl mx-auto p-4 md:p-8 bg-slate-950 gap-6 md:gap-8 flex flex-col">
+    <div className="max-w-7xl mx-auto p-4 md:p-8 text-slate-50 gap-6 md:gap-8 flex flex-col">
       {/* - p-4: Menos padding en móviles.
         - md:p-8: El padding original para pantallas medianas y más grandes.
         - gap-6 md:gap-8: Menos espaciado entre secciones en móvil.
@@ -92,7 +92,7 @@ function RoutinePage() {
       <CustomRoutineList answerId={answerId} />
 
       {/* ===== 3. CAJA DE REGENERAR RESPONSIVE ===== */}
-      <div className="bg-gray-900 border border-gray-700 rounded-xl p-4 sm:p-6 mt-8 shadow-sm">
+      <div className="bg-gray-900 border border-gray-700 rounded-xl p-4 sm:p-6 mt-8 shadow-sm text-slate-50">
         {/* - p-4: Menos padding en móviles.
           - sm:p-6: El padding original para pantallas pequeñas y más grandes.
         */}
