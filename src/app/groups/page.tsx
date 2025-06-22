@@ -1,5 +1,3 @@
-"use client";
-
 import CommunityPage from "@/app/groups/components/Community";
 
 export default function GroupsPage() {

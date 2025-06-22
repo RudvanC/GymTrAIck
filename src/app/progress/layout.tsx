@@ -1,6 +1,4 @@
 // app/dashboard/layout.tsx
-"use client";
-
 import React from "react";
 import Sidebar from "@/components/layout/Aside"; // confirma que en tu filesystem exista components/Sidebar.tsx
 

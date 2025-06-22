@@ -19,7 +19,6 @@
 "use client";
 
 import useSWR from "swr";
-import { useState } from "react";
 import type { Routine } from "@/app/api/recommend-routines-by-answer/route";
 import LoadingSpinner from "@/components/common/LoadingSpinner";
 import { DeleteRoutineButton } from "@/app/routine/components/DeleteRoutineButton";
