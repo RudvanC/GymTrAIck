@@ -20,10 +20,12 @@
 
 import useSWR from "swr";
 import type { Routine } from "@/app/api/recommend-routines-by-answer/route";
-import LoadingSpinner from "@/components/common/LoadingSpinner";
 import { DeleteRoutineButton } from "@/app/routine/components/DeleteRoutineButton";
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
+import RoutinesLoadingSpinner from "@/components/common/RoutinesLoadingSpinner";
+
+// Default values shown
 
 const fetcher = (url: string) =>
   fetch(url).then((res) => {
@@ -46,7 +48,7 @@ export default function RoutineList({ answerId }: RoutineListProps) {
     return (
       <p className="text-red-500">Error cargando rutinas: {error.message}</p>
     );
-  if (isLoading) return <LoadingSpinner />;
+  if (isLoading) return <RoutinesLoadingSpinner />;
   if (!data || data.length === 0)
     return (
       <p className="text-gray-400">

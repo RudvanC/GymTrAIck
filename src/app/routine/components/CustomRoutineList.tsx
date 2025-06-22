@@ -21,12 +21,12 @@
 
 import useSWR, { mutate } from "swr";
 import { useState } from "react";
-import LoadingSpinner from "@/components/common/LoadingSpinner";
 import type { CustomRoutine } from "@/app/routine/types/all";
 import { Trash2 } from "lucide-react";
 import AddCustomRoutineDialog from "./AddCustomRoutineDialog";
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
+import RoutinesLoadingSpinner from "@/components/common/RoutinesLoadingSpinner";
 
 const fetcher = (url: string) => fetch(url).then((r) => r.json());
 
@@ -53,7 +53,7 @@ export default function CustomRoutineList({
 
   if (error)
     return <p className="text-red-500">Error cargando personalizadas</p>;
-  if (!custom) return <LoadingSpinner />;
+  if (!custom) return <RoutinesLoadingSpinner />;
 
   // Delete routine handler
   const deleteRoutine = async (id: string) => {
