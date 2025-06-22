@@ -180,7 +180,7 @@ export function EditAnswer({ currentAnswer, onUpdate }: EditAnswerProps) {
   return (
     <>
       <Button onClick={() => setIsOpen(true)}>
-        <Pencil className="mr-2 h-4 w-4" /> Edit Profile
+        <Pencil className="mr-2 h-4 w-4" /> Editar respuestas
       </Button>
 
       {isOpen && (
@@ -189,7 +189,7 @@ export function EditAnswer({ currentAnswer, onUpdate }: EditAnswerProps) {
             <form onSubmit={handleSubmit} className="p-6">
               {/* Form header */}
               <div className="flex justify-between items-center mb-4">
-                <h2 className="text-2xl font-bold text-white">Edit Profile</h2>
+                <h2 className="text-2xl font-bold text-white">Editar respuestas</h2>
                 <Button
                   variant="ghost"
                   size="icon"
@@ -208,7 +208,7 @@ export function EditAnswer({ currentAnswer, onUpdate }: EditAnswerProps) {
                   {/* Goal */}
                   <div className="space-y-2">
                     <Label htmlFor="goal" className="text-slate-300">
-                      Main Goal
+                      Objetivo principal
                     </Label>
                     <Select
                       value={formData.goal}
@@ -230,7 +230,7 @@ export function EditAnswer({ currentAnswer, onUpdate }: EditAnswerProps) {
                   {/* Experience */}
                   <div className="space-y-2">
                     <Label htmlFor="experience" className="text-slate-300">
-                      Training Experience
+                      Experiencia de entrenamiento
                     </Label>
                     <Select
                       value={formData.training_experience}
@@ -258,7 +258,7 @@ export function EditAnswer({ currentAnswer, onUpdate }: EditAnswerProps) {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="space-y-2">
                     <Label htmlFor="fitness_level" className="text-slate-300">
-                      Fitness Level
+                      Nivel de fitness
                     </Label>
                     <Select
                       value={formData.fitness_level}
@@ -281,7 +281,7 @@ export function EditAnswer({ currentAnswer, onUpdate }: EditAnswerProps) {
 
                   <div className="space-y-2">
                     <Label htmlFor="availability" className="text-slate-300">
-                      Days per Week
+                      Dias por semana
                     </Label>
                     <Input
                       id="availability"
@@ -299,7 +299,7 @@ export function EditAnswer({ currentAnswer, onUpdate }: EditAnswerProps) {
                 {/* Session Duration */}
                 <div className="space-y-2">
                   <Label htmlFor="session_duration" className="text-slate-300">
-                    Session Duration
+                    Duración de la sesión
                   </Label>
                   <Select
                     value={formData.session_duration}
@@ -323,7 +323,7 @@ export function EditAnswer({ currentAnswer, onUpdate }: EditAnswerProps) {
                 {/* Injuries */}
                 <div className="space-y-3">
                   <Label className="text-base text-slate-300">
-                    Injuries (select all that apply)
+                    Lesiones (selecciona todas las que se aplican)
                   </Label>
                   <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 p-4 rounded-md border border-slate-700 bg-slate-900/50">
                     {injuryOptions.map((injuryKey) => (
@@ -358,10 +358,10 @@ export function EditAnswer({ currentAnswer, onUpdate }: EditAnswerProps) {
                       htmlFor="equipment_access"
                       className="text-base text-slate-300"
                     >
-                      Do you have access to a gym?
+                      ¿Tienes acceso a un gimnasio?
                     </Label>
                     <p className="text-sm text-slate-500">
-                      Enable if you train with full equipment.
+                      Habilita si entrenas con equipo completo.
                     </p>
                   </div>
                   <Switch
@@ -382,7 +382,7 @@ export function EditAnswer({ currentAnswer, onUpdate }: EditAnswerProps) {
                   onClick={() => setIsOpen(false)}
                   disabled={isSubmitting}
                 >
-                  Cancel
+                  Cancelar
                 </Button>
                 <Button
                   onClick={executeSaveAndRegenerate}
@@ -393,7 +393,7 @@ export function EditAnswer({ currentAnswer, onUpdate }: EditAnswerProps) {
                   {isSubmitting ? (
                     <Loader2 className="animate-spin" />
                   ) : (
-                    "Save Changes"
+                    "Guardar cambios"
                   )}
                 </Button>
               </div>

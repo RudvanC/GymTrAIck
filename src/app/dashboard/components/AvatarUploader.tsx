@@ -157,7 +157,7 @@ export default function AvatarUploader({
       {!selectedFile && (
         <label htmlFor="avatar-upload" className="cursor-pointer">
           <Button asChild className="pointer-events-none">
-            <span>Change Photo</span>
+            <span>Cambiar foto</span>
           </Button>
         </label>
       )}
@@ -169,7 +169,7 @@ export default function AvatarUploader({
             disabled={uploading}
             className="bg-green-600 hover:bg-green-700"
           >
-            {uploading ? <Loader2 className="animate-spin" /> : "Save"}
+            {uploading ? <Loader2 className="animate-spin" /> : "Guardar"}
           </Button>
           <Button
             variant="destructive"
@@ -180,7 +180,7 @@ export default function AvatarUploader({
             disabled={uploading}
             className="bg-red-600 hover:bg-red-700"
           >
-            Cancel
+            Cancelar
           </Button>
         </div>
       )}

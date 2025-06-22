@@ -24,7 +24,6 @@ const navLinks = [
   { href: "/progress", label: "Progreso", icon: BarChart },
   { href: "/groups", label: "Grupos", icon: Users },
   { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
-  { href: "/profile", label: "Perfil", icon: User },
 ];
 
 // Dividimos los enlaces para la nueva estructura móvil

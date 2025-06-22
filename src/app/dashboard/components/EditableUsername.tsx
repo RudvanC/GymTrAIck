@@ -86,7 +86,7 @@ export default function EditableUsername({
     return (
       <div className="p-2 rounded-lg bg-slate-800/50 border border-slate-700">
         <Label htmlFor="username-input" className="text-sm text-slate-400">
-          Edit Username
+          Editar nombre de usuario
         </Label>
         <div className="flex items-center gap-2 mt-2">
           <Input
@@ -129,7 +129,7 @@ export default function EditableUsername({
           <UserIcon size={20} />
         </div>
         <div>
-          <p className="text-sm text-slate-400">Username</p>
+          <p className="text-sm text-slate-400">Nombre de usuario</p>
           <p className="font-semibold text-white">
             {initialUsername || "Not specified"}
           </p>
@@ -140,7 +140,7 @@ export default function EditableUsername({
         size="sm"
         onClick={() => setIsEditing(true)}
       >
-        Edit
+        Editar
       </Button>
     </div>
   );

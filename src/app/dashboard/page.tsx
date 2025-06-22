@@ -7,6 +7,7 @@ import { EditAnswer } from "@/app/dashboard/components/EditAnswer";
 import { ArrowRight } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
+import UserInfo from "@/app/dashboard/components/UserInfo";
 
 function TodayRoutine() {
   // Este componente interno ya es bastante responsive con w-full y h-full,
@@ -82,10 +83,12 @@ export default function DashboardPage() {
               - gap-8: Espacio entre las tarjetas.
               - items-start: Alinea las tarjetas en la parte superior de su celda del grid.
           */}
+
           {latestAnswer ? (
             <>
-              <div className="flex flex-col w-full">
+              <div className="flex flex-col w-full gap-6">
                 <AnswerCard answer={latestAnswer} />
+                <UserInfo />
                 <TodayRoutine />
               </div>
             </>
