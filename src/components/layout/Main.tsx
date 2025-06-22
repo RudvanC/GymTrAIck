@@ -1,154 +1,174 @@
 import Navbar from "@/components/layout/NavbarGuest";
 import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import { Dumbbell, TrendingUp, Calendar, Users } from "lucide-react";
+  Dumbbell,
+  TrendingUp,
+  Calendar,
+  Users,
+  ArrowRight,
+} from "lucide-react";
 import Link from "next/link";
+import React from "react";
 
-export default function Main() {
-  return (
-    <div className="bg-[var(--background-color)] text-white">
-      {/* Application Navigation Bar */}
-      <Navbar />
+// --- DATOS PARA LAS TARJETAS DE CARACTERÍSTICAS (CON EL NUEVO COLOR UNIFICADO) ---
+const featureData = [
+  {
+    icon: Dumbbell,
+    title: "Rutinas Personalizadas",
+    description:
+      "Algoritmos inteligentes que crean rutinas basadas en tu experiencia, objetivos y tiempo disponible.",
+  },
+  {
+    icon: TrendingUp,
+    title: "Seguimiento de Progreso",
+    description:
+      "Registra tus entrenamientos, pesos y medidas. Visualiza tu evolución con gráficos detallados.",
+  },
+  {
+    icon: Calendar,
+    title: "Planificación Inteligente",
+    description:
+      "Rutinas que se adaptan a tu horario y disponibilidad. Nunca más excusas para no entrenar.",
+  },
+  {
+    icon: Users,
+    title: "Para Todos los Niveles",
+    description:
+      "Desde principiantes hasta avanzados. Rutinas que evolucionan contigo y respetan tus limitaciones.",
+  },
+];
 
-      {/* Hero Section: Main introductory content */}
-      <section className="container mx-auto px-4 py-16 sm:py-20 text-center">
-        <div className="max-w-4xl mx-auto">
-          <h2 className="text-4xl sm:text-5xl font-bold mb-6">
-            Tu Rutina de Gimnasio
-            <span className="text-purple-400"> Personalizada</span>
-          </h2>
-          <p className="text-lg sm:text-xl text-gray-300 mb-8 leading-relaxed">
-            Genera rutinas adaptadas a tu nivel, objetivos y disponibilidad.
-            Lleva un seguimiento completo de tu progreso y alcanza tus metas
-            fitness.
-          </p>
-          <div className="flex gap-4 justify-center flex-wrap">
-            <Button
-              size="lg"
-              className="bg-purple-600 hover:bg-purple-700 text-lg px-8 py-3 shadow-lg hover:shadow-purple-700/50 transition-shadow duration-300"
-              asChild
-            >
-              <Link href="/auth/register">Comenzar Gratis</Link>
-            </Button>
-          </div>
+// --- COMPONENTES DE SECCIÓN REFACTORIZADOS ---
+
+const FeatureCard = ({
+  icon: Icon,
+  title,
+  description,
+}: (typeof featureData)[0]) => (
+  // Ahora todas las tarjetas usan el mismo estilo de hover y color de icono
+  <Card className="bg-slate-900/40 border-slate-800/50 backdrop-blur-sm shadow-lg hover:shadow-cyan-500/10 transition-all duration-300 hover:-translate-y-1 h-full">
+    <CardHeader className="text-center">
+      <div className="mx-auto mb-4 bg-slate-900/60 p-3 rounded-full border border-slate-700">
+        <Icon className="h-8 w-8 text-cyan-400" />
+      </div>
+      <CardTitle className="text-white text-xl">{title}</CardTitle>
+    </CardHeader>
+    <CardContent>
+      <p className="text-slate-400 text-center text-sm">{description}</p>
+    </CardContent>
+  </Card>
+);
+
+const HeroSection = () => (
+  <section className="container mx-auto px-4 py-20 text-center sm:py-24">
+    <div className="max-w-4xl mx-auto">
+      <h1
+        className="text-4xl sm:text-5xl lg:text-6xl font-bold mb-6 text-transparent bg-clip-text bg-gradient-to-r from-slate-200 to-slate-400 animate-fade-in-up"
+        style={{ animationDelay: "0.2s", animationFillMode: "backwards" }}
+      >
+        Tu Rutina de Gimnasio{" "}
+        <span className="text-cyan-400">Personalizada</span>{" "}
+        {/* Cambio a cian */}
+      </h1>
+      <p
+        className="text-lg sm:text-xl text-slate-300 mb-8 leading-relaxed animate-fade-in-up"
+        style={{ animationDelay: "0.4s", animationFillMode: "backwards" }}
+      >
+        Genera rutinas adaptadas a tu nivel, objetivos y disponibilidad. Lleva
+        un seguimiento completo de tu progreso y alcanza tus metas fitness.
+      </p>
+      <div
+        className="flex gap-4 justify-center flex-wrap animate-fade-in-up"
+        style={{ animationDelay: "0.6s", animationFillMode: "backwards" }}
+      >
+        {/* El botón principal ahora es cian */}
+        <Button
+          size="lg"
+          className="bg-cyan-600 hover:bg-cyan-700 text-white text-lg px-8 py-6 shadow-lg hover:shadow-cyan-700/50 transition-all duration-300 hover:scale-105"
+          asChild
+        >
+          <Link href="/auth/register">Comenzar Gratis</Link>
+        </Button>
+      </div>
+    </div>
+  </section>
+);
+
+const FeaturesSection = () => (
+  <section className="container mx-auto px-4 py-16 sm:py-20">
+    <h2 className="text-3xl sm:text-4xl font-bold text-center mb-12 text-white">
+      ¿Por qué elegir GymTracker Pro?
+    </h2>
+    <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+      {featureData.map((feature, index) => (
+        <div
+          key={feature.title}
+          className="animate-fade-in-up"
+          style={{
+            animationDelay: `${0.2 * (index + 1)}s`,
+            animationFillMode: "backwards",
+          }}
+        >
+          <FeatureCard {...feature} />
         </div>
-      </section>
+      ))}
+    </div>
+  </section>
+);
 
-      {/* Features Section: Highlights key benefits of the application */}
-      <section className="container mx-auto px-4 py-16 sm:py-20">
-        <h3 className="text-3xl sm:text-4xl font-bold text-center mb-12">
-          ¿Por qué elegir GymTracker Pro?
+const CtaSection = () => (
+  <section className="container mx-auto px-4 py-16 sm:py-20">
+    {/* La tarjeta CTA ahora usa el estilo de "panel de cristal" estándar */}
+    <Card className="bg-slate-900/40 border-slate-800/50 backdrop-blur-sm shadow-xl hover:shadow-cyan-500/10 transition-all duration-300 hover:-translate-y-1 rounded-2xl">
+      <CardContent className="text-center p-10 sm:p-12">
+        <h3 className="text-3xl sm:text-4xl font-bold text-white mb-4">
+          ¿Listo para transformar tu entrenamiento?
         </h3>
-        {/* Grid layout for feature cards, responsive columns */}
-        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
-          {/* Feature Card 1: Rutinas Personalizadas */}
-          <Card className="bg-white/5 border-white/10 backdrop-blur-sm shadow-lg hover:shadow-purple-500/20 transition-shadow duration-300">
-            <CardHeader className="text-center">
-              <Dumbbell className="h-12 w-12 text-purple-400 mx-auto mb-4" />
-              <CardTitle className="text-white text-xl">
-                Rutinas Personalizadas
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <CardDescription className="text-gray-300 text-center">
-                Algoritmos inteligentes que crean rutinas basadas en tu
-                experiencia, objetivos y tiempo disponible.
-              </CardDescription>
-            </CardContent>
-          </Card>
+        <p className="text-slate-300 mb-8 text-lg sm:text-xl">
+          Únete a miles de usuarios que ya están alcanzando sus objetivos.
+        </p>
+        <Button
+          size="lg"
+          className="bg-cyan-600 hover:bg-cyan-700 text-white text-lg px-8 py-6 shadow-lg hover:shadow-cyan-700/50 transition-all duration-300 hover:scale-105"
+          asChild
+        >
+          <Link href="/auth/register">
+            Crear Mi Rutina Ahora <ArrowRight className="w-5 h-5 ml-2" />
+          </Link>
+        </Button>
+      </CardContent>
+    </Card>
+  </section>
+);
 
-          {/* Feature Card 2: Seguimiento de Progreso */}
-          <Card className="bg-white/5 border-white/10 backdrop-blur-sm shadow-lg hover:shadow-green-500/20 transition-shadow duration-300">
-            <CardHeader className="text-center">
-              <TrendingUp className="h-12 w-12 text-green-400 mx-auto mb-4" />
-              <CardTitle className="text-white text-xl">
-                Seguimiento de Progreso
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <CardDescription className="text-gray-300 text-center">
-                Registra tus entrenamientos, pesos y medidas. Visualiza tu
-                evolución con gráficos detallados.
-              </CardDescription>
-            </CardContent>
-          </Card>
+const PageFooter = () => (
+  <footer className="border-t border-white/10 mt-10">
+    <div className="container mx-auto px-4 py-8 text-center">
+      <div className="flex items-center justify-center gap-2 mb-4">
+        <Dumbbell className="h-6 w-6 text-cyan-400" /> {/* Cambio a cian */}
+        <span className="text-white font-semibold">GymTracker Pro</span>
+      </div>
+      <p className="text-slate-400 text-sm">
+        © {new Date().getFullYear()} GymTracker Pro. Todos los derechos
+        reservados.
+      </p>
+    </div>
+  </footer>
+);
 
-          {/* Feature Card 3: Planificación Inteligente */}
-          <Card className="bg-white/5 border-white/10 backdrop-blur-sm shadow-lg hover:shadow-blue-500/20 transition-shadow duration-300">
-            <CardHeader className="text-center">
-              <Calendar className="h-12 w-12 text-blue-400 mx-auto mb-4" />
-              <CardTitle className="text-white text-xl">
-                Planificación Inteligente
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <CardDescription className="text-gray-300 text-center">
-                Rutinas que se adaptan a tu horario y disponibilidad. Nunca más
-                excusas para no entrenar.
-              </CardDescription>
-            </CardContent>
-          </Card>
-
-          {/* Feature Card 4: Para Todos los Niveles */}
-          <Card className="bg-white/5 border-white/10 backdrop-blur-sm shadow-lg hover:shadow-orange-500/20 transition-shadow duration-300">
-            <CardHeader className="text-center">
-              <Users className="h-12 w-12 text-orange-400 mx-auto mb-4" />
-              <CardTitle className="text-white text-xl">
-                Para Todos los Niveles
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <CardDescription className="text-gray-300 text-center">
-                Desde principiantes hasta avanzados. Rutinas que evolucionan
-                contigo y respetan tus limitaciones.
-              </CardDescription>
-            </CardContent>
-          </Card>
-        </div>
-      </section>
-
-      {/* Call to Action (CTA) Section: Encourages user sign-up */}
-      <section className="container mx-auto px-4 py-16 sm:py-20">
-        <Card className="bg-purple-600/20 border-purple-500/30 backdrop-blur-sm shadow-xl hover:shadow-purple-600/40 transition-shadow duration-300">
-          <CardContent className="text-center py-10 sm:py-12">
-            <h3 className="text-3xl sm:text-4xl font-bold text-white mb-4">
-              ¿Listo para transformar tu entrenamiento?
-            </h3>
-            <p className="text-gray-200 mb-8 text-lg sm:text-xl">
-              Únete a miles de usuarios que ya están alcanzando sus objetivos
-              fitness.
-            </p>
-            <Button
-              size="lg"
-              className="bg-purple-600 hover:bg-purple-700 text-lg px-8 py-3 shadow-lg hover:shadow-purple-700/50 transition-shadow duration-300"
-              asChild
-            >
-              <Link href="/auth/register">Crear Mi Rutina Ahora</Link>
-            </Button>
-          </CardContent>
-        </Card>
-      </section>
-
-      {/* Footer Section */}
-      <footer className="border-t border-white/10 bg-black/20 backdrop-blur-sm mt-10">
-        <div className="container mx-auto px-4 py-8 text-center">
-          <div className="flex items-center justify-center gap-2 mb-4">
-            <Dumbbell className="h-6 w-6 text-purple-400" />
-            <span className="text-white font-semibold">GymTracker Pro</span>
-          </div>
-          {/* Copyright notice with dynamically updated year */}
-          <p className="text-gray-400 text-sm">
-            © {new Date().getFullYear()} GymTracker Pro. Todos los derechos
-            reservados.
-          </p>
-        </div>
-      </footer>
+// --- El Componente Principal de la Página ---
+export default function HomePage() {
+  return (
+    // Mantenemos el fondo con gradiente radial que te gustó
+    <div className="bg-slate-950 text-white bg-[radial-gradient(ellipse_80%_80%_at_50%_-20%,rgba(120,119,198,0.3),rgba(255,255,255,0))]">
+      <Navbar />
+      <main>
+        <HeroSection />
+        <FeaturesSection />
+        <CtaSection />
+      </main>
+      <PageFooter />
     </div>
   );
 }

@@ -1,0 +1,18 @@
+// Component to display a loading spinner animation with a message.
+// Typically used during data fetching or other asynchronous operations.
+
+import { Mirage } from "ldrs/react";
+import "ldrs/react/Mirage.css";
+
+function LoadingSpinner() {
+  return (
+    // Outer container, styled to be a centered overlay with a blurred background.
+    // Takes full screen height and ensures a minimum height of 200px.
+    <div className="w-full h-screen flex flex-col items-center justify-center p-6 rounded-lg">
+      {/* The spinning element, styled with borders to create the spinner effect and an animation. */}
+      <Mirage size="80" speed="2.5" color="white" />
+    </div>
+  );
+}
+
+export default LoadingSpinner;

@@ -22,6 +22,7 @@ import { useState } from "react";
 import type { Routine } from "@/app/routine/types/all";
 import { ArrowLeft } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 
 // Tipado para los datos por serie
 interface SeriesResult {
@@ -72,8 +73,16 @@ export function RoutineRunner({ routine }: RoutineRunnerProps) {
     });
   };
 
+  const saveRoutine = () => {
+    toast.success("Guardando tu rutina...", {
+      description: `¡Espera unos segundos!`,
+      duration: 2000,
+    });
+  };
+
   // Envío final de resultados
   const handleSubmit = async () => {
+    saveRoutine();
     setIsSubmitting(true);
     setError(null);
 

@@ -1,176 +1,166 @@
-/**
- * @file RegisterForm.tsx
- * @description
- * Displays a registration form that allows users to sign up by providing a username, email, and password.
- * Handles input validation, user creation through Supabase authentication, and profile insertion into the database.
- * Redirects users to a questionnaire page after successful registration.
- *
- * This component is part of the user authentication flow in a fitness-related web application.
- */
-
 "use client";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { createClient } from "@/lib/supabase/supabaseClient";
+import Link from "next/link";
 import {
   Card,
   CardHeader,
   CardContent,
   CardFooter,
-  CardAction,
   CardDescription,
   CardTitle,
 } from "@/components/ui/card";
-import Link from "next/link";
+import { useAuth } from "@/context/AuthContext"; // Usamos el hook del contexto
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { toast } from "sonner"; // Importamos toast
+import { Mail, Lock, User } from "lucide-react";
 
-/**
- * RegisterForm component allows users to sign up by entering a username, email, and password.
- * It interacts with Supabase Auth and inserts user metadata into the `profiles` table.
- *
- * After successful registration, it redirects the user to the questionnaire page.
- */
 export default function RegisterForm() {
+  const { supabase } = useAuth(); // Obtenemos supabase desde el contexto
   const router = useRouter();
 
-  // Form state
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [username, setUsername] = useState("");
-  const [error, setError] = useState("");
-  const [success, setSuccess] = useState(false);
   const [loading, setLoading] = useState(false);
 
-  /**
-   * Handles the registration process.
-   * - Validates input
-   * - Signs the user up using Supabase Auth
-   * - Inserts additional data into the `profiles` table
-   * - Redirects to the questionnaire on success
-   *
-   * @param e - The form event
-   */
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError("");
     setLoading(true);
 
-    const cleanEmail = email.trim().toLowerCase();
-    const cleanPassword = password.trim();
-    const cleanUsername = username.trim();
+    // 1. Lógica de registro encapsulada en una promesa para usar con toast.promise
+    const registerPromise = async () => {
+      if (!email || !password || !username) {
+        throw new Error("Todos los campos son obligatorios.");
+      }
+      if (password.length < 6) {
+        throw new Error("La contraseña debe tener al menos 6 caracteres.");
+      }
 
-    if (!cleanEmail || !cleanPassword || !cleanUsername) {
-      setError("All fields are required.");
-      return;
-    }
-
-    if (cleanPassword.length < 6) {
-      setError("Password must be at least 6 characters.");
-      return;
-    }
-
-    try {
-      const { data, error: signUpError } = await createClient().auth.signUp({
-        email: cleanEmail,
-        password: cleanPassword,
+      // Creamos el usuario en Supabase Auth
+      const { data, error: signUpError } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          // Podemos pasar el username aquí para usarlo después
+          data: {
+            username: username,
+          },
+        },
       });
 
-      if (signUpError) {
-        console.error("Sign-up error:", signUpError);
-        setError(signUpError.message);
+      if (signUpError) throw signUpError;
+      if (!data.user) throw new Error("No se pudo crear el usuario.");
+
+      // Insertamos el perfil en nuestra tabla 'profiles'
+      // Supabase se encarga de disparar un trigger para esto, pero un upsert manual es más explícito
+      const { error: profileError } = await supabase.from("profiles").upsert({
+        id: data.user.id,
+        username: username,
+        email: email,
+      });
+
+      if (profileError) throw profileError;
+    };
+
+    // 2. Usamos toast.promise para un feedback de usuario increíble
+    toast.promise(registerPromise(), {
+      loading: "Creando tu cuenta...",
+      success: () => {
+        // Redirigimos después de un momento para que el usuario vea el mensaje
+        setTimeout(() => {
+          router.push("/questionnaire");
+        }, 1500);
+        return "¡Cuenta creada con éxito! Serás redirigido.";
+      },
+      error: (err) => err.message, // Muestra el mensaje de error que lanzamos
+      finally: () => {
         setLoading(false);
-        return;
-      }
-
-      const user = data.user;
-      if (user) {
-        // Insert into the `profiles` table
-        const { error: dbError } = await createClient()
-          .from("profiles")
-          .upsert({ id: user.id, username });
-
-        if (dbError) {
-          setError("Registration failed while saving the username.");
-          setLoading(false);
-          return;
-        }
-
-        // Redirect to questionnaire if everything succeeded
-        router.push("/questionnaire");
-      }
-
-      setLoading(false);
-    } catch (error) {
-      console.error("Registration error:", error);
-      setError("Registration failed. Please try again.");
-      setLoading(false);
-    }
+      },
+    });
   };
 
   return (
-    <div className="flex flex-col items-center justify-center h-screen bg-transparent">
-      <Card className="bg-transparent">
-        <CardHeader>
-          <CardTitle className="text-white font-semibold">Sign up</CardTitle>
-          <CardDescription className="text-zinc-400">
-            Introduce un nombre de usuario, correo electrónico y contraseña para comenzar tu entrenamiento
+    // 3. Contenedor principal con el fondo y la animación.
+    <div className="flex flex-col items-center justify-center min-w-screen min-h-screen p-4 bg-slate-950 bg-[radial-gradient(ellipse_80%_80%_at_50%_-20%,rgba(120,119,198,0.3),rgba(255,255,255,0))]">
+      {/* 4. La Card con el estilo 'glassmorphism' */}
+      <Card className="w-full max-w-md bg-slate-900/50 backdrop-blur-lg border border-slate-700/50 shadow-2xl animate-fade-in-up">
+        <CardHeader className="text-center">
+          <CardTitle className="text-3xl font-bold text-white">
+            Crea tu Cuenta
+          </CardTitle>
+          <CardDescription className="text-slate-400">
+            Empieza tu viaje fitness hoy mismo.
           </CardDescription>
-          <CardAction className="flex justify-center">
-            <Link href="/auth/login" className="text-white font-semibold">
-              Ya tienes una cuenta? Inicia sesión
-            </Link>
-          </CardAction>
         </CardHeader>
-        <CardContent>
-          <form
-            onSubmit={handleRegister}
-            className="space-y-4 max-w-md mx-auto p-12"
-          >
-            <input
-              type="text"
-              placeholder="Nombre de usuario"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
-              required
-              className="w-full p-2 border rounded text-white font-semibold"
-            />
-            <input
-              type="email"
-              placeholder="Correo electrónico"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-              className="w-full p-2 border rounded text-white font-semibold"
-            />
-            <input
-              type="password"
-              placeholder="Contraseña (min. 6 caracteres)"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-              className="w-full p-2 border rounded text-white font-semibold"
-            />
-            <button
+
+        {/* 5. El <form> envolviendo el contenido para mejor estructura */}
+        <form onSubmit={handleRegister}>
+          <CardContent className="space-y-6">
+            {/* 6. Inputs modernos con iconos y estilos cohesivos */}
+            <div className="relative">
+              <User className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400" />
+              <Input
+                id="username"
+                type="text"
+                placeholder="Nombre de usuario"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+                required
+                className="pl-10 h-12 bg-slate-800/50 border-slate-700 text-white placeholder:text-slate-500 focus:border-cyan-400 focus:ring-cyan-400"
+              />
+            </div>
+
+            <div className="relative">
+              <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400" />
+              <Input
+                id="email"
+                type="email"
+                placeholder="tu@email.com"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+                className="pl-10 h-12 bg-slate-800/50 border-slate-700 text-white placeholder:text-slate-500 focus:border-cyan-400 focus:ring-cyan-400"
+              />
+            </div>
+
+            <div className="relative">
+              <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400" />
+              <Input
+                id="password"
+                type="password"
+                placeholder="Contraseña (mín. 6 caracteres)"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+                className="pl-10 h-12 bg-slate-800/50 border-slate-700 text-white placeholder:text-slate-500 focus:border-cyan-400 focus:ring-cyan-400"
+              />
+            </div>
+          </CardContent>
+
+          <CardFooter className="flex flex-col gap-4">
+            {/* 7. Botón de registro con el estilo de la marca */}
+            <Button
               type="submit"
               disabled={loading}
-              className={`w-full px-4 py-2 rounded ${
-                loading
-                  ? "bg-gray-400"
-                  : "bg-blue-600 hover:bg-blue-700 text-white"
-              }`}
+              className="w-full h-12 text-md mt-6 font-semibold bg-cyan-600 text-white hover:bg-cyan-700 transition-all duration-300 hover:scale-105 disabled:opacity-50"
             >
-              {loading ? "Registrando..." : "Registrarse"}
-            </button>
-            {error && <p className="text-red-500 text-center">{error}</p>}
-            {success && (
-              <p className="text-green-600 text-center">
-                ✅ Registro exitoso! Redirigiendo...
-              </p>
-            )}
-          </form>
-        </CardContent>
-        <CardFooter>
-          <p className="text-zinc-400 font-semibold">¿Olvidaste tu contraseña?</p>
-        </CardFooter>
+              {loading ? "Creando cuenta..." : "Registrarse"}
+            </Button>
+
+            {/* 8. Enlace de 'Iniciar sesión' movido al footer */}
+            <p className="text-xs text-slate-400">
+              ¿Ya tienes una cuenta?{" "}
+              <Link
+                href="/auth/login"
+                className="font-semibold text-cyan-400 hover:underline"
+              >
+                Inicia sesión
+              </Link>
+            </p>
+          </CardFooter>
+        </form>
       </Card>
     </div>
   );

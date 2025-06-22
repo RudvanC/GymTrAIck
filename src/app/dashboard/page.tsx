@@ -23,7 +23,7 @@ function TodayRoutine() {
         </p>
       </div>
       <Link href="/routine" passHref>
-        <button className="w-full inline-flex items-center justify-center gap-2 px-6 py-3 bg-cyan-500 text-slate-900 font-semibold rounded-lg transition-transform hover:scale-105 shadow-md hover:shadow-cyan-500/30">
+        <button className="w-full inline-flex items-center justify-center gap-2 px-6 py-3 rounded-2xl bg-cyan-600 hover:bg-cyan-700 text-white font-semibold shadow-md hover:shadow-cyan-600/30 transition-all duration-300">
           Iniciar entrenamiento <ArrowRight className="w-5 h-5" />
         </button>
       </Link>

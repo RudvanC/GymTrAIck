@@ -1,6 +1,7 @@
 "use client";
 import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
+import Link from "next/link";
 import {
   Card,
   CardHeader,
@@ -9,130 +10,114 @@ import {
   CardDescription,
   CardTitle,
 } from "@/components/ui/card";
-// CAMBIO 1: Importamos el hook desde la nueva ubicación (el contexto)
 import { useAuth } from "@/context/AuthContext";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input"; // Usamos el Input de shadcn
+import { Label } from "@/components/ui/label";
+import { Mail, Lock } from "lucide-react";
 
 export default function LoginForm() {
-  // CAMBIO 2: Obtenemos 'supabase' directamente desde el hook. Ya no hay una función 'signIn'.
   const { supabase } = useAuth();
+  const router = useRouter();
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [message, setMessage] = useState<string | null>(null);
-  const router = useRouter();
 
-  async function handleSubmit(e: React.FormEvent) {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     setError(null);
-    setMessage(null);
 
-    try {
-      // CAMBIO 3: Usamos el cliente de supabase para llamar a la función de autenticación
-      const { error: signInError } = await supabase.auth.signInWithPassword({
-        email,
-        password,
-      });
+    const { error: signInError } = await supabase.auth.signInWithPassword({
+      email,
+      password,
+    });
 
-      // Si Supabase devuelve un error, lo mostramos
-      if (signInError) {
-        throw signInError;
-      }
-
-      // Si el login es exitoso, el listener en AuthProvider se encargará de actualizar el estado global.
-      // Ya no necesitamos el mensaje de "revisa tu correo" para un login con contraseña.
-      // router.refresh() es útil para que el servidor re-renderice con la nueva sesión.
-      router.refresh();
-      router.push("/routine");
-    } catch (err: unknown) {
-      setError(
-        err instanceof Error
-          ? err.message
-          : "Error durante el inicio de sesión."
-      );
-    } finally {
+    if (signInError) {
+      setError(signInError.message);
       setLoading(false);
+      return;
     }
-  }
+
+    // Forzamos un refresh para que el layout del servidor sepa que estamos logueados
+    // y redirigimos al dashboard.
+    router.refresh();
+    router.push("/dashboard");
+  };
 
   return (
-    <div className="flex flex-col items-center justify-center h-screen bg-transparent">
-      <Card className="bg-transparent">
-        <CardHeader>
-          <CardTitle className="text-white font-semibold">
-            Iniciar sesión
+    // 1. Contenedor principal con el fondo de la aplicación
+    <div className="flex flex-col items-center justify-center min-w-screen min-h-screen p-4 bg-slate-950 bg-[radial-gradient(ellipse_80%_80%_at_50%_-20%,rgba(120,119,198,0.3),rgba(255,255,255,0))]">
+      {/* 2. La Card principal con efecto de cristal y animación */}
+      <Card className="w-full max-w-md bg-slate-900/50 backdrop-blur-lg border border-slate-700/50 shadow-2xl animate-fade-in-up">
+        <CardHeader className="text-center">
+          <CardTitle className="text-3xl font-bold text-white">
+            Bienvenido de Vuelta
           </CardTitle>
-          <CardDescription className="text-zinc-400">
-            Ingresa tu correo y contraseña
+          <CardDescription className="text-slate-400">
+            Ingresa a tu cuenta para continuar
           </CardDescription>
-          {/* He comentado la CardAction para que no de error si no la usas */}
-          {/* <CardAction className="flex justify-center">
-            <Link href="/auth/register" className="text-white font-semibold">
-              ¿No tienes cuenta? Regístrate
-            </Link>
-          </CardAction> */}
         </CardHeader>
-        <CardContent>
-          <form
-            onSubmit={handleSubmit}
-            className="space-y-4 max-w-md mx-auto p-12"
-          >
-            <div>
-              <label htmlFor="email" className="sr-only">
-                Correo Electrónico
-              </label>
-              <input
+
+        {/* 3. El <form> ahora envuelve el contenido y el footer para una mejor semántica */}
+        <form onSubmit={handleSubmit}>
+          <CardContent className="space-y-6">
+            {/* 4. Input de Email moderno con icono */}
+            <div className="relative">
+              <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400" />
+              <Input
                 id="email"
                 type="email"
-                placeholder="Correo"
+                placeholder="tu@email.com"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
-                className="w-full p-2 border rounded text-white font-semibold bg-zinc-700 border-zinc-600 placeholder-zinc-400 focus:ring-blue-500 focus:border-blue-500"
+                className="pl-10 h-12 bg-slate-800/50 border-slate-700 text-white placeholder:text-slate-500 focus:border-cyan-400 focus:ring-cyan-400"
               />
             </div>
-            <div>
-              <label htmlFor="password" className="sr-only">
-                Contraseña
-              </label>
-              <input
+
+            {/* 5. Input de Contraseña moderno con icono */}
+            <div className="relative">
+              <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400" />
+              <Input
                 id="password"
                 type="password"
                 placeholder="Contraseña"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
-                className="w-full p-2 border rounded text-white font-semibold bg-zinc-700 border-zinc-600 placeholder-zinc-400 focus:ring-blue-500 focus:border-blue-500"
+                className="pl-10 h-12 bg-slate-800/50 border-slate-700 text-white placeholder:text-slate-500 focus:border-cyan-400 focus:ring-cyan-400"
               />
             </div>
 
-            <button
+            {error && (
+              <p className="text-red-400 text-sm text-center pt-2">{error}</p>
+            )}
+          </CardContent>
+          <CardFooter className="flex flex-col gap-4 mt-6">
+            {/* 6. Botón de acción con el nuevo estilo cian */}
+            <Button
               type="submit"
               disabled={loading}
-              className={`w-full px-4 py-2 rounded font-semibold transition-colors duration-150 ${
-                loading
-                  ? "bg-gray-500 cursor-not-allowed"
-                  : "bg-blue-600 hover:bg-blue-700 text-white"
-              }`}
+              className="w-full h-12 text-md font-semibold bg-cyan-600 text-white hover:bg-cyan-700 transition-all duration-300 hover:scale-105 disabled:opacity-50"
             >
               {loading ? "Iniciando sesión..." : "Iniciar sesión"}
-            </button>
+            </Button>
 
-            {error && (
-              <p className="text-red-500 text-sm text-center mt-2">{error}</p>
-            )}
-            {message && (
-              <p className="text-green-500 text-sm text-center mt-2">
-                {message}
-              </p>
-            )}
-          </form>
-        </CardContent>
-        <CardFooter className="flex justify-center">
-          <p className="text-zinc-400 font-semibold">Olvide mi contraseña</p>
-        </CardFooter>
+            {/* 7. Enlaces de ayuda con estilos sutiles */}
+            <p className="text-xs text-slate-400">
+              ¿No tienes una cuenta?{" "}
+              <Link
+                href="/auth/register"
+                className="font-semibold text-cyan-400 hover:underline"
+              >
+                Regístrate
+              </Link>
+            </p>
+          </CardFooter>
+        </form>
       </Card>
     </div>
   );

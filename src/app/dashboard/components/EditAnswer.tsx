@@ -179,8 +179,11 @@ export function EditAnswer({ currentAnswer, onUpdate }: EditAnswerProps) {
 
   return (
     <>
-      <Button onClick={() => setIsOpen(true)}>
-        <Pencil className="mr-2 h-4 w-4" /> Editar respuestas
+      <Button
+        className="bg-cyan-600 hover:bg-cyan-700 text-white font-semibold shadow-md hover:shadow-cyan-600/30 transition-all duration-300"
+        onClick={() => setIsOpen(true)}
+      >
+        <Pencil className="mr-2 h-4 w-4 " /> Editar respuestas
       </Button>
 
       {isOpen && (
@@ -188,8 +191,10 @@ export function EditAnswer({ currentAnswer, onUpdate }: EditAnswerProps) {
           <div className="relative w-full max-w-2xl bg-slate-900 border border-slate-700 rounded-xl shadow-lg m-4">
             <form onSubmit={handleSubmit} className="p-6">
               {/* Form header */}
-              <div className="flex justify-between items-center mb-4">
-                <h2 className="text-2xl font-bold text-white">Editar respuestas</h2>
+              <div className="flex justify-between items-center mb-4 ">
+                <h2 className="text-2xl font-bold text-white ">
+                  Editar respuestas
+                </h2>
                 <Button
                   variant="ghost"
                   size="icon"

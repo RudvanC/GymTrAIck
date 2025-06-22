@@ -25,6 +25,7 @@ import { useState } from "react";
 import type { Routine } from "@/app/routine/types/all";
 import { ArrowLeft } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 
 interface SeriesResult {
   completed: boolean;
@@ -71,7 +72,15 @@ export function RoutineRunner({ routine }: RoutineRunnerProps) {
     });
   };
 
+  const saveRoutine = () => {
+    toast.success("Guardando tu rutina...", {
+      description: `¡Espera unos segundos!`,
+      duration: 2000,
+    });
+  };
+
   const handleSubmit = async () => {
+    saveRoutine();
     setIsSubmitting(true);
     setError(null);
     try {

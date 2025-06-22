@@ -68,7 +68,7 @@ export default function CreateGroupDialog({
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button>Crear Nuevo Grupo</Button>
+        <Button className="bg-cyan-600 hover:bg-cyan-700 text-white font-semibold shadow-md hover:shadow-cyan-600/30 transition-all duration-300">Crear Nuevo Grupo</Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[425px] bg-slate-950 border-slate-800 text-white">
         <form onSubmit={handleSubmit}>
