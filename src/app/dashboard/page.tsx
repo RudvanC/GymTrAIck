@@ -1,27 +1,3 @@
-/**
- * Renders the main dashboard page for authenticated users.
- *
- * This page displays a personalized summary and daily routine, using data fetched from the user's latest answers.
- * It includes conditional rendering of a profile card, an edit button, and a motivational "Today Routine" section.
- *
- * @remarks
- * The page uses a custom `useUserAnswers` hook (with SWR) to fetch the latest user data.
- * It shows different UI states depending on loading, error, or absence of user data.
- * Styling is applied using Tailwind CSS with dark mode enabled.
- *
- * @example
- * ```tsx
- * // Accessing /dashboard will render this page.
- * ```
- *
- * @returns A React element that represents the dashboard page UI.
- *
- * @see {@link useUserAnswers} - Custom hook for fetching and mutating user answer data.
- * @see {@link AnswerCard} - Displays the user's latest questionnaire result.
- * @see {@link EditAnswer} - Allows editing the latest answer.
- * @see {@link TodayRoutine} - Motivational CTA component rendered if data exists.
- */
-
 "use client";
 
 import { useUserAnswers } from "@/hooks/useUserAnswers";
@@ -32,19 +8,15 @@ import { ArrowRight } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 
-/**
- * `TodayRoutine` is a visual call-to-action component that promotes the user's daily training plan.
- *
- * It includes a motivational message and a link to the `/routine` page styled as a full-width button.
- * This component is shown only when the user has completed their initial questionnaire.
- *
- * @returns A React element encouraging the user to begin their daily workout.
- */
 function TodayRoutine() {
+  // Este componente interno ya es bastante responsive con w-full y h-full,
+  // se adaptará bien a nuestro nuevo grid.
   return (
-    <div className="w-full flex flex-col justify-between p-8 border border-slate-800 rounded-2xl bg-slate-900 shadow-lg h-full hover:border-cyan-500/50 transition-colors duration-300">
+    <div className="w-full flex flex-col justify-between p-6 md:p-8 border border-slate-800 rounded-2xl bg-slate-900 shadow-lg h-full hover:border-cyan-500/50 transition-colors duration-300">
       <div>
-        <h2 className="text-3xl font-bold text-white mb-2">Rutina diaria</h2>
+        <h2 className="text-2xl md:text-3xl font-bold text-white mb-2">
+          Rutina diaria
+        </h2>
         <p className="text-slate-400 mb-6">
           Tu plan personalizado está listo. ¡Vamos a ello!
         </p>
@@ -63,7 +35,7 @@ export default function DashboardPage() {
 
   if (loading) {
     return (
-      <div className="flex justify-center items-center h-screen bg-slate-950">
+      <div className="flex justify-center items-center min-h-screen bg-slate-950">
         <LoadingSpinner />
       </div>
     );
@@ -71,7 +43,7 @@ export default function DashboardPage() {
 
   if (error) {
     return (
-      <div className="flex justify-center items-center h-screen bg-slate-950">
+      <div className="flex justify-center items-center min-h-screen bg-slate-950 p-4">
         <p className="text-center text-red-500 font-semibold">
           No se pudo cargar tu perfil: {error.message}
         </p>
@@ -83,10 +55,14 @@ export default function DashboardPage() {
 
   return (
     <div className="bg-slate-950 text-slate-50 min-h-screen">
-      <div className="max-w-7xl mx-auto p-4 md:p-8 space-y-10">
-        <header className="flex justify-between items-start gap-4">
+      <div className="max-w-7xl mx-auto p-4 md:p-8 space-y-8 md:space-y-10">
+        {/* ===== 1. CABECERA RESPONSIVE ===== */}
+        <header className="flex flex-col gap-4 md:flex-row md:justify-between md:items-start">
+          {/* - flex-col: En móvil, el título y el botón se apilan.
+              - md:flex-row: En pantallas medianas y más, vuelven a estar en fila.
+          */}
           <div>
-            <h1 className="text-4xl font-bold tracking-tight text-white">
+            <h1 className="text-3xl md:text-4xl font-bold tracking-tight text-white">
               Dashboard
             </h1>
             <p className="text-slate-400 mt-2">
@@ -99,14 +75,28 @@ export default function DashboardPage() {
           )}
         </header>
 
-        <main className="flex flex-col gap-8 items-start">
+        {/* ===== 2. CONTENIDO PRINCIPAL CON GRID RESPONSIVE ===== */}
+        <main className="flex flex-col gap-20 items-start">
+          {/* - grid-cols-1: En móvil, una sola columna (las tarjetas se apilan).
+              - lg:grid-cols-2: En pantallas grandes, dos columnas (las tarjetas se ponen lado a lado).
+              - gap-8: Espacio entre las tarjetas.
+              - items-start: Alinea las tarjetas en la parte superior de su celda del grid.
+          */}
           {latestAnswer ? (
-            <AnswerCard answer={latestAnswer} />
+            <>
+              <div className="flex flex-col w-full">
+                <AnswerCard answer={latestAnswer} />
+                <TodayRoutine />
+              </div>
+            </>
           ) : (
-            <div className="h-full flex items-center justify-center p-8 border border-dashed border-slate-700 rounded-2xl">
+            // Mensaje de bienvenida que ocupa todo el ancho
+            <div className="h-full flex items-center justify-center p-8 border border-dashed border-slate-700 rounded-2xl lg:col-span-2">
+              {/* - lg:col-span-2: Le decimos que ocupe las 2 columnas del grid en pantallas grandes.
+               */}
               <div className="text-center">
                 <h2 className="text-2xl font-semibold text-white mb-2">
-                  Bienvenido a tu Dashboard!
+                  ¡Bienvenido a tu Dashboard!
                 </h2>
                 <p className="text-slate-400 mb-4">
                   Parece que aún no has completado nuestro cuestionario inicial.
@@ -119,8 +109,6 @@ export default function DashboardPage() {
               </div>
             </div>
           )}
-
-          {latestAnswer && <TodayRoutine />}
         </main>
       </div>
     </div>

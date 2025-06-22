@@ -115,7 +115,7 @@ const InfoBlock = ({
 }) => {
   const IconComponent = iconMap[icon];
   return (
-    <div className="relative group h-full">
+    <div className="relative group h-full max-sm:w-full">
       <div
         className={`absolute -inset-0.5 bg-gradient-to-r ${colorClass} rounded-xl blur opacity-30 group-hover:opacity-60 transition-opacity duration-300`}
       />
@@ -148,7 +148,7 @@ export function AnswerCard({ answer }: { answer: UserAnswer }) {
       icon: "Target" as IconName,
       title: "Objetivo",
       value: goalMap[answer.goal] || answer.goal,
-      color: "from-blue-500 to-cyan-500",
+      color: "from-blue-500 to-blue-700",
     },
     {
       type: "experience",
@@ -157,47 +157,47 @@ export function AnswerCard({ answer }: { answer: UserAnswer }) {
       value:
         trainingExperienceMap[answer.training_experience] ||
         answer.training_experience,
-      color: "from-purple-500 to-blue-500",
+      color: "from-purple-500 to-purple-700",
     },
     {
       type: "fitness",
       icon: "Gauge" as IconName,
       title: "Nivel Físico",
       value: fitnessLevelMap[answer.fitness_level] || answer.fitness_level,
-      color: "from-orange-500 to-red-500",
+      color: "from-orange-500 to-orange-700",
     },
     {
       type: "availability",
       icon: "CalendarDays" as IconName,
       title: "Disponibilidad",
       value: `${answer.availability} días/semana`,
-      color: "from-green-500 to-emerald-500",
+      color: "from-green-500 to-green-700",
     },
     {
       type: "duration",
       icon: "Timer" as IconName,
       title: "Duración Sesión",
       value: formatSessionDuration(answer.session_duration),
-      color: "from-indigo-500 to-purple-500",
+      color: "from-indigo-500 to-indigo-700",
     },
     {
       type: "injuries",
       icon: "HeartPulse" as IconName,
       title: "Lesiones",
       value: formatInjuries(answer.injuries),
-      color: "from-red-500 to-pink-500",
+      color: "from-red-500 to-red-700",
     },
     {
       type: "equipment",
       icon: "Dumbbell" as IconName,
       title: "Acceso a Equipo",
       value: answer.equipment_access ? "Gimnasio" : "En casa",
-      color: "from-emerald-500 to-teal-500",
+      color: "from-pink-500 to-pink-700",
     },
   ];
 
   return (
-    <Card className="w-full mb-4 bg-slate-900/50 backdrop-blur-xl border border-slate-700/50 shadow-2xl rounded-2xl">
+    <Card className="w-full mb-4 bg-slate-900/50 border border-slate-700/50 shadow-2xl rounded-2xl">
       <CardHeader className="pb-4">
         <CardTitle className="flex items-center gap-3 text-3xl font-bold text-white">
           <Activity className="h-8 w-8 text-cyan-400" />
@@ -210,17 +210,31 @@ export function AnswerCard({ answer }: { answer: UserAnswer }) {
       </CardHeader>
 
       <CardContent>
-        <div className="flex flex-wrap justify-center gap-12">
-          {profileData.map((item) => (
-            <InfoBlock
-              key={item.title}
-              icon={item.icon}
-              title={item.title}
-              value={item.value}
-              colorClass={item.color}
-              type={item.type}
-            />
-          ))}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-8">
+          {profileData.map((item, index) => {
+            // 1. Comprobamos si este es el último elemento del array
+            const isLastItem = index === profileData.length - 1;
+
+            return (
+              // 2. Envolvemos el InfoBlock para aplicar la clase condicional
+              <div
+                key={item.title}
+                className={
+                  isLastItem
+                    ? "sm:col-span-2" // Si es el último, ocupa todas las columnas
+                    : "" // Si no, no aplicamos ninguna clase extra de span
+                }
+              >
+                <InfoBlock
+                  icon={item.icon}
+                  title={item.title}
+                  value={item.value}
+                  colorClass={item.color}
+                  type={item.type}
+                />
+              </div>
+            );
+          })}
         </div>
       </CardContent>
     </Card>
