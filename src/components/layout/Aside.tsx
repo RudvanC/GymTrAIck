@@ -35,7 +35,6 @@ const mainNavLinks = [
 const secondaryNavLinks = [
   { href: "/groups", label: "Grupos", icon: Users },
   { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
-  { href: "/profile", label: "Perfil", icon: User },
 ];
 
 export default function Sidebar() {

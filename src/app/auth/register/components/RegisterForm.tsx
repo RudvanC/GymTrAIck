@@ -112,11 +112,11 @@ export default function RegisterForm() {
         <CardHeader>
           <CardTitle className="text-white font-semibold">Sign up</CardTitle>
           <CardDescription className="text-zinc-400">
-            Enter a username, email, and password to start your training
+            Introduce un nombre de usuario, correo electrónico y contraseña para comenzar tu entrenamiento
           </CardDescription>
           <CardAction className="flex justify-center">
             <Link href="/auth/login" className="text-white font-semibold">
-              Already have an account? Log in
+              Ya tienes una cuenta? Inicia sesión
             </Link>
           </CardAction>
         </CardHeader>
@@ -127,7 +127,7 @@ export default function RegisterForm() {
           >
             <input
               type="text"
-              placeholder="Username"
+              placeholder="Nombre de usuario"
               value={username}
               onChange={(e) => setUsername(e.target.value)}
               required
@@ -135,7 +135,7 @@ export default function RegisterForm() {
             />
             <input
               type="email"
-              placeholder="Email"
+              placeholder="Correo electrónico"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
@@ -143,7 +143,7 @@ export default function RegisterForm() {
             />
             <input
               type="password"
-              placeholder="Password (min. 6 characters)"
+              placeholder="Contraseña (min. 6 caracteres)"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
@@ -158,18 +158,18 @@ export default function RegisterForm() {
                   : "bg-blue-600 hover:bg-blue-700 text-white"
               }`}
             >
-              {loading ? "Registering..." : "Sign up"}
+              {loading ? "Registrando..." : "Registrarse"}
             </button>
             {error && <p className="text-red-500 text-center">{error}</p>}
             {success && (
               <p className="text-green-600 text-center">
-                ✅ Registration successful! Redirecting...
+                ✅ Registro exitoso! Redirigiendo...
               </p>
             )}
           </form>
         </CardContent>
         <CardFooter>
-          <p className="text-zinc-400 font-semibold">Forgot my password</p>
+          <p className="text-zinc-400 font-semibold">¿Olvidaste tu contraseña?</p>
         </CardFooter>
       </Card>
     </div>
