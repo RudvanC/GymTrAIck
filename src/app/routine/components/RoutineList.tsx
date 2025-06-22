@@ -20,10 +20,13 @@
 
 import useSWR from "swr";
 import type { Routine } from "@/app/api/recommend-routines-by-answer/route";
-import LoadingSpinner from "@/components/common/LoadingSpinner";
 import { DeleteRoutineButton } from "@/app/routine/components/DeleteRoutineButton";
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
+import RoutinesLoadingSpinner from "@/components/common/RoutinesLoadingSpinner";
+import { toast } from "sonner";
+
+// Default values shown
 
 const fetcher = (url: string) =>
   fetch(url).then((res) => {
@@ -46,13 +49,21 @@ export default function RoutineList({ answerId }: RoutineListProps) {
     return (
       <p className="text-red-500">Error cargando rutinas: {error.message}</p>
     );
-  if (isLoading) return <LoadingSpinner />;
+  if (isLoading) return <RoutinesLoadingSpinner />;
   if (!data || data.length === 0)
     return (
       <p className="text-gray-400">
         No se encontraron rutinas. Intenta generar un nuevo plan.
       </p>
     );
+
+  const handleStartRoutine = (routine: Routine) => {
+    toast.success("Iniciando tu rutina...", {
+      description: `¡Prepárate para ${routine.name}!`,
+      duration: 2000,
+    });
+    router.push(`/routine/base-runner/${routine.id}`);
+  };
 
   const capitalizeFirstLetter = (str: string) =>
     str.charAt(0).toUpperCase() + str.slice(1);
@@ -105,9 +116,7 @@ export default function RoutineList({ answerId }: RoutineListProps) {
               </div>
 
               <Button
-                onClick={() =>
-                  router.push(`/routine/base-runner/${routine.id}`)
-                }
+                onClick={() => handleStartRoutine(routine)}
                 className="border border-gray-700 bg-gray-900 hover:bg-green-600 hover:text-white justify-self-end flex"
               >
                 Iniciar

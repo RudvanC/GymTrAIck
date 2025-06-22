@@ -6,7 +6,7 @@
  */
 
 import { NextRequest, NextResponse } from "next/server";
-import { supabaseAdmin } from "@/lib/supabase/server";
+import { createClient } from "@/lib/supabase/server";
 
 /**
  * GET /api/search-routines?q=<query>
@@ -17,6 +17,7 @@ import { supabaseAdmin } from "@/lib/supabase/server";
  * @returns JSON array of routines matching the query or an empty array if no query provided.
  */
 export async function GET(req: NextRequest) {
+  const supabase = await createClient();
   const { searchParams } = new URL(req.url);
   const q = (searchParams.get("q") || "").trim();
 
@@ -24,7 +25,7 @@ export async function GET(req: NextRequest) {
   if (!q) return NextResponse.json([]);
 
   // Search for routines matching query
-  const { data, error } = await supabaseAdmin
+  const { data, error } = await supabase
     .from("base_routines")
     .select("routine_id:id, name")
     .ilike("name", `%${q}%`)

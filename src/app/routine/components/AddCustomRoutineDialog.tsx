@@ -122,7 +122,7 @@ export default function AddCustomRoutineDialog() {
       <DialogTrigger asChild>
         <Button
           size="lg"
-          className="bg-cyan-500 text-slate-900 font-semibold hover:bg-cyan-600 transition-transform hover:scale-105"
+          className="bg-cyan-600 hover:bg-cyan-700 text-white font-semibold shadow-md hover:shadow-cyan-600/30 transition-all duration-300"
         >
           <PlusCircle className="mr-2 h-5 w-5" />
           Crear Rutina Personalizada
