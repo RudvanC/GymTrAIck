@@ -37,10 +37,10 @@ export default async function DataPerSession() {
     );
 
   // -- Logs para depurar en la terminal del servidor --
-  console.log("Datos de Volumen:", workoutVolumeData);
-  console.log("Error de Volumen:", workoutVolumeError);
-  console.log("Datos de Músculos:", muscleSummaryData);
-  console.log("Error de Músculos:", muscleSummaryError);
+  // console.log("Datos de Volumen:", workoutVolumeData);
+  // console.log("Error de Volumen:", workoutVolumeError);
+  // console.log("Datos de Músculos:", muscleSummaryData);
+  // console.log("Error de Músculos:", muscleSummaryError);
 
   return (
     // Un layout de Grid para organizar los gráficos

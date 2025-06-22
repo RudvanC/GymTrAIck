@@ -1,33 +1,60 @@
 // src/hooks/useCustomRoutineForm.ts
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import { z } from "zod";
 
+// 1. Añadimos un `id` a la definición del tipo de la fila
+type RoutineRow = {
+  id: number; // ID único para la key de React
+  exercise_id: string;
+  sets: number;
+  reps: number;
+  position: number;
+};
+
 export const useCustomRoutineForm = () => {
+  console.log("Ejecutando el hook useCustomRoutineForm...");
+
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
-  const [rows, setRows] = useState<
-    { exercise_id: string; sets: number; reps: number; position: number }[]
-  >([]);
+  // 2. Usamos el nuevo tipo para el estado
+  const [rows, setRows] = useState<RoutineRow[]>([]);
 
-  const addRow = () =>
+  const addRow = useCallback(() => {
     setRows((r) => [
       ...r,
-      { exercise_id: "", sets: 3, reps: 10, position: r.length + 1 },
+      // 3. Al añadir una fila, le asignamos un ID único y la posición
+      {
+        id: Date.now(),
+        exercise_id: "",
+        sets: 3,
+        reps: 10,
+        position: r.length + 1,
+      },
     ]);
+  }, []);
 
-  const removeRow = (index: number) =>
-    setRows((r) =>
-      r
-        .filter((_, i) => i !== index)
-        .map((row, i) => ({ ...row, position: i + 1 }))
+  const removeRow = useCallback((idToRemove: number) => {
+    // Ahora eliminamos por ID, no por índice
+    setRows(
+      (r) =>
+        r
+          .filter((row) => row.id !== idToRemove) // Filtramos por ID
+          .map((row, i) => ({ ...row, position: i + 1 })) // Recalculamos posición
     );
+  }, []);
 
-  const swapRows = (from: number, to: number) => {
-    /* dnd-kit o simple splice */
-  };
+  const swapRows = useCallback((from: number, to: number) => {
+    setRows((currentRows) => {
+      const newRows = [...currentRows];
+      const [movedItem] = newRows.splice(from, 1);
+      newRows.splice(to, 0, movedItem);
+      return newRows.map((row, i) => ({ ...row, position: i + 1 }));
+    });
+  }, []);
 
   const isValid =
     z.string().min(3).safeParse(name).success &&
+    rows.length > 0 &&
     rows.every((r) => r.exercise_id);
 
   return {
