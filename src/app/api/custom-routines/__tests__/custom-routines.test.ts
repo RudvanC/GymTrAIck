@@ -251,7 +251,7 @@ describe("API /custom-routines", () => {
     const json = await res.json();
 
     expect(res.status).toBe(400);
-    expect(json).toEqual({ error: "Parámetro routine_id faltante" });
+    expect(json).toEqual({ error: "Missing 'routine_id' query parameter" });
   });
 
   it("DELETE → 401 si el usuario no está logueado", async () => {

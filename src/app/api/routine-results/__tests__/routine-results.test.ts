@@ -81,7 +81,7 @@ describe("POST /api/save-routine", () => {
 
     expect(res.status).toBe(401);
     expect(json).toEqual({
-      error: "No autorizado. Debes iniciar sesión para guardar una rutina.",
+      error: "Unauthorized. You must be logged in to save a routine.",
     });
     expect(mockGetUser).toHaveBeenCalledTimes(1);
     expect(mockInsert).not.toHaveBeenCalled();
@@ -118,7 +118,7 @@ describe("POST /api/save-routine", () => {
 
     expect(res.status).toBe(201);
     expect(json).toEqual({
-      message: "Rutina finalizada y guardada con éxito",
+      message: "Routine successfully saved.",
       data: inserted,
     });
     expect(mockSingle).toHaveBeenCalledTimes(1);

@@ -46,7 +46,7 @@ describe("POST /api/regenerate-plan", () => {
     const body = await res.json();
 
     expect(res.status).toBe(400);
-    expect(body).toEqual({ error: "answer_id required" });
+    expect(body).toEqual({ error: "answer_id is required" });
     expect(mockFrom).not.toHaveBeenCalled();
   });
 
