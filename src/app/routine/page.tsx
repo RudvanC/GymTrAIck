@@ -2,7 +2,7 @@
  * RoutinePage
  *
  * This is the main protected page where users can:
- * - View AI-generated recommended routines
+ * - View generated recommended routines
  * - Add routines manually or create custom ones
  * - Regenerate their plan if unsatisfied
  *
@@ -48,7 +48,7 @@ function RoutinePage() {
   if (ansError) {
     return (
       <div className="p-8 text-red-600 max-w-xl mx-auto">
-        Error loading profile data: {ansError.message}
+        Error cargando perfil: {ansError.message}
       </div>
     );
   }
@@ -56,8 +56,8 @@ function RoutinePage() {
   if (!answerId) {
     return (
       <div className="p-8 text-gray-600 max-w-xl mx-auto">
-        No routines found for your profile. Please complete the questionnaire
-        first.
+        No se encontraron rutinas para tu perfil. Por favor completa el cuestionario
+        primero.
       </div>
     );
   }

@@ -45,13 +45,13 @@ export default function RoutineList({ answerId }: RoutineListProps) {
 
   if (error)
     return (
-      <p className="text-red-500">Error loading routines: {error.message}</p>
+      <p className="text-red-500">Error cargando rutinas: {error.message}</p>
     );
   if (isLoading) return <LoadingSpinner />;
   if (!data || data.length === 0)
     return (
       <p className="text-gray-400">
-        No routines found. Try generating a new plan.
+        No se encontraron rutinas. Intenta generar un nuevo plan.
       </p>
     );
 

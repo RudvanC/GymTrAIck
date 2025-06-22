@@ -51,11 +51,11 @@ export default function ProgressList({
   };
 
   if (!session) {
-    return <p>Please log in to view your progress.</p>;
+    return <p>Por favor inicia sesión para ver tu progreso.</p>;
   }
 
   if (error) {
-    return <p>Error loading progress: {error}</p>;
+    return <p>Error cargando progreso: {error}</p>;
   }
 
   return (
@@ -164,7 +164,7 @@ export default function ProgressList({
                             </span>
                             <span className="text-gray-500 dark:text-gray-400">
                               {" "}
-                              - {seriesData.length} sets
+                              - {seriesData.length} series
                               <div className="mt-2 pl-4 text-sm text-gray-500 dark:text-gray-400">
                                 <p>
                                   <span className="font-medium text-gray-400 dark:text-gray-300">
@@ -176,7 +176,7 @@ export default function ProgressList({
                                 </p>
                                 <p>
                                   <span className="font-medium text-gray-400 dark:text-gray-300">
-                                     Peso (kg):
+                                    Peso (kg):
                                   </span>{" "}
                                   {seriesData.map((s) => s.weight).join(" - ")}
                                 </p>
