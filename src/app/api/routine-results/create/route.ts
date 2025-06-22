@@ -6,7 +6,7 @@
  */
 
 import { NextRequest, NextResponse } from "next/server";
-import { supabaseAdmin } from "@/lib/supabase/server";
+import { createClient } from "@/lib/supabase/server";
 
 /**
  * POST /api/add-routine-to-plan
@@ -20,6 +20,8 @@ import { supabaseAdmin } from "@/lib/supabase/server";
 export async function POST(req: NextRequest) {
   const { answer_id, routine_id } = await req.json();
 
+  const supabase = await createClient();
+
   if (!answer_id || !routine_id) {
     return NextResponse.json(
       { error: "Missing parameters: answer_id and routine_id are required." },
@@ -28,7 +30,7 @@ export async function POST(req: NextRequest) {
   }
 
   // Step 1: Prevent duplicate routine entries for the same answer
-  const { data: exists, error: existsErr } = await supabaseAdmin
+  const { data: exists, error: existsErr } = await supabase
     .from("user_routine_plan")
     .select("routine_id")
     .eq("answer_id", answer_id)
@@ -43,7 +45,7 @@ export async function POST(req: NextRequest) {
   }
 
   // Step 2: Determine the next sort_order for this answer_id
-  const { data: last } = await supabaseAdmin
+  const { data: last } = await supabase
     .from("user_routine_plan")
     .select("sort_order")
     .eq("answer_id", answer_id)
@@ -54,7 +56,7 @@ export async function POST(req: NextRequest) {
   const nextOrder = (last?.sort_order ?? -1) + 1;
 
   // Step 3: Insert the new routine entry into the plan
-  const { error: insertErr } = await supabaseAdmin
+  const { error: insertErr } = await supabase
     .from("user_routine_plan")
     .insert({
       answer_id,

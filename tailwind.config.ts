@@ -5,6 +5,7 @@ const config: Config = {
     "./app/**/*.{ts,tsx}",
     "./pages/**/*.{ts,tsx}",
     "./components/**/*.{ts,tsx}",
+    "./node_modules/@tremor/react/**/*.{js,ts,jsx,tsx}",
   ],
   theme: {
     extend: {
