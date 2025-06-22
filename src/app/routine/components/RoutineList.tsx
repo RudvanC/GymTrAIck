@@ -19,7 +19,6 @@
 "use client";
 
 import useSWR from "swr";
-import { useState } from "react";
 import type { Routine } from "@/app/api/recommend-routines-by-answer/route";
 import LoadingSpinner from "@/components/common/LoadingSpinner";
 import { DeleteRoutineButton } from "@/app/routine/components/DeleteRoutineButton";
@@ -45,13 +44,13 @@ export default function RoutineList({ answerId }: RoutineListProps) {
 
   if (error)
     return (
-      <p className="text-red-500">Error loading routines: {error.message}</p>
+      <p className="text-red-500">Error cargando rutinas: {error.message}</p>
     );
   if (isLoading) return <LoadingSpinner />;
   if (!data || data.length === 0)
     return (
       <p className="text-gray-400">
-        No routines found. Try generating a new plan.
+        No se encontraron rutinas. Intenta generar un nuevo plan.
       </p>
     );
 
@@ -61,7 +60,7 @@ export default function RoutineList({ answerId }: RoutineListProps) {
   return (
     <>
       <h2 className="text-2xl font-semibold text-white mb-2">
-        Recommended Routines
+        Rutinas recomendadas
       </h2>
       <div className="grid gap-6 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
         {data.map((routine) => (
@@ -88,13 +87,13 @@ export default function RoutineList({ answerId }: RoutineListProps) {
             <div className="mt-auto flex justify-between items-end">
               <div>
                 <p className="text-sm text-gray-300">
-                  🏋️ Exercises:{" "}
+                  🏋️ Ejercicios:{" "}
                   <span className="font-medium text-white">
                     {routine.exercises.length}
                   </span>
                 </p>
                 <p className="text-sm text-gray-400 mt-1">
-                  💪 Muscles:{" "}
+                  💪 Musculos:{" "}
                   {Array.from(
                     new Set(
                       routine.exercises.map((e: any) =>
@@ -111,7 +110,7 @@ export default function RoutineList({ answerId }: RoutineListProps) {
                 }
                 className="border border-gray-700 bg-gray-900 hover:bg-green-600 hover:text-white justify-self-end flex"
               >
-                Start
+                Iniciar
               </Button>
             </div>
           </section>

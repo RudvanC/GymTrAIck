@@ -12,7 +12,7 @@ import Link from "next/link";
 
 export default function Main() {
   return (
-    <div className="min-h-screen bg-[var(--background-color)] text-white">
+    <div className="bg-[var(--background-color)] text-white">
       {/* Application Navigation Bar */}
       <Navbar />
 

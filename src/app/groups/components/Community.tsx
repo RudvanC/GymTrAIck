@@ -1,5 +1,3 @@
-// src/app/community/page.tsx
-
 "use client";
 
 import { useState } from "react";
@@ -27,10 +25,8 @@ const groupsFetcher = async (url: string, supabase: any) => {
 };
 
 export default function CommunityPage() {
-  const { user, supabase } = useAuth(); // MODIFICADO: También necesitamos el 'user'
+  const { user, supabase } = useAuth();
   const [activeGroup, setActiveGroup] = useState<Group | null>(null);
-
-  // NUEVO: Estado para saber en qué grupo nos estamos uniendo y mostrar un feedback
   const [joiningGroupId, setJoiningGroupId] = useState<string | null>(null);
 
   const {
@@ -41,51 +37,38 @@ export default function CommunityPage() {
     groupsFetcher(url, supabaseClient)
   );
 
-  // NUEVO: Función para unirse a un grupo
   const handleJoinGroup = async (group: Group) => {
+    // ... (esta función no necesita cambios)
     if (!user || !supabase) {
       alert("Necesitas iniciar sesión para unirte a un grupo.");
       return;
     }
-
-    setJoiningGroupId(group.id); // Inicia el estado de carga
-
+    setJoiningGroupId(group.id);
     try {
-      // Usamos 'upsert' para añadir al usuario como miembro.
-      // 'upsert' intentará insertar. Si ya existe (conflicto en la clave primaria o restricción única),
-      // no hará nada o actualizará, evitando errores si el usuario ya es miembro.
-      const { error } = await supabase.from("group_members").upsert(
-        {
-          group_id: group.id,
-          user_id: user.id,
-          role: "member", // Asignamos un rol por defecto
-        },
-        {
-          onConflict: "group_id, user_id",
-          ignoreDuplicates: true,
-        }
-      );
-
-      if (error) {
-        throw error;
-      }
-
-      // Si todo va bien, ahora sí entramos al chat
+      const { error } = await supabase
+        .from("group_members")
+        .upsert(
+          { group_id: group.id, user_id: user.id, role: "member" },
+          { onConflict: "group_id, user_id", ignoreDuplicates: true }
+        );
+      if (error) throw error;
       setActiveGroup(group);
     } catch (error: any) {
       console.error("Error al unirse al grupo:", error);
       alert(`Error al unirse al grupo: ${error.message}`);
     } finally {
-      setJoiningGroupId(null); // Termina el estado de carga, tanto en éxito como en error
+      setJoiningGroupId(null);
     }
   };
 
   if (isLoading) return <LoadingSpinner />;
   if (error) return <p className="text-red-500">Error al cargar los grupos.</p>;
 
+  // Vista del Chat Activo (ya es bastante responsive)
   if (activeGroup) {
     return (
-      <div className="container mx-auto p-4">
+      // Aplicamos el mismo padding responsive que en la vista de lista
+      <div className="container mx-auto p-4 md:p-6 lg:p-8">
         <Button
           onClick={() => setActiveGroup(null)}
           className="mb-4 hover:bg-cyan-700 hover:transition-colors duration-300 ease-in-out hover:text-white"
@@ -97,15 +80,31 @@ export default function CommunityPage() {
     );
   }
 
+  // Vista del Lobby (Lista de Grupos)
   return (
-    <div className="container mx-auto p-4">
-      <div className="flex justify-between items-center mb-6">
+    // ===== 1. CONTENEDOR PRINCIPAL RESPONSIVE =====
+    <div className="container mx-auto p-4 md:p-6 lg:p-8">
+      {/* - p-4: Padding base para móviles.
+        - md:p-6 lg:p-8: Padding más grande para tablets y escritorio.
+      */}
+
+      {/* ===== 2. CABECERA RESPONSIVE ===== */}
+      <div className="flex flex-col gap-4 mb-6 sm:flex-row sm:justify-between sm:items-center">
+        {/* - flex-col: En móvil, el título y el botón se apilan.
+          - gap-4: Espacio entre el título y el botón en móvil.
+          - sm:flex-row: En pantallas pequeñas y más, vuelven a estar en una fila.
+        */}
         <h1 className="text-3xl font-bold">Comunidades</h1>
         <CreateGroupDialog
           onGroupCreated={() => mutate(["groups", supabase])}
         />
       </div>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+
+      {/* ===== 3. CUADRÍCULA RESPONSIVE (CON GAP AJUSTADO) ===== */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
+        {/* - Tu grid ya era responsive, ¡lo cual es genial!
+          - gap-4 md:gap-6: Solo ajustamos el espaciado para que sea menor en móviles.
+        */}
         {groups?.map((group) => (
           <div
             key={group.id}
@@ -119,7 +118,6 @@ export default function CommunityPage() {
                 {group.description || "Sin descripción."}
               </p>
             </div>
-            {/* MODIFICADO: El botón ahora llama a handleJoinGroup y muestra un estado de carga */}
             <Button
               onClick={() => handleJoinGroup(group)}
               disabled={joiningGroupId === group.id}

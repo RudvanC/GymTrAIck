@@ -2,7 +2,7 @@
  * RoutinePage
  *
  * This is the main protected page where users can:
- * - View AI-generated recommended routines
+ * - View generated recommended routines
  * - Add routines manually or create custom ones
  * - Regenerate their plan if unsatisfied
  *
@@ -47,25 +47,35 @@ function RoutinePage() {
 
   if (ansError) {
     return (
-      <div className="p-8 text-red-600 max-w-xl mx-auto">
-        Error loading profile data: {ansError.message}
+      <div className="p-4 md:p-8 text-red-600 max-w-xl mx-auto">
+        Error cargando perfil: {ansError.message}
       </div>
     );
   }
 
   if (!answerId) {
     return (
-      <div className="p-8 text-gray-600 max-w-xl mx-auto">
-        No routines found for your profile. Please complete the questionnaire
-        first.
+      <div className="p-4 md:p-8 text-gray-600 max-w-xl mx-auto">
+        No se encontraron rutinas para tu perfil. Por favor completa el
+        cuestionario primero.
       </div>
     );
   }
 
   return (
-    <div className="max-w-7xl mx-auto p-8 bg-slate-950 gap-8 flex flex-col">
-      {/* Top right actions: add routine */}
-      <div className="flex gap-4 justify-end p-4">
+    // ===== 1. CONTENEDOR PRINCIPAL RESPONSIVE =====
+    <div className="max-w-7xl mx-auto p-4 md:p-8 text-slate-50 gap-6 md:gap-8 flex flex-col">
+      {/* - p-4: Menos padding en móviles.
+        - md:p-8: El padding original para pantallas medianas y más grandes.
+        - gap-6 md:gap-8: Menos espaciado entre secciones en móvil.
+      */}
+
+      {/* ===== 2. BOTONES DE ACCIÓN RESPONSIVE ===== */}
+      <div className="flex flex-col sm:flex-row sm:justify-end gap-4">
+        {/* - flex-col: Los botones se apilan verticalmente en móviles.
+          - sm:flex-row: Vuelven a estar en fila en pantallas pequeñas y más grandes.
+          - sm:justify-end: Se alinean a la derecha a partir de ese tamaño.
+        */}
         <AddCustomRoutineDialog />
         <AddRoutineDialog
           answerId={answerId}
@@ -81,16 +91,20 @@ function RoutinePage() {
       {/* User-created custom routines */}
       <CustomRoutineList answerId={answerId} />
 
-      {/* Regenerate prompt box */}
-      <div className="bg-gray-900 border border-gray-700 rounded-xl p-6 mt-8 shadow-sm">
+      {/* ===== 3. CAJA DE REGENERAR RESPONSIVE ===== */}
+      <div className="bg-gray-900 border border-gray-700 rounded-xl p-4 sm:p-6 mt-8 shadow-sm text-slate-50">
+        {/* - p-4: Menos padding en móviles.
+          - sm:p-6: El padding original para pantallas pequeñas y más grandes.
+        */}
         <h3 className="text-lg font-semibold text-white mb-2">
-          Not satisfied with the routines?
+          ¿No te satisface el plan?
         </h3>
         <p className="text-sm text-gray-400 mb-1">
-          You can regenerate them if they don’t fit your goals.
+          Puedes regenerarlas si no cumplen con tus objetivos.
         </p>
         <p className="text-sm text-gray-500 mb-4">
-          This action will replace all current routines. Proceed with caution.
+          Esta acción reemplazará todas las rutinas actuales. Procede con
+          precaución.
         </p>
 
         <RegenerateButton answerId={answerId} />

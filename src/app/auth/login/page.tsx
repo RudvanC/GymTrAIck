@@ -28,7 +28,7 @@ import Navbar from "@/components/layout/NavbarGuest";
 
 export default function LoginPage() {
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-[var(--background-color)]">
+    <div className="flex flex-col items-center justify-center bg-[var(--background-color)]">
       <Navbar />
       <LoginForm />
     </div>
