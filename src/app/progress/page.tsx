@@ -16,7 +16,7 @@ import { createServerClient, type CookieOptions } from "@supabase/ssr";
 import { cookies } from "next/headers";
 import ProgressList from "@/app/progress/components/ProgressList";
 import { UserRoutineResult } from "@/types/ProgressType";
-import DataPerSession from "@/app/progress/components/DataPerSession";
+import DataPerSession from "@/app/progress/components/Charts/DataPerSession";
 
 export default async function ProgressPage() {
   // Access cookie store for SSR auth session management
