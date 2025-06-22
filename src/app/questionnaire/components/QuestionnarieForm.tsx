@@ -308,7 +308,7 @@ export default function QuestionnaireForm() {
                 className="flex items-center gap-2 text-lg font-semibold text-white"
               >
                 <CalendarDays size={20} className="text-cyan-400" />
-                ¿Cuántos días por semana?
+                ¿Cuántos días por semana quieres entrenar?
               </Label>
               <Input
                 id="availability"
