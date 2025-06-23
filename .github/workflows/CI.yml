@@ -2,9 +2,9 @@ name: CI
 
 on:
   push:
-    branches: [main] # cámbialo si tu rama principal se llama distinto
+    branches: [main, test-e2e, test-deploy] # cámbialo si tu rama principal se llama distinto
   pull_request:
-    branches: [main]
+    branches: [main, test-e2e, test-deploy]
   workflow_dispatch: # permite lanzarlo manualmente desde la UI
 
 ########################
