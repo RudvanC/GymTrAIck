@@ -66,23 +66,21 @@ jobs:
 
   deploy:
     needs: e2e
-    if: ${{ needs.e2e.result == 'success' }} # se ejecuta únicamente si la matriz completa = success
+    if: ${{ needs.e2e.result == 'success' }}
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+
+    env:
+      NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+      NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
+      SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }} # ← NUEVO
+      SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }} # ← si tu helper la usa
+      VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
 
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
-        with:
-          node-version: 20
-          cache: npm
+        with: { node-version: 20, cache: npm }
       - run: npm ci
-      - run: npm run build # compila de nuevo (opcional pero muy rápido con cache)
-
-      # Vincula el repo con tu proyecto y crea .vercel/project.json automáticamente
-      - name: Pull Vercel project configuration
-        run: npx vercel pull --yes --environment=production --token $VERCEL_TOKEN
-
-      # Despliega a producción
-      - name: Deploy to Vercel (production)
-        run: npx vercel --prod --confirm --token $VERCEL_TOKEN
+      - run: npm run build # ahora sí encuentra las vars
+      - run: npx vercel pull --yes --environment=production --token $VERCEL_TOKEN
+      - run: npx vercel --prod --confirm --token $VERCEL_TOKEN
