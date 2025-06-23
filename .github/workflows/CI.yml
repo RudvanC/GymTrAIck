@@ -2,9 +2,9 @@ name: CI
 
 on:
   push:
-    branches: [main]
+    branches: [main, test-e2e. test-deploy]
   pull_request:
-    branches: [main]
+    branches: [main, test-e2e. test-deploy]
   workflow_dispatch:
 
 # ────────────────────────────────
@@ -14,7 +14,7 @@ jobs:
   build:
     runs-on: ubuntu-latest
     env:
-      NEXT_PUBLIC_SUPABASE_URL:      ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+      NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
       NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
 
     steps:
@@ -26,7 +26,7 @@ jobs:
           cache: npm
 
       - run: npm ci
-      - run: npm run build           # crea .next/
+      - run: npm run build # crea .next/
 
       # Guarda la carpeta .next para que Playwright no la vuelva a compilar
       - name: Upload .next artifact
@@ -34,16 +34,16 @@ jobs:
         with:
           name: next-build
           path: .next
-          retention-days: 1          # corto, sólo sirve en este workflow
+          retention-days: 1 # corto, sólo sirve en este workflow
 
-# ────────────────────────────────
-# 2) Unit tests (Jest)
-# ────────────────────────────────
+  # ────────────────────────────────
+  # 2) Unit tests (Jest)
+  # ────────────────────────────────
   unit:
     needs: build
     runs-on: ubuntu-latest
     env:
-      NEXT_PUBLIC_SUPABASE_URL:      ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+      NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
       NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
 
     steps:
@@ -56,15 +56,15 @@ jobs:
       - run: npm ci
       - run: npm run test:unit
 
-# ────────────────────────────────
-# 3) E2E tests (Playwright)
-# ────────────────────────────────
+  # ────────────────────────────────
+  # 3) E2E tests (Playwright)
+  # ────────────────────────────────
   e2e:
-    needs: [build, unit]            # exige que ambos hayan pasado
+    needs: [build, unit] # exige que ambos hayan pasado
     runs-on: ubuntu-latest
     timeout-minutes: 60
     env:
-      NEXT_PUBLIC_SUPABASE_URL:      ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+      NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
       NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
 
     steps:
@@ -81,7 +81,7 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: next-build
-          path: .next                 # lo sitúa en la ruta esperada
+          path: .next # lo sitúa en la ruta esperada
 
       # Instala navegadores + deps
       - run: npx playwright install --with-deps
