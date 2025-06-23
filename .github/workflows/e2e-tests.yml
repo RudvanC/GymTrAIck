@@ -3,9 +3,9 @@ name: E2E Tests # Título que verás en la pestaña “Actions”
 # ────────────────  Cuándo se ejecuta  ────────────────
 on:
   push:
-    branches: [main] # Ejecuta en pushes a main (ajusta a tus ramas)
+    branches: [main, test-e2e, test-deploy] # Ejecuta en pushes a main (ajusta a tus ramas)
   pull_request:
-    branches: [main] # Ejecuta en los PRs contra main
+    branches: [main, test-e2e, test-deploy] # Ejecuta en los PRs contra main
   workflow_dispatch: # Permite lanzarlo manualmente desde la UI
 
 # ────────────────  Job principal  ────────────────
