@@ -29,6 +29,9 @@ jobs:
       - run: npm ci
       - run: npm run build # genera la carpeta .next
 
+      - name: Show build output
+        run: ls -R | head
+
       # opcional: muestra que .next existe
       # - run: ls -R | head
 
