@@ -2,9 +2,9 @@ name: UNIT TEST
 
 on:
   push:
-    branches: [main, test-e2e, test-deploy]
+    branches: [main]
   pull_request:
-    branches: [main, test-e2e, test-deploy]
+    branches: [main]
 
 jobs:
   # ---------- 1) Unit tests ----------

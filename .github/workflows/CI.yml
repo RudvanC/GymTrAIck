@@ -3,9 +3,9 @@ name: CI
 
 on:
   push:
-    branches: [main] # ajusta a tus ramas
+    branches: [main, test-e2e, test-deploy] # ajusta a tus ramas
   pull_request:
-    branches: [main]
+    branches: [main, test-e2e, test-deploy]
   workflow_dispatch: # ejecución manual opcional
 
 # ────────────────────────────
