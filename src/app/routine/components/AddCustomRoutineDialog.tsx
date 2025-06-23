@@ -46,12 +46,12 @@ import { Dumbbell, Loader2, PlusCircle, Trash2 } from "lucide-react";
 import { Label } from "@/components/ui/label";
 import ExerciseSearch from "./ExerciseSearch";
 
-export default function AddCustomRoutineDialog() {
-  const supabase = createBrowserClient<Database>(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-  );
+const supabase = createBrowserClient<Database>(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+);
 
+export default function AddCustomRoutineDialog() {
   const {
     name,
     setName,
@@ -84,7 +84,7 @@ export default function AddCustomRoutineDialog() {
           }))
         );
       });
-  }, [supabase]);
+  }, []);
 
   const resetState = () => {
     setName("");
@@ -180,7 +180,10 @@ export default function AddCustomRoutineDialog() {
             </div>
 
             {rows.map((row, idx) => (
-              <div key={idx} className="grid grid-cols-12 gap-2 items-center">
+              <div
+                key={row.id}
+                className="grid grid-cols-12 gap-2 items-center"
+              >
                 <div className="col-span-5">
                   <ExerciseSearch
                     options={exerciseOptions}

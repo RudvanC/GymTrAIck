@@ -12,8 +12,7 @@
  */
 
 import { NextResponse } from "next/server";
-import { cookies } from "next/headers";
-import { createServerClient, type CookieOptions } from "@supabase/ssr";
+import { createClient } from "@/lib/supabase/server";
 
 /**
  * Structure of a recommended routine returned to the frontend.
@@ -39,23 +38,12 @@ export type Routine = {
 /**
  * Creates a Supabase client instance on the server using the current cookie store.
  *
- * @param cookieStore - The cookies object returned by `next/headers`.
  * @returns A configured Supabase client for server-side usage.
  */
-function getSupabaseServer(cookieStore: any) {
-  return createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-    {
-      cookies: {
-        get: (name: string) => cookieStore.get(name)?.value ?? null,
-        set: (name: string, value: string, options: CookieOptions) =>
-          cookieStore.set({ name, value, ...options }),
-        remove: (name: string, options: CookieOptions) =>
-          cookieStore.set({ name, value: "", ...options }),
-      },
-    }
-  );
+async function getSupabaseServer() {
+  const supabase = await createClient();
+
+  return supabase;
 }
 
 /**
@@ -65,19 +53,18 @@ function getSupabaseServer(cookieStore: any) {
  * If no recommendation plan exists for the latest questionnaire answers, one is generated and persisted.
  */
 export async function GET(req: Request) {
-  const cookieStore = cookies();
-  const supabase = getSupabaseServer(cookieStore);
+  const supabase = await getSupabaseServer();
 
   const {
-    data: { session },
-    error: sessionErr,
-  } = await supabase.auth.getSession();
+    data: { user },
+    error: userErr,
+  } = await supabase.auth.getUser();
 
-  if (sessionErr || !session?.user) {
+  if (userErr || !user) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const userId = session.user.id;
+  const userId = user.id;
 
   const { data: answers, error: ansErr } = await supabase
     .from("user_answers")
@@ -203,19 +190,18 @@ export async function GET(req: Request) {
  * @param req - Request object including the `routine_id` query param.
  */
 export async function DELETE(req: Request) {
-  const cookieStore = cookies();
-  const supabase = getSupabaseServer(cookieStore);
+  const supabase = await getSupabaseServer();
 
   const {
-    data: { session },
-    error: sessionErr,
-  } = await supabase.auth.getSession();
+    data: { user },
+    error: userErr,
+  } = await supabase.auth.getUser();
 
-  if (sessionErr || !session?.user) {
+  if (userErr || !user) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const userId = session.user.id;
+  const userId = user.id;
 
   const { data: answers, error: ansErr } = await supabase
     .from("user_answers")

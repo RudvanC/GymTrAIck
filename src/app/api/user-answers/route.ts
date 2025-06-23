@@ -6,9 +6,7 @@
  */
 
 import { NextResponse } from "next/server";
-import { cookies } from "next/headers";
-import { createServerClient, type CookieOptions } from "@supabase/ssr";
-
+import { createClient } from "@/lib/supabase/server";
 /**
  * GET /api/user-answers
  *
@@ -18,41 +16,21 @@ import { createServerClient, type CookieOptions } from "@supabase/ssr";
  * @returns JSON array of user answers or an error if unauthorized or on failure.
  */
 export async function GET(request: Request) {
-  const cookieStore = await cookies();
-
-  const supabase = createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-    {
-      cookies: {
-        getAll() {
-          return cookieStore.getAll();
-        },
-        setAll(cookiesToSet) {
-          try {
-            cookiesToSet.forEach(({ name, value, options }) =>
-              cookieStore.set(name, value, options)
-            );
-          } catch {
-            // Ignore in Route Handlers
-          }
-        },
-      },
-    }
-  );
+  const supabase = await createClient();
 
   const {
-    data: { session },
-  } = await supabase.auth.getSession();
+    data: { user },
+    error: userErr,
+  } = await supabase.auth.getUser();
 
-  if (!session) {
+  if (userErr || !user) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
   const { data, error } = await supabase
     .from("user_answers")
     .select("*")
-    .eq("user_id", session.user.id)
+    .eq("user_id", user.id)
     .order("created_at", { ascending: false });
 
   if (error) {
@@ -72,40 +50,20 @@ export async function GET(request: Request) {
  * @returns JSON of inserted answer or error if unauthorized or on failure.
  */
 export async function POST(request: Request) {
-  const cookieStore = await cookies();
-
-  const supabase = createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-    {
-      cookies: {
-        getAll() {
-          return cookieStore.getAll();
-        },
-        setAll(cookiesToSet) {
-          try {
-            cookiesToSet.forEach(({ name, value, options }) =>
-              cookieStore.set(name, value, options)
-            );
-          } catch {
-            // Ignore in Route Handlers
-          }
-        },
-      },
-    }
-  );
+  const supabase = await createClient();
 
   const {
-    data: { session },
-  } = await supabase.auth.getSession();
+    data: { user },
+    error: userErr,
+  } = await supabase.auth.getUser();
 
-  if (!session) {
+  if (userErr || !user) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
   try {
     const payload = await request.json();
-    const securePayload = { ...payload, user_id: session.user.id };
+    const securePayload = { ...payload, user_id: user.id };
 
     const { data, error } = await supabase
       .from("user_answers")
@@ -134,34 +92,14 @@ export async function POST(request: Request) {
  * @returns JSON of updated answer or error if unauthorized, not found, or on failure.
  */
 export async function PATCH(request: Request) {
-  const cookieStore = await cookies();
-
-  const supabase = createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-    {
-      cookies: {
-        getAll() {
-          return cookieStore.getAll();
-        },
-        setAll(cookiesToSet) {
-          try {
-            cookiesToSet.forEach(({ name, value, options }) =>
-              cookieStore.set(name, value, options)
-            );
-          } catch {
-            // Ignore in Route Handlers
-          }
-        },
-      },
-    }
-  );
+  const supabase = await createClient();
 
   const {
-    data: { session },
-  } = await supabase.auth.getSession();
+    data: { user },
+    error: userErr,
+  } = await supabase.auth.getUser();
 
-  if (!session) {
+  if (userErr || !user) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
@@ -182,7 +120,7 @@ export async function PATCH(request: Request) {
       .from("user_answers")
       .update(payload)
       .eq("id", answerId)
-      .eq("user_id", session.user.id)
+      .eq("user_id", user.id)
       .select()
       .single();
 

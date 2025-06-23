@@ -88,15 +88,14 @@ export default function AvatarUploader({
 
     try {
       const {
-        data: { session },
-        error: sessionError,
-      } = await createClient().auth.getSession();
+        data: { user },
+        error: userErr,
+      } = await createClient().auth.getUser();
 
-      if (sessionError || !session) {
+      if (userErr || !user) {
         throw new Error("Session not found. Please log in again.");
       }
 
-      const user = session.user;
       const fileExt = selectedFile.name.split(".").pop();
       const filePath = `${user.id}/avatar.${fileExt}`;
 

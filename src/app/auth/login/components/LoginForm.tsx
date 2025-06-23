@@ -44,7 +44,7 @@ export default function LoginForm() {
     // Forzamos un refresh para que el layout del servidor sepa que estamos logueados
     // y redirigimos al dashboard.
     router.refresh();
-    router.push("/dashboard");
+    router.push("/routine");
   };
 
   return (
