@@ -21,12 +21,12 @@ test.describe("Autenticación de Usuario", () => {
 
     // 4. Verificación (Assertion): Esperamos a que la URL cambie al dashboard.
     // Playwright esperará automáticamente un tiempo hasta que esto se cumpla.
-    await expect(page).toHaveURL("/progress");
+    await expect(page).toHaveURL("/routine");
 
     // 5. Verificación extra: Comprobamos que un elemento clave del dashboard es visible.
     // Por ejemplo, el título que creamos antes. Esto confirma que la página ha cargado.
     await expect(
-      page.getByRole("heading", { name: "Tu Progreso" })
+      page.getByRole("heading", { name: "Rutinas recomendadas" })
     ).toBeVisible();
   });
 
