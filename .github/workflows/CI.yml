@@ -2,9 +2,9 @@ name: CI
 
 on:
   push:
-    branches: [main]
+    branches: [main, test-e2e]
   pull_request:
-    branches: [main]
+    branches: [main, test-e2e]
   workflow_dispatch:
 
 jobs:
@@ -15,13 +15,13 @@ jobs:
 
     strategy:
       matrix:
-        kind: [unit, e2e]      # dos jobs paralelos
-      fail-fast: true          # ⬅️  si uno falla, cancela el otro
+        kind: [unit, e2e] # dos jobs paralelos
+      fail-fast: true # ⬅️  si uno falla, cancela el otro
 
     env:
-      NEXT_PUBLIC_SUPABASE_URL:      ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+      NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
       NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
-      SUPABASE_SERVICE_ROLE_KEY:     ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+      SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
 
     steps:
       # 0) Código + Node
