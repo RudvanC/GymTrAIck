@@ -2,10 +2,10 @@ name: CI
 
 on:
   push:
-    branches: [main, test-e2e, test-deploy] # cámbialo si tu rama principal se llama distinto
+    branches: [main]
   pull_request:
-    branches: [main, test-e2e, test-deploy]
-  workflow_dispatch: # permite lanzarlo manualmente desde la UI
+    branches: [main]
+  workflow_dispatch:
 
 ########################
 # 1) BUILD
@@ -24,29 +24,26 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 20
-          cache: npm # cachea ~/.npm entre ejecuciones
+          cache: npm
 
       - run: npm ci
-      - run: npm run build # genera la carpeta .next
+      - run: npm run build # crea .next en la raíz
 
-      - name: Show build output
-        run: ls -R | head
-
-      # opcional: muestra que .next existe
-      # - run: ls -R | head
+      # (Opcional) comprueba que .next existe
+      - run: ls -a . | grep '\.next'
 
       - name: Upload .next artifact
         uses: actions/upload-artifact@v4
         with:
-          name: next-build # ← nombre EXACTO que usará el job e2e
-          path: apps/web/.next
-          retention-days: 1 # sólo lo necesitamos para este workflow
+          name: next-build # ← este nombre se usará al descargar
+          path: .next # ← ruta correcta
+          retention-days: 1
 
   ########################
   # 2) UNIT TESTS (Jest)
   ########################
   unit:
-    needs: build # sólo corre si el build fue OK
+    needs: build
     runs-on: ubuntu-latest
 
     env:
@@ -60,20 +57,20 @@ jobs:
           node-version: 20
           cache: npm
       - run: npm ci
-      - name: Run unit tests
-        run: npm run test:unit # script que dispara Jest
+      - run: npm run test:unit
 
   ########################
   # 3) E2E TESTS (Playwright)
   ########################
   e2e:
-    needs: [build] # requiere que build y unit = success
+    needs: [build, unit] # sólo corre si build y unit = success
     runs-on: ubuntu-latest
     timeout-minutes: 60
 
     env:
       NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
       NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
+      SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
 
     steps:
       - uses: actions/checkout@v4
@@ -83,21 +80,16 @@ jobs:
           cache: npm
       - run: npm ci
 
-      # ↓ Recupera la build compilada
       - name: Download build artifact
         uses: actions/download-artifact@v4
         with:
-          name: next-build # ← mismo nombre que en upload
-          path: apps/web/.next # la coloca donde Next.js la espera
+          name: next-build # ← mismo nombre
+          path: .next # ← destino donde lo usará `next start`
 
-      # Instala navegadores + dependencias
       - run: npx playwright install --with-deps
 
-      # Ejecuta los tests E2E
-      - name: Run Playwright tests
-        run: npm run test:e2e # script que dispara Playwright
+      - run: npm run test:e2e # script que ejecuta Playwright
 
-      # Guarda el reporte HTML
       - uses: actions/upload-artifact@v4
         if: ${{ !cancelled() }}
         with:
