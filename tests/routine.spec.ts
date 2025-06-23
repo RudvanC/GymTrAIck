@@ -1,103 +1,91 @@
 // tests/routine.spec.ts
-
 import { test, expect } from "@playwright/test";
-
-// Datos de prueba para simular la respuesta de la API de ejercicios
+import crypto from "node:crypto";
 
 const mockExerciseOptions = [
   { id: "101", name: "Push Up" },
-
   { id: "202", name: "Squat" },
-
-  { id: "303", name: "Dumbbell Curl" }, // Usaremos este en el test
+  { id: "303", name: "Dumbbell Curl" },
 ];
 
+/** Guarda los nombres creados en esta suite */
+const createdRoutineNames: string[] = [];
+
 test.describe("Gestión de Rutinas", () => {
+  //--------------------------------------------------------
+  // MOCKS + LOGIN
+  //--------------------------------------------------------
   test.beforeEach(async ({ page }) => {
-    // --- ¡AÑADIMOS EL MOCK AQUÍ! ---
-
-    // Interceptamos la llamada que hace el diálogo al montarse.
-
-    // La URL es la que genera el cliente de Supabase para un .select() en la tabla 'exercises'.
-
+    // Mock al GET /exercises
     await page.route("**/rest/v1/exercises?select=id%2Cname", async (route) => {
-      // Le damos una respuesta falsa, rápida y predecible.
-
       await route.fulfill({
         status: 200,
-
         contentType: "application/json",
-
         body: JSON.stringify(mockExerciseOptions),
       });
     });
 
-    // El resto de tu login no cambia
-
+    // Login
     await page.goto("/auth/login");
-
     await page.getByPlaceholder("tu@email.com").fill("r35@gmail.com");
-
     await page.getByPlaceholder("Contraseña").fill("123456");
-
     await page.getByRole("button", { name: "Iniciar sesión" }).click();
-
     await expect(page).toHaveURL(/.*routine/);
   });
 
-  test("debería permitir al usuario crear una rutina personalizada", async ({
-    page,
-  }) => {
-    // 1. Acción: Abrir el diálogo de creación
+  //--------------------------------------------------------
+  // TEST PRINCIPAL
+  //--------------------------------------------------------
+  test("crea y guarda una rutina personalizada", async ({ page }) => {
+    // Nombre aleatorio
+    const routineName = `Rutina-${crypto.randomUUID().slice(0, 6)}`; // p.ej. Rutina-a1b2c3
+    createdRoutineNames.push(routineName);
 
+    // Abrir diálogo
     await page
-
       .getByRole("button", { name: "Crear Rutina Personalizada" })
-
       .click();
+    await expect(
+      page.getByRole("heading", { name: "Crea tu Rutina Personalizada" })
+    ).toBeVisible();
 
-    // 2. ASERCIÓN CLAVE: Verificamos que el diálogo está visible
-
-    const dialogTitle = page.getByRole("heading", {
-      name: "Crea tu Rutina Personalizada",
-    });
-
-    await expect(dialogTitle).toBeVisible();
-
-    // 3. Acción: Rellenamos el formulario
-
-    const routineName = "Mi Rutina de Lunes";
-
+    // Rellenar campos
     await page.getByPlaceholder("Ej: Día de Empuje").fill(routineName);
-
     await page
-
       .getByPlaceholder("Ej: Enfocado en pecho, hombros y tríceps")
-
       .fill("Test con Playwright y mocks.");
 
-    // 4. Acción: Añadir un ejercicio
-
+    // Añadir ejercicio
     await page.getByRole("button", { name: "Añadir Ejercicio" }).click();
-
-    const exerciseSelector = page.getByRole("combobox").first();
-
-    await expect(exerciseSelector).toBeVisible();
-
-    await exerciseSelector.click();
-
-    // Ahora podemos seleccionar un ejercicio de nuestra lista mockeada
-
+    await page.getByRole("combobox").first().click();
     await page.getByText("Dumbbell Curl").click();
 
-    // 5. Acción: Guardar la rutina
-
+    // Guardar
     await page.getByRole("button", { name: "Guardar Rutina" }).click();
 
-    // 6. Verificación Final
-
-    await expect(dialogTitle).toBeHidden();
-
+    // Verifica que se cerró el diálogo y aparece la tarjeta
+    await expect(
+      page.getByRole("heading", { name: "Crea tu Rutina Personalizada" })
+    ).toBeHidden();
     await expect(page.getByText(routineName)).toBeVisible();
+  });
+
+  //--------------------------------------------------------
+  // LIMPIEZA GLOBAL
+  //--------------------------------------------------------
+  test.afterAll(async ({ request }) => {
+    if (!createdRoutineNames.length) return;
+
+    const url = `${process.env.NEXT_PUBLIC_SUPABASE_URL}/rest/v1/base_routines`;
+
+    for (const name of createdRoutineNames) {
+      // Nota: Se asume que la columna se llama 'name'
+      await request.delete(`${url}?name=eq.${encodeURIComponent(name)}`, {
+        headers: {
+          apikey: process.env.SUPABASE_SERVICE_ROLE_KEY!,
+          Authorization: `Bearer ${process.env.SUPABASE_SERVICE_ROLE_KEY!}`,
+        },
+      });
+    }
   });
 });
