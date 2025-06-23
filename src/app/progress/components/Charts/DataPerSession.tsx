@@ -67,7 +67,7 @@ export default async function DataPerSession() {
         {/* --- SECCIÓN DEL GRÁFICO DE RADAR --- */}
         <div className="flex flex-col gap-4">
           <h2 className="text-2xl font-bold text-white">
-            Balance Muscular (Último Año)
+            Balance Muscular (Últimos 30 días)
           </h2>
           {muscleSummaryData && muscleSummaryData.length >= 3 ? (
             <MuscleRadarChart data={muscleSummaryData} />
