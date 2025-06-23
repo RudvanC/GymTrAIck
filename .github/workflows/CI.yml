@@ -73,7 +73,7 @@ jobs:
       NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
       NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
       SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }} # ← NUEVO
-      SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }} # ← si tu helper la usa
+      SERVICE_ROLE_KEY: ${{ secrets.ERVICE_ROLE_KEY }} # ← si tu helper la usa
       VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
 
     steps:
