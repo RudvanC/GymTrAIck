@@ -6,16 +6,13 @@
  */
 
 import { NextResponse } from "next/server";
-import { createClient } from "@supabase/supabase-js";
+import { createClient } from "@/lib/supabase/supabaseClient";
 
 /**
  * Supabase client configured with service role key.
  * Only used server-side for full access to database operations.
  */
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SERVICE_ROLE_KEY!
-);
+const supabase = createClient();
 
 /**
  * POST /api/regenerate-plan?answer_id=<id>
