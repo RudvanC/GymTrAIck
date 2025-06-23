@@ -32,7 +32,7 @@ export default async function DataPerSession() {
       "get_muscle_group_summary", // <-- ¡LA FUNCIÓN REAL!
       {
         p_user_id: user.id,
-        p_days_history: 365, // Usamos un año para asegurar que tenemos datos
+        p_days_history: 30, // Usamos un año para asegurar que tenemos datos
       }
     );
 
