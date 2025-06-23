@@ -1,22 +1,20 @@
-# .github/workflows/ci.yml
 name: CI
 
 on:
   push:
-    branches: [main, test-e2e, test-deploy] # ajusta a tus ramas
+    branches: [main]
   pull_request:
-    branches: [main, test-e2e, test-deploy]
-  workflow_dispatch: # ejecución manual opcional
+    branches: [main]
+  workflow_dispatch:
 
-# ────────────────────────────
-# 1) Tests unitarios (Jest)
-# ────────────────────────────
+# ────────────────────────────────
+# 1) Build
+# ────────────────────────────────
 jobs:
-  unit:
+  build:
     runs-on: ubuntu-latest
-
     env:
-      NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+      NEXT_PUBLIC_SUPABASE_URL:      ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
       NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
 
     steps:
@@ -25,38 +23,75 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 20
-          cache: npm # cache de ~/.npm entre ejecuciones
+          cache: npm
 
       - run: npm ci
+      - run: npm run build           # crea .next/
 
-      - name: Run unit tests
-        run: npm run test:unit # ← script que dispara Jest
+      # Guarda la carpeta .next para que Playwright no la vuelva a compilar
+      - name: Upload .next artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: next-build
+          path: .next
+          retention-days: 1          # corto, sólo sirve en este workflow
 
-  # ────────────────────────────
-  # 2) Tests E2E (Playwright)
-  # ────────────────────────────
-  e2e:
-    needs: unit # ← depende de que 'unit' termine OK
+# ────────────────────────────────
+# 2) Unit tests (Jest)
+# ────────────────────────────────
+  unit:
+    needs: build
     runs-on: ubuntu-latest
-    timeout-minutes: 60
-
     env:
-      NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+      NEXT_PUBLIC_SUPABASE_URL:      ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
       NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
 
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
-          node-version: lts/*
-      - name: Install dependencies
-        run: npm ci
-      - name: Build Next.js App
-        run: npm run build
-      - name: Install Playwright Browsers
-        run: npx playwright install --with-deps
+          node-version: 20
+          cache: npm
+
+      - run: npm ci
+      - run: npm run test:unit
+
+# ────────────────────────────────
+# 3) E2E tests (Playwright)
+# ────────────────────────────────
+  e2e:
+    needs: [build, unit]            # exige que ambos hayan pasado
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    env:
+      NEXT_PUBLIC_SUPABASE_URL:      ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+      NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
+      SUPABASE_SERVICE_ROLE_KEY:     ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - run: npm ci
+
+      # Recupera el .next compilado en 'build'
+      - name: Download build artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: next-build
+          path: .next                 # lo sitúa en la ruta esperada
+
+      # Instala navegadores + deps
+      - run: npx playwright install --with-deps
+
+      # Lanza los tests E2E
       - name: Run Playwright tests
-        run: npx playwright test
+        run: npm run test:e2e
+
+      # Publica el informe de Playwright
       - uses: actions/upload-artifact@v4
         if: ${{ !cancelled() }}
         with:
