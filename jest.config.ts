@@ -6,5 +6,6 @@ export default {
     "^@/(.*)$": "<rootDir>/src/$1",
   },
   setupFiles: ["<rootDir>/jest.setup.ts"], // para variables de entorno
+  testPathIgnorePatterns: ["<rootDir>/tests/", "/node_modules/"],
   silent: true,
 };

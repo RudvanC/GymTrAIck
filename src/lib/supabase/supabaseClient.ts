@@ -10,7 +10,6 @@
  * ⚠️ Do NOT use this client in server-side code or API routes.
  */
 
-"use client";
 
 import { createBrowserClient } from "@supabase/ssr";
 
