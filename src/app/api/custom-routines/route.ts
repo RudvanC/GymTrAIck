@@ -7,7 +7,7 @@
  */
 
 import { NextRequest, NextResponse } from "next/server";
-import { createServerClient } from "@supabase/ssr";z
+import { createServerClient } from "@supabase/ssr";
 import { cookies as nextCookies } from "next/headers";
 import { z } from "zod";
 import type { Database } from "@/lib/supabase/database.types";

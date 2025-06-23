@@ -1,0 +1,25 @@
+name: CI
+
+on:
+  push:
+    branches: [main, test-e2e, test-deploy]
+  pull_request:
+    branches: [main, test-e2e, test-deploy]
+
+jobs:
+  # ---------- 1) Unit tests ----------
+  unit:
+    runs-on: ubuntu-latest
+
+    env:
+      NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+      NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - run: npm ci
+      - run: npm run test:unit
