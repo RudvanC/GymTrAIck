@@ -1,6 +1,6 @@
 # GymTrackerNoAI - Documentación del Proyecto
 
-Bienvenido a GymTrackerNoAI, una aplicación diseñada para ayudarte a registrar y seguir tus preferencias y progresos en el entrenamiento físico. Este documento proporciona una visión general de la arquitectura del proyecto, explicando la funcionalidad de sus componentes, hooks y librerías principales.
+Bienvenido a GymTrackerNoAI, una aplicación diseñada para ayudarte a registrar y seguir tus preferencias y progresos en el entrenamiento físico. Este documento proporciona una visión general de la arquitectura del proyecto, explicando la funcionalidad de sus componentes, hooks y librerías principales
 
 ## Tabla de Contenidos
 
