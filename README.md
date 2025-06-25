@@ -19,7 +19,7 @@ Bienvenido a GymTrackerNoAI, una aplicación diseñada para ayudarte a registrar
 7.  [Cómo Empezar](#cómo-empezar)
 8.  [Scripts Disponibles](#scripts-disponibles)
 
-## Estructura del Proyecto
+## Estructura del Proyecto.
 
 El proyecto sigue una estructura típica de Next.js con el App Router:
 
