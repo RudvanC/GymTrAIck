@@ -12,7 +12,16 @@ on:
 # 1) Tests unitarios (Jest)
 # ────────────────────────────
 jobs:
+  avoid_reduncy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Cancel Previous Runs
+        uses: styfle/cancel-workflow-action
+        with:
+          access_token: ${{ github.token }}
+
   unit:
+    needs: avoid_reduncy
     runs-on: ubuntu-latest
 
     env:
