@@ -11,8 +11,8 @@ on:
 # ────────────────────────────
 # 1) Tests unitarios (Jest)
 # ────────────────────────────
-jobs:  
-  avoid_reduncy:
+jobs:
+  avoid_redundancy:
     runs-on: ubuntu-latest
     permissions:
       actions: write
@@ -24,7 +24,7 @@ jobs:
 
   unit:
     runs-on: ubuntu-latest
-    needs: avoid_reduncy
+    needs: avoid_redundancy
 
     env:
       NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
@@ -78,7 +78,7 @@ jobs:
     needs: [e2e, unit]
     if: ${{ needs.e2e.result == 'success' && needs.unit.result == 'success' }}
     runs-on: ubuntu-latest
-    
+
     env:
       NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
       NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
