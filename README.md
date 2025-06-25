@@ -2,7 +2,7 @@
 
 Bienvenido a GymTrackerNoAI, una aplicación diseñada para ayudarte a registrar y seguir tus preferencias y progresos en el entrenamiento físico. Este documento proporciona una visión general de la arquitectura del proyecto, explicando la funcionalidad de sus componentes, hooks y librerías principales
 
-## Tabla de Contenidos
+## Tabla de Contenidos.
 
 1.  [Estructura del Proyecto](#estructura-del-proyecto)
 2.  [Componentes (`src/components`)](#componentes-srccomponents)
