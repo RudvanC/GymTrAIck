@@ -7,8 +7,7 @@
  */
 
 import { NextResponse } from "next/server";
-import { createClient } from "@supabase/supabase-js";
-
+import { createClient } from "@/lib/supabase/supabaseClient";
 /**
  * Represents a routine with all associated exercise details.
  */
@@ -59,10 +58,7 @@ type BaseRoutineFromDB = {
   base_routine_exercises: BaseRoutineExerciseFromDB[];
 };
 
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SERVICE_ROLE_KEY!
-);
+const supabase = createClient();
 
 /**
  * GET handler for retrieving all routines.

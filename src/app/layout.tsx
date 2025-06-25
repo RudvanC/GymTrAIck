@@ -5,6 +5,7 @@ import { AuthProvider } from "@/context/AuthContext";
 import { Analytics } from "@vercel/analytics/next";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import { Toaster } from "@/components/ui/sonner";
+import Head from "next/head";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -20,6 +21,9 @@ export const metadata: Metadata = {
   title: "GymTracker Pro - Planificador de Fitness Personalizado",
   description:
     "Genera rutinas de gimnasio personalizadas y sigue tu progreso con GymTracker Pro.",
+  icons: {
+    icon: "/favicon.svg",
+  },
 };
 
 export default function RootLayout({
